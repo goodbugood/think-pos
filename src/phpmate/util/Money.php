@@ -5,7 +5,7 @@ namespace shali\phpmate\util;
 final class Money
 {
     /**
-     * @var string 金额
+     * @var string 金额，单位分，元角分的分
      */
     private $value;
 
