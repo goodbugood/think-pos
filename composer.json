@@ -1,0 +1,61 @@
+{
+    "name": "shali/think-pos",
+    "description": "pos terminal service api sdk for thinkphp",
+    "type": "think-extend",
+    "version": "1.0.0",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "think\\pos\\": "src/",
+            "shali\\phpmate\\": "src/phpmate/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "think\\pos\\tests\\": "tests/",
+            "shali\\phpmate\\tests\\": "tests/phpmate/"
+        }
+    },
+    "authors": [
+        {
+            "name": "shali",
+            "email": "shali@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.3.4",
+        "ext-openssl": "*",
+        "ext-bcmath": "*",
+        "topthink/framework": "^5.1 || ^6.0.0",
+        "php-curl-class/php-curl-class": "10.0.1",
+        "ext-json": "*",
+        "ext-curl": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "extra": {
+        "think-config": {
+            "pos": "src/config/pos.php"
+        },
+        "think-extend": {
+            "services": [
+                "think\\pos\\service\\PosService"
+            ]
+        },
+        "think": {
+            "config": {
+                "pos": "src/config/pos.php"
+            },
+            "services": {
+                "pos": "think\\pos\\service\\PosService"
+            }
+        }
+    }
+}
