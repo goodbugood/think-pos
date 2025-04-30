@@ -46,7 +46,7 @@ trait ResponseTrait
         $this->success = $success;
     }
 
-    public function getErrorMsg(): string
+    public function getErrorMsg(): ?string
     {
         return $this->errorMsg;
     }
