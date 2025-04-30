@@ -22,13 +22,13 @@
             "email": "shali@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
         "php": "^7.3.4",
         "ext-openssl": "*",
         "ext-bcmath": "*",
-        "topthink/framework": "^5.1 || ^6.0.0",
+        "topthink/framework": "^5.0 || ^6.0.0",
         "php-curl-class/php-curl-class": "10.0.1",
         "ext-json": "*",
         "ext-curl": "*"
