@@ -3,6 +3,7 @@
 namespace think\pos\dto\response;
 
 use shali\phpmate\util\Money;
+use shali\phpmate\util\Rate;
 use think\pos\dto\ResponseTrait;
 
 class PosInfoResponse
@@ -25,7 +26,7 @@ class PosInfoResponse
     private $simPackageCode;
 
     /**
-     * @var Money 贷记卡费率
+     * @var Rate 贷记卡费率
      */
     private $creditRate;
 
@@ -49,12 +50,12 @@ class PosInfoResponse
         $this->deposit = $deposit;
     }
 
-    public function getCreditRate(): Money
+    public function getCreditRate(): Rate
     {
         return $this->creditRate;
     }
 
-    public function setCreditRate(Money $creditRate): void
+    public function setCreditRate(Rate $creditRate): void
     {
         $this->creditRate = $creditRate;
     }
