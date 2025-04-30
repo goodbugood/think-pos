@@ -2,6 +2,8 @@
 
 namespace think\pos\dto\request;
 
+use shali\phpmate\util\Money;
+use shali\phpmate\util\Rate;
 use think\pos\dto\ProviderRequestTrait;
 
 /**
@@ -22,14 +24,13 @@ class MerchantRequestDto
     private $merchantNo;
 
     /**
-     * @var string 贷记卡刷卡交易费率，单位是 %，如 0.5%，则传 0.005
-     * @example 0.005
+     * @var Rate 贷记卡刷卡交易费率
      */
     private $creditRate;
 
     /**
      * 刷卡后强制性提现到你卡里，所以提现手续费是必收取的，只不过我们默认不收取
-     * @var string 提现手续费，单位是元角分的分，如 0.5元，则传 50
+     * @var Money 提现手续费
      */
     private $withdrawFee;
 
@@ -53,22 +54,22 @@ class MerchantRequestDto
         $this->merchantNo = $merchantNo;
     }
 
-    public function getCreditRate(): string
+    public function getCreditRate(): Rate
     {
         return $this->creditRate;
     }
 
-    public function setCreditRate(string $creditRate): void
+    public function setCreditRate(Rate $creditRate): void
     {
         $this->creditRate = $creditRate;
     }
 
-    public function getWithdrawFee(): string
+    public function getWithdrawFee(): Money
     {
         return $this->withdrawFee;
     }
 
-    public function setWithdrawFee(string $withdrawFee): void
+    public function setWithdrawFee(Money $withdrawFee): void
     {
         $this->withdrawFee = $withdrawFee;
     }

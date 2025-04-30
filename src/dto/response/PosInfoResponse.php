@@ -2,6 +2,7 @@
 
 namespace think\pos\dto\response;
 
+use shali\phpmate\util\Money;
 use think\pos\dto\ResponseTrait;
 
 class PosInfoResponse
@@ -9,7 +10,7 @@ class PosInfoResponse
     use ResponseTrait;
 
     /**
-     * @var int 押金，单位为分，0 表示无押金
+     * @var Money 押金
      */
     private $deposit;
 
@@ -24,12 +25,12 @@ class PosInfoResponse
     private $simPackageCode;
 
     /**
-     * @var string 贷记卡费率，单位是小数不是百分数，0.01 表示 1%
+     * @var Money 贷记卡费率
      */
     private $creditRate;
 
     /**
-     * @var int 提现手续费，单位为分，0 表示免手续费
+     * @var Money 提现手续费
      */
     private $withdrawFee;
 
@@ -38,14 +39,34 @@ class PosInfoResponse
      */
     private $isVip;
 
-    public function getDeposit(): int
+    public function getDeposit(): Money
     {
         return $this->deposit;
     }
 
-    public function setDeposit(int $deposit): void
+    public function setDeposit(Money $deposit): void
     {
         $this->deposit = $deposit;
+    }
+
+    public function getCreditRate(): Money
+    {
+        return $this->creditRate;
+    }
+
+    public function setCreditRate(Money $creditRate): void
+    {
+        $this->creditRate = $creditRate;
+    }
+
+    public function getWithdrawFee(): Money
+    {
+        return $this->withdrawFee;
+    }
+
+    public function setWithdrawFee(Money $withdrawFee): void
+    {
+        $this->withdrawFee = $withdrawFee;
     }
 
     public function getDeviceNo(): string
@@ -66,26 +87,6 @@ class PosInfoResponse
     public function setSimPackageCode(string $simPackageCode): void
     {
         $this->simPackageCode = $simPackageCode;
-    }
-
-    public function getCreditRate(): string
-    {
-        return $this->creditRate;
-    }
-
-    public function setCreditRate(string $creditRate): void
-    {
-        $this->creditRate = $creditRate;
-    }
-
-    public function getWithdrawFee(): int
-    {
-        return $this->withdrawFee;
-    }
-
-    public function setWithdrawFee(int $withdrawFee): void
-    {
-        $this->withdrawFee = $withdrawFee;
     }
 
     public function isVip(): bool
