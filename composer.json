@@ -2,7 +2,7 @@
     "name": "shali/think-pos",
     "description": "pos terminal service api sdk for thinkphp",
     "type": "think-extend",
-    "version": "2.0.0",
+    "version": "2.0.2",
     "license": "MIT",
     "autoload": {
         "psr-4": {
