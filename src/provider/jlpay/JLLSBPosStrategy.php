@@ -107,19 +107,19 @@ class JLLSBPosStrategy extends PosStrategy
                 [
                     'feeCalcType' => 'N1',
                     'fixed' => '1',
-                    'rate' => $dto->getDeposit(),
+                    'rate' => $dto->getDeposit()->toFen(),
                 ],
                 // 设置刷卡交易费率
                 [
                     'feeCalcType' => 'M5',
                     'fixed' => '0',
-                    'rate' => strval($dto->getCreditRate() * 100),
+                    'rate' => $dto->getCreditRate()->toPercentage(),
                 ],
                 // 设置提现手续费
                 [
                     'feeCalcType' => 'T0',
                     'fixed' => '1',
-                    'rate' => $dto->getWithdrawFee(),
+                    'rate' => $dto->getWithdrawFee()->toFen(),
                 ],
             ],
             'signMethod' => $this->config['signMethod'],
@@ -173,7 +173,7 @@ class JLLSBPosStrategy extends PosStrategy
             'feeList' => [
                 'feeCalcType' => 'N1',
                 'fixed' => '1',
-                'rate' => $dto->getDeposit(),
+                'rate' => $dto->getDeposit()->toFen(),
             ],
         ];
         $data['signData'] = $this->createSign($data);
@@ -201,13 +201,13 @@ class JLLSBPosStrategy extends PosStrategy
                 [
                     'feeCalcType' => 'M5',
                     'fixed' => '0',
-                    'rate' => strval($dto->getCreditRate() * 100),
+                    'rate' => $dto->getCreditRate()->toPercentage(),
                 ],
                 // 设置提现手续费
                 [
                     'feeCalcType' => 'T0',
                     'fixed' => '1',
-                    'rate' => $dto->getWithdrawFee(),
+                    'rate' => $dto->getWithdrawFee()->toFen(),
                 ],
             ],
             'signMethod' => $this->config['signMethod'],
@@ -264,13 +264,13 @@ class JLLSBPosStrategy extends PosStrategy
                 [
                     'feeCalcType' => 'M5',
                     'fixed' => '0',
-                    'rate' => strval($dto->getCreditRate() * 100),
+                    'rate' => $dto->getCreditRate()->toPercentage(),
                 ],
                 // 设置提现手续费
                 [
                     'feeCalcType' => 'T0',
                     'fixed' => '1',
-                    'rate' => $dto->getWithdrawFee(),
+                    'rate' => $dto->getWithdrawFee()->toFen(),
                 ],
             ],
             'signMethod' => $this->config['signMethod'],
