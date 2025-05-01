@@ -2,6 +2,7 @@
 
 namespace shali\phpmate\tests\http;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use shali\phpmate\http\HttpClient;
 
@@ -14,6 +15,9 @@ class HttpClientTest extends TestCase
         $this->httpClient = new HttpClient();
     }
 
+    /**
+     * @throws Exception
+     */
     public function testPost()
     {
         $rawBody = $this->httpClient->post('https://httpbin.org/post', ['name' => 'shali',]);

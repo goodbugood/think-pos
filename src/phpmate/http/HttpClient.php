@@ -18,6 +18,8 @@ class HttpClient
     ];
 
     protected $rawResponse = [
+        // 请求耗时，单位：秒
+        'costTime' => null,
         // http status code
         'statusCode' => null,
         // http status message
@@ -35,15 +37,18 @@ class HttpClient
     /**
      * @throws Exception
      */
-    public function post($url, $params): string
+    public function post($url, $params, int $timeout = 30): string
     {
         $this->rawRequest['url'] = $url;
         $this->rawRequest['params'] = $params;
         // 禁用证书
         $this->curl->setOpt(CURLOPT_SSL_VERIFYPEER, false);
+        $this->curl->setOpt(CURLOPT_TIMEOUT, $timeout);
+        $startTime = microtime(true);
         $this->curl->post($url, $params);
-        $this->rawResponse['statusCode'] = $this->curl->getHttpStatusCode();
-        $this->rawResponse['message'] = $this->curl->getHttpErrorMessage();
+        $this->rawResponse['costTime'] = microtime(true) - $startTime;
+        $this->rawResponse['statusCode'] = 0 !== $this->curl->getErrorCode() ? $this->curl->getErrorCode() : 200;
+        $this->rawResponse['message'] = '' !== $this->curl->getErrorMessage() ? $this->curl->getErrorMessage() : 'OK';
         $this->rawResponse['headers'] = $this->curl->getRawResponseHeaders();
         $this->rawResponse['body'] = $this->curl->getRawResponse();
         // 检查状态码
