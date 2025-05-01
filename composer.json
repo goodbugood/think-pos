@@ -8,7 +8,10 @@
         "psr-4": {
             "think\\pos\\": "src/",
             "shali\\phpmate\\": "src/phpmate/"
-        }
+        },
+        "files": [
+            "src/phpmate/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
