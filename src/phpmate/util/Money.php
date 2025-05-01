@@ -2,6 +2,11 @@
 
 namespace shali\phpmate\util;
 
+/**
+ * 货币工具类
+ * @author shali
+ * @date 2025/04/30
+ */
 final class Money
 {
     /**
@@ -15,23 +20,31 @@ final class Money
     private const MAX_SCALE = 6;
 
     /**
+     * @var int 精度
+     */
+    private $scale;
+
+    /**
      * @param string $fenMoney 金额，单位分
+     * @param int $scale 精度
      * @return Money
      */
-    public static function valueFen(string $fenMoney): Money
+    public static function valueFen(string $fenMoney, int $scale = self::MAX_SCALE): Money
     {
         $money = new self();
         $money->value = $fenMoney;
+        $money->scale = $scale;
         return $money;
     }
 
     /**
      * @param string $yuanMoney 金额，单位元
+     * @param int $scale
      * @return Money
      */
-    public static function valueYuan(string $yuanMoney): Money
+    public static function valueYuan(string $yuanMoney, int $scale = self::MAX_SCALE): Money
     {
-        return self::valueFen(bcmul($yuanMoney, '100', self::MAX_SCALE));
+        return self::valueFen(bcmul($yuanMoney, '100', $scale));
     }
 
     /**
@@ -50,6 +63,50 @@ final class Money
     public function toYuan(int $scale = 2): ?string
     {
         return bcdiv($this->value, '100', $scale);
+    }
+
+    /**
+     * 加法
+     * @param Money $money 被加数
+     * @return $this
+     */
+    public function add(Money $money): Money
+    {
+        $this->value = bcadd($this->value, $money->toFen($this->scale), $this->scale);
+        return $this;
+    }
+
+    /**
+     * 减法
+     * @param Money $money 被减数
+     * @return $this
+     */
+    public function sub(Money $money): Money
+    {
+        $this->value = bcsub($this->value, $money->toFen($this->scale), $this->scale);
+        return $this;
+    }
+
+    /**
+     * 乘法
+     * @param string $num 被乘数
+     * @return $this
+     */
+    public function mul(string $num): Money
+    {
+        $this->value = bcmul($this->value, $num, $this->scale);
+        return $this;
+    }
+
+    /**
+     * 除法
+     * @param string $num 被除数
+     * @return $this
+     */
+    public function div(string $num): Money
+    {
+        $this->value = bcdiv($this->value, $num, $this->scale);
+        return $this;
     }
 
     // 禁止 new
