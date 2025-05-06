@@ -37,8 +37,11 @@ class HttpClient
     /**
      * @throws Exception
      */
-    public function post($url, $params, int $timeout = 30): string
+    public function post($url, $params, $headers = [], int $timeout = 30): string
     {
+        if ($headers){
+            $this->curl->setHeaders($headers);
+        }
         $this->rawRequest['url'] = $url;
         $this->rawRequest['params'] = $params;
         // 禁用证书
