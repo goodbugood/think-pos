@@ -39,7 +39,7 @@ class HttpClient
      */
     public function post($url, $params, $headers = [], int $timeout = 30): string
     {
-        if ($headers){
+        if ($headers) {
             $this->curl->setHeaders($headers);
         }
         $this->rawRequest['url'] = $url;
