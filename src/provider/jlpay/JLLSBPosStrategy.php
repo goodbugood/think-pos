@@ -351,10 +351,10 @@ class JLLSBPosStrategy extends PosStrategy
     /**
      * @throws Exception
      */
-    private function post(string $url, array $data)
+    private function post(string $url, array $data, array $headers = ['Content-Type' => 'application/json'])
     {
         try {
-            $res = $this->httpClient->post($url, $data);
+            $res = $this->httpClient->post($url, $data, $headers);
         } finally {
             $this->rawRequest = $this->httpClient->getRawRequest();
             $this->rawResponse = $this->httpClient->getRawResponse();
