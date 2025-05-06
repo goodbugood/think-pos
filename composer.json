@@ -1,6 +1,17 @@
 {
     "name": "shali/think-pos",
     "description": "pos terminal service api sdk for thinkphp",
+    "keywords": [
+        "thinkphp",
+        "thinkphp-extension",
+        "thinkphp-pos",
+        "pos",
+        "pos-terminal",
+        "pos-service",
+        "pos-sdk",
+        "pos-api",
+        "pos-机"
+    ],
     "type": "think-extend",
     "version": "2.2.5",
     "license": "MIT",
@@ -60,5 +71,13 @@
                 "pos": "think\\pos\\service\\PosService"
             }
         }
+    },
+    "archive": {
+        "exclude": [
+            ".gitignore",
+            ".idea/",
+            "tests/",
+            "phpunit.xml.dist"
+        ]
     }
 }
