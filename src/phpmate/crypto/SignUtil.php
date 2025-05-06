@@ -13,7 +13,7 @@ class SignUtil
      * 非对称签名
      * @throws PhpMateException
      */
-    public static function sha256WithRsaToBase64Sign(string $privateKey, string $params): string
+    public static function signBySHA256WithRsaToBase64(string $privateKey, string $params): string
     {
         if (openssl_sign($params, $sign, $privateKey, OPENSSL_ALGO_SHA256)) {
             return base64_encode($sign);
@@ -30,7 +30,7 @@ class SignUtil
      * @return bool
      * @throws PhpMateException
      */
-    public static function sha256WithRsaToBase64VerifySign(string $publicKey, string $sign, string $params): bool
+    public static function verifySignBySHA256WithRsaToBase64(string $publicKey, string $sign, string $params): bool
     {
         $res = openssl_verify($params, base64_decode($sign), $publicKey, OPENSSL_ALGO_SHA256);
         if (false === $res) {

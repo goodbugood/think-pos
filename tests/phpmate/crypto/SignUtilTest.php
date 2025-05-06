@@ -58,7 +58,7 @@ EOF;
     public function testSha256WithRsaToBase64()
     {
         $content = 'hello world';
-        $sign = SignUtil::sha256WithRsaToBase64Sign($this->privateKey, $content);
+        $sign = SignUtil::signBySHA256WithRsaToBase64($this->privateKey, $content);
         self::assertEquals('DajiMoq0vCb2ihai9ZzsMUuF2UiQcScp/naZXofCBRCh3DTQfxSTu2l1Zm6tvOzpuoEItG2+wuD2TuQ9Ym46REW+7e96F7x+rg82X1+9NHdRJK742CUFao8r+c3kCWNPN6h9SejVdzErCcrNveU+MJZPybK7kFyt8JV/fqFF29bYtSWRLSClv741NOJiiBIw9ZOB0rYHIwQ8vIuVwGkWGglpLLv2KMY58pqafVXEFWApfrYi3SXEJOKTfHVAVeGLpcc1BZ0ZY41/CIwTh1VCiedgm58/wPWXf4JvuJiN6NZe29E2r1SEnd2jFf368JZFJG0Hzmmk91pCVFWB0oNIkw==', $sign);
     }
 
@@ -70,7 +70,7 @@ EOF;
     function sha256WithRsaToBase64Verify()
     {
         $content = 'hello world';
-        $sign = SignUtil::sha256WithRsaToBase64Sign($this->privateKey, $content);
-        self::assertTrue(SignUtil::sha256WithRsaToBase64VerifySign($this->publicKey, $sign, $content));
+        $sign = SignUtil::signBySHA256WithRsaToBase64($this->privateKey, $content);
+        self::assertTrue(SignUtil::verifySignBySHA256WithRsaToBase64($this->publicKey, $sign, $content));
     }
 }
