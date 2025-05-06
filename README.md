@@ -74,3 +74,10 @@ tp6
     }
 }
 ```
+
+## 依赖
+
+1. [shali/phpmate](https://github.com/shali/phpmate)
+2. `ext-curl` http 请求依赖
+3. `ext-openssl` curl 请求
+4. `ext-json` json 处理

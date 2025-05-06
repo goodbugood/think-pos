@@ -23,9 +23,9 @@ echo date('Y-m-d', strtotime('+1 month', strtotime($now)));// 返回的是 2022-
 
 ```sql
 SELECT DATE_ADD('2022-03-31', INTERVAL -1 MONTH );
-// 返回 2022-02-28
+-- 返回 2022-02-28
 SELECT DATE_ADD('2022-03-31', INTERVAL +1 MONTH );
-// 返回 2022-04-30
+-- 返回 2022-04-30
 ```
 
 那么使用 `str2time` 即可解决跳月问题：
@@ -46,3 +46,7 @@ PHP8.0 以下版本，`0 == 'php'` 返回的是 true，这在我们看来有点�
 0 == 'php';// true
 equals(0, 'php');// false
 ```
+
+## 依赖
+
+1. `ext-bcmath` 货币计算
