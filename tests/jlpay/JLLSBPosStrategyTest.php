@@ -33,8 +33,7 @@ class JLLSBPosStrategyTest extends TestCase
         $posRequestDto->setDeviceSn(env('lishuaB.posSn'));
         $posProviderResponse = $this->posStrategy->cancelVip($posRequestDto);
         self::assertInstanceOf(PosProviderResponse::class, $posProviderResponse);
-        // self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
-        self::assertTrue($posProviderResponse->isFail());
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
 
     public function testGetPosInfo()

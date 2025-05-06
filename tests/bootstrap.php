@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
-$config['pos'] = include __DIR__ . '/src/config/pos.php';
+$config['pos'] = include __DIR__ . '/../src/config/pos.php';
 
 function config(string $key, $default = null)
 {
