@@ -28,8 +28,24 @@ final class Money
      * @param string $fenMoney 金额，单位分
      * @param int $scale 精度
      * @return Money
+     * @deprecated 语意不清晰，废弃，请使用 Money::valueOfFen()
+     * @see Money::valueOfFen()
      */
     public static function valueFen(string $fenMoney, int $scale = self::MAX_SCALE): Money
+    {
+        $money = new self();
+        $money->value = $fenMoney;
+        $money->scale = $scale;
+        return $money;
+    }
+
+    /**
+     * @param string $fenMoney 金额，单位分
+     * @param int $scale 精度
+     * @return Money
+     * @since v2.3.5
+     */
+    public static function valueOfFen(string $fenMoney, int $scale = self::MAX_SCALE): Money
     {
         $money = new self();
         $money->value = $fenMoney;
@@ -41,10 +57,23 @@ final class Money
      * @param string $yuanMoney 金额，单位元
      * @param int $scale
      * @return Money
+     * @deprecated 语意不清晰，废弃，请使用 Money::valueOfYuan()
+     * @see Money::valueOfYuan()
      */
     public static function valueYuan(string $yuanMoney, int $scale = self::MAX_SCALE): Money
     {
         return self::valueFen(bcmul($yuanMoney, '100', $scale));
+    }
+
+    /**
+     * @param string $yuanMoney 金额，单位元
+     * @param int $scale
+     * @return Money
+     * @since v2.3.5
+     */
+    public static function valueOfYuan(string $yuanMoney, int $scale = self::MAX_SCALE): Money
+    {
+        return self::valueOfFen(bcmul($yuanMoney, '100', $scale));
     }
 
     /**
