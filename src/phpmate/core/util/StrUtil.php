@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace shali\phpmate\core;
+namespace shali\phpmate\core\util;
 
 class StrUtil
 {

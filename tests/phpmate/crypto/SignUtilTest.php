@@ -3,7 +3,7 @@
 namespace shali\phpmate\tests\crypto;
 
 use PHPUnit\Framework\TestCase;
-use shali\phpmate\core\StrUtil;
+use shali\phpmate\core\util\StrUtil;
 use shali\phpmate\crypto\KeyUtil;
 use shali\phpmate\crypto\SignUtil;
 use shali\phpmate\PhpMateException;

@@ -1,9 +1,9 @@
 <?php
 
-namespace shali\phpmate\tests\core;
+namespace shali\phpmate\tests\core\util;
 
 use PHPUnit\Framework\TestCase;
-use shali\phpmate\core\StrUtil;
+use shali\phpmate\core\util\StrUtil;
 
 class StrUtilTest extends TestCase
 {
