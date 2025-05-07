@@ -40,4 +40,27 @@ class EncryptUtil
         }
         return $decrypted;
     }
+
+    /**
+     * rsa 非对称加密，ECB 模式 PKCS1 填充方式
+     * @throws PhpMateException
+     */
+    public static function encryptByRSA_ECB_PKCS1PaddingToBase64(string $publicKey, string $data): string
+    {
+        if (!openssl_public_encrypt($data, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING)) {
+            throw new PhpMateException('RSA-ECB-PKCS1Padding 加密失败：' . openssl_error_string());
+        }
+        return base64_encode($encrypted);
+    }
+
+    /**
+     * @throws PhpMateException
+     */
+    public static function decryptByRSA_ECB_PKCS1PaddingToBase64(string $privateKey, string $data): string
+    {
+        if (!openssl_private_decrypt(base64_decode($data), $decrypted, $privateKey, OPENSSL_PKCS1_PADDING)) {
+            throw new PhpMateException('RSA-ECB-PKCS1Padding 解密失败：' . openssl_error_string());
+        }
+        return $decrypted;
+    }
 }
