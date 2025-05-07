@@ -3,63 +3,37 @@
 namespace shali\phpmate\tests\crypto;
 
 use PHPUnit\Framework\TestCase;
+use shali\phpmate\core\StrUtil;
+use shali\phpmate\crypto\KeyUtil;
 use shali\phpmate\crypto\SignUtil;
 use shali\phpmate\PhpMateException;
 
 class SignUtilTest extends TestCase
 {
-    private $publicKey = <<<EOF
------BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0nFFqD5nO97Fmoc4fblg
-Km12vDp3r96zWCSjfsvpKV1wmpM93Rp5MFX+KGkpMe3XVMsPNr7SOUjrH+IDAGok
-y6RBYyaZrYtyqNba+w2kWN0YejSA+NgenqhsxwiNIhgdaQPMKYMQ+X8tcRsDrUx1
-LUt3QTbLnxmsIN7xlOanFKJyZwcu8i43S6CYvngjWH9f/JeI7+I8iTWVYxneSsWG
-98eMVs7E9xJMi2wvTpnZ44+rmqJ9im6P0uV5yAcRdLsCs9ZRtfWuSGVH7RuIQz52
-OLsrQkzTRLJ7TgfPudF6NWneH3NRh06qTb3TM/WuwE5SjJ3BToPPVd8tPC+324ET
-RQIDAQAB
------END PUBLIC KEY-----
-EOF;
+    /**
+     * 公钥加密，验签
+     */
+    private const PUBLIC_KEY = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAukkM725cFg/vyEIRsJvwCT+CpM+ZYkowDqS+za6vOAEHgQlwdgdiE8a3FL97ZwwRtr8BPXwgODBbH0ujOraPexsE1DpGwYovrQ0YVlUtFHEuib3QALjDiHWQ5l1o9Zi1Te9QElrtUBDMbsQKHsZHWgsSrhDrJq3bhRm8+c8F/hnUxddESX/cUWZQzPW/0QC9xhSe7oACFjlGOB71dtwoFbGisTaJGMurAPivlGNYs8Ou2r2Jyn0iZHQBN9hpsV8cRmODyohdHjf9qCY+hbmKTwBnQ0felQ5DtWXweKLPRVQBC6EOxopSinmFnGKvEyWhQO7LBGlfJ34OeCagMEkb2wIDAQAB';
 
-    private $privateKey = <<<EOF
------BEGIN RSA PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDScUWoPmc73sWa
-hzh9uWAqbXa8Onev3rNYJKN+y+kpXXCakz3dGnkwVf4oaSkx7ddUyw82vtI5SOsf
-4gMAaiTLpEFjJpmti3Ko1tr7DaRY3Rh6NID42B6eqGzHCI0iGB1pA8wpgxD5fy1x
-GwOtTHUtS3dBNsufGawg3vGU5qcUonJnBy7yLjdLoJi+eCNYf1/8l4jv4jyJNZVj
-Gd5KxYb3x4xWzsT3EkyLbC9Omdnjj6uaon2Kbo/S5XnIBxF0uwKz1lG19a5IZUft
-G4hDPnY4uytCTNNEsntOB8+50Xo1ad4fc1GHTqpNvdMz9a7ATlKMncFOg89V3y08
-L7fbgRNFAgMBAAECggEAd4cu8WjAahkWU7cKNx7bqD2Ue0UaRiJP63ikBJj9Tils
-k9+d+7/VpcayHXHdnCZjcB4F/ipUbYUlR26wFcQ0MhaRrSd3kkLqVUv0BTSybGbo
-SEEaID1g5uzzG/mXcA4SZltp0wpG0e+Sd/PIGt6aj6eVjMz6yttiESmQPerka6rx
-L3bMSNsQJjwM60VFZIvNDtPNHipOW+swP04GmoXzRERJsM5ghuKuRAu/F3VSqt9T
-D0SaB8Q/rUK02C36P+rVSGJJ9AUdp3s4DeoqaxwgQDBtdUOJVM9SZFoqmXMXOjov
-fkdbrMEhL1MfqIsrV6LjMBpEi+lmEqr/JO0QJv94AQKBgQDy2FTOWaX94T14OUUM
-N1M2sF96CLeq1gPD1cHfHuQfYYgcpRdnMiEgGiDAc12TDu4EziAhIwOg8AAg/tkD
-0qF26Vgd8Bwk8t6FGjTAPz+KzKTUjFe2fvAZv7Vsf6Kc15mZE42V6/GjFMS+Wkbr
-vjoN8yu2tLWEcNpzr8gkFqEFhQKBgQDd15iaXg1ckDX9iIpmV+hQEUnbZHJkUnY7
-jiA4/eiup78l0xylT9dVqPWVPLKNJIEYT6zTfQ09qX7VU854RejDnMaXF6sW62Ph
-9NUeP3sEiS/wOkUCMkA2nc49rhFCnlcbjzvgxV1DMHh0qruN5W1EokQRte8uCXz7
-dfu03LNiwQKBgGkkfvtk1zinx+yAp0OVxKKeFIiKs7L0vGaS60DGaDCqEruMQyi8
-DJmQlnOcv3wHb8iG0mRme5C3uOaQULeV/7CzcSJtLlJVEUEByqsd904KMqeQJ/3s
-0dnkJhHW5ToRIwCi9Z9eq51XRaPBBInXL92QVnHhpeG01vBVwErXvVndAoGBALtB
-+baUHYM819YjI3AwVBECBu4CY+z7DoJG/jwdWAPV5SvwgAWq14GfFW3bxnwNjEsR
-NjlvHXYnVMCN9YLgwBIejCON/wVhvPZGzH6z5wt1IdoN1aJ8+Gch3a2C+V7aeXzx
-8wFQl+DXUVZpp9enCg0dS4gHotWhfLZmaQnKIkIBAoGBAJBUQVHOY9QGDH7xO5fa
-AoaU3h1+nx0xoo3HwlrxUNDSCD2qpMELYV2T3NfyIzjEYRdf2OVLqpv05Hd0bpOl
-hjaBm16ZKMBNQNyw4PL/9Q+jJ0zBAMS8jhwT6YcwW5Bi6BG6K2wqj4gMiicDYF9k
-/VeAJPHRGFPjNiqBdLIioOed
------END RSA PRIVATE KEY-----
-EOF;
-
+    /**
+     * 私钥解密，签名
+     */
+    private const PRIVATE_KEY = 'MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC6SQzvblwWD+/IQhGwm/AJP4Kkz5liSjAOpL7Nrq84AQeBCXB2B2ITxrcUv3tnDBG2vwE9fCA4MFsfS6M6to97GwTUOkbBii+tDRhWVS0UcS6JvdAAuMOIdZDmXWj1mLVN71ASWu1QEMxuxAoexkdaCxKuEOsmrduFGbz5zwX+GdTF10RJf9xRZlDM9b/RAL3GFJ7ugAIWOUY4HvV23CgVsaKxNokYy6sA+K+UY1izw67avYnKfSJkdAE32GmxXxxGY4PKiF0eN/2oJj6FuYpPAGdDR96VDkO1ZfB4os9FVAELoQ7GilKKeYWcYq8TJaFA7ssEaV8nfg54JqAwSRvbAgMBAAECggEARvRdL3OvMp4WXIZB263Bw5wDxIfoagZNAL7iiFCBoAjQVWeFhQdx5Yt6n7YBqHHx61QcglFdqllM1AJI5au0whS8BaQ+4Cgk2brTqsqdtZwYuFFqwWOe4sK5Eu3AdU+Zu1osexlUK/uCCqy0GB24/sSZ9GAwWVa+dxejIdmndC22YF0gzlLsfQvP6PSaJ474kel1DQKrg1vaLXirCKyhGwyaWMuaFV1syy1tz7XnJcQ+/8x3CGif2NjwpMPvTzpVEd/OyWcvLx2YPUwPQwf9OY9Hm19AQmy+B9MSffBGw8uSJtwIMpU5KqZAljPd8sCqnJR3DNHXqbHTGZ/cOiKJ4QKBgQDx8dgfJmTCpsIX1YUtPar1P6OGXBhxrKtj/54Oe371rWcqFvRkyBNL2CpNYP+zLEXoysoqAWfuDczh4qasIU+gqJXQXcI9jwYeIpmIG8zGE0L4yanLANRf3oGbhfrG/DCWdUlMIFrVRzeHRiuWhB06+iR3N5EC7OAr3auYoXEfOwKBgQDFG3N0areDHNuU32AXTd50mfe+kivp1saDdnknfrfsZF23Zbcm4nbo9G3+TTcZQnAR3ACdl0Fka8/WG3Sn9UZHiudzU5uFgpp9YkdAksedIQuPev+QE9q3IrGLPrExhuh/7e/xzA832wh9ONLiR+fJ7kE8t68swaT1Vy4XDH1r4QKBgQCepucAri1+ktlNxb8Zxol3Xq69aWDCEecloLYlawf61CWFLR4/hA9bObmrmgKynEKPf4MH/noHWVdTfEutLf7ILCRpSUIZGdN6KVgiL5CdBn5xI9RKgRXCc+brc/TZTQATeX+CAultV9DqzLHCdomwZd1Jq89Uar4pJafjY2IJhwKBgBzzbT/aNN4jLPVu4dRKcbQ6sTLikWSlUT8Z9a2hZS5ph4JahE5H0SNiU42YldE1+vQElmqPPuGbHEnceoP4+LulYV2FGEDB8CMefkyzwnIH2oTWkhb9c5CWnfFP4gLeR+QSdL3VNR8FIvgRkpf968OzJQ3gBPDT+IC4r2JfSUTBAoGBAO6a2/aZViAgNAr6YrZAz+F6psA5HGDMXnq5a2GNSm41E4zUA+rBVRM2/BxMN2lC37OhOUUnLYZe47gcXVQVujxloO3WEzaxl2PUKGczdPpx5TERpi+ikn13mMgKX1zZQ9NPx+IdXlVzt7TOsCetYJ/jMjAF7+JNGpcXxchX5spg';
 
     /**
      * @throws PhpMateException
      */
     public function testSha256WithRsaToBase64()
     {
-        $content = 'hello world';
-        $sign = SignUtil::signBySHA256WithRsaToBase64($this->privateKey, $content);
-        self::assertEquals('DajiMoq0vCb2ihai9ZzsMUuF2UiQcScp/naZXofCBRCh3DTQfxSTu2l1Zm6tvOzpuoEItG2+wuD2TuQ9Ym46REW+7e96F7x+rg82X1+9NHdRJK742CUFao8r+c3kCWNPN6h9SejVdzErCcrNveU+MJZPybK7kFyt8JV/fqFF29bYtSWRLSClv741NOJiiBIw9ZOB0rYHIwQ8vIuVwGkWGglpLLv2KMY58pqafVXEFWApfrYi3SXEJOKTfHVAVeGLpcc1BZ0ZY41/CIwTh1VCiedgm58/wPWXf4JvuJiN6NZe29E2r1SEnd2jFf368JZFJG0Hzmmk91pCVFWB0oNIkw==', $sign);
+        $params = [
+            'name' => 'shali',
+            'age' => 23,
+        ];
+        $content = StrUtil::httpBuildQuery($params, true);
+        $privateKey = KeyUtil::toPrivateKeyValueOfBase64Str(self::PRIVATE_KEY);
+        $sign = SignUtil::signBySHA256withRSAToBase64($privateKey, $content);
+        // 验证力 pos 签名
+        self::assertEquals('McGBSimX/RDBMASq4s1G8SLNnjiVe6D8juQyKfSQLXsbOdeR5W4oawcvqwVMlyW8TNKTiHaI7CrbKC2AUExjBemxM3YGZtvJbGQEGdvLOjdyaX27WknWC66tKIKaRLveSS6uzU68tNpQGffk/CW/YBXgFtb132x2s9UwXYGLdA9MQNy6LinzgFM6mi1rE73tPP74CuEEX4+2GuyRxEj4MQ6cXYtbCsgiFKHmtj0O5ADV+uRDhTHmworXt6Am7TA5GIcDLhb69thv6HbbFNrbPb+Qa3cJkUG9/IfTe9hXYoAxrByHx7DbOMIEJPNFOw1hwLXJbV7569ZLpfkMk0rnYA==', $sign);
     }
 
     /**
@@ -69,8 +43,10 @@ EOF;
      */
     function sha256WithRsaToBase64Verify()
     {
-        $content = 'hello world';
-        $sign = SignUtil::signBySHA256WithRsaToBase64($this->privateKey, $content);
-        self::assertTrue(SignUtil::verifySignBySHA256WithRsaToBase64($this->publicKey, $sign, $content));
+        $content = 'age=23&name=shali';
+        $privateKey = KeyUtil::toPrivateKeyValueOfBase64Str(self::PRIVATE_KEY);
+        $sign = SignUtil::signBySHA256withRSAToBase64($privateKey, $content);
+        $publicKey = KeyUtil::toPublicKeyValueOfBase64Str(self::PUBLIC_KEY);
+        self::assertTrue(SignUtil::verifySignBySHA256withRSAToBase64($publicKey, $sign, $content));
     }
 }
