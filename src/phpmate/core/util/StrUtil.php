@@ -14,6 +14,6 @@ class StrUtil
     public static function httpBuildQuery(array $params, bool $sort = false): string
     {
         $sort && ksort($params);
-        return http_build_query($params);
+        return urldecode(http_build_query($params));
     }
 }
