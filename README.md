@@ -75,9 +75,29 @@ tp6
 }
 ```
 
+## 参与贡献
+
+### 流程
+
+1. fork 本项目到你的 github 仓库
+2. 提交代码到你的 github 仓库
+3. 创建 pull request 请求到 dev 分支
+
+### 贡献原则
+
+1. git 提交信息必须携带标签，fix，feat 之类
+2. 注释，文档必须遵循[中文文案排版指北](https://github.com/sparanoid/chinese-copywriting-guidelines/blob/master/README.zh-Hans.md)
+3. 代码风格必须遵循 [PSR-2](https://www.php-fig.org/psr/psr-2/) 规范
+
+## 支持厂商列表
+
+1. [拉卡拉](https://github.com/shali/think-pos/tree/master/src/provider/lakala)
+2. [立刷](https://github.com/shali/think-pos/tree/master/src/provider/jlpay)
+3. [力POS](https://github.com/shali/think-pos/tree/master/src/provider/lipos)
+
 ## 依赖
 
 1. [shali/phpmate](https://github.com/shali/phpmate)
 2. `ext-curl` http 请求依赖
-3. `ext-openssl` curl 请求
+3. `ext-openssl` curl 请求，签名使用
 4. `ext-json` json 处理
