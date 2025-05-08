@@ -4,6 +4,7 @@ namespace think\pos;
 
 use BadMethodCallException;
 use think\pos\dto\request\MerchantRequestDto;
+use think\pos\dto\request\PosCallbackRequest;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
 use think\pos\dto\response\PosInfoResponse;
@@ -53,6 +54,11 @@ abstract class PosStrategy
         // http body
         'body' => null,
     ];
+
+    /**
+     * 回调成功返回内容
+     */
+    private const CALLBACK_ACK_CONTENT = 'OK';
 
     public function __construct(array $config)
     {
@@ -147,5 +153,23 @@ abstract class PosStrategy
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入设置商户费率功能', static::providerName()));
+    }
+
+    /**
+     * @param string $content 回调内容
+     * @return mixed
+     */
+    function handleCallbackOfPosBind(string $content): PosCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos绑定回调功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调 ack 内容，用来通知平台停止回调
+     * @return string
+     */
+    function getCallbackAckContent(): string
+    {
+        return static::CALLBACK_ACK_CONTENT;
     }
 }
