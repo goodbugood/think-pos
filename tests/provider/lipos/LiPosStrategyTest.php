@@ -41,6 +41,25 @@ class LiPosStrategyTest extends TestCase
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
 
+    /**
+     * @test 测试设置 pos 费率
+     * @return void
+     */
+    function setPosRate()
+    {
+        $posSn = env('lipos.posSn');
+        self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
+        $posRequestDto = new PosRequestDto();
+        $posRequestDto->setDeviceSn($posSn);
+        $posRequestDto->setDeposit(Money::valueOfYuan('100'));
+        $posRequestDto->setSimPackageCode('123456');
+        $posRequestDto->setCreditRate(Rate::valuePercentage('0.55'));
+        $posRequestDto->setDebitCardRate(Rate::valuePercentage('0.55'));
+        $posRequestDto->setDebitCardCappingValue(Money::valueOfYuan('20'));
+        $posProviderResponse = $this->posStrategy->setPosRate($posRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
+    }
+
     public function testGetPosInfo()
     {
         $posSn = env('lipos.posSn');

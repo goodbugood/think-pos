@@ -38,7 +38,10 @@ class LiPosStrategy extends PosStrategy
      * 接口方法
      */
     private const API_METHOD = [
+        // 查询 pos 终端
         'pos_info' => '/materialsDataQuery',
+        // 修改终端 pos 费率
+        'modify_pos_rate' => '/batchSetDefaultRate',
         // 商户修改费率
         'modify_merchant_rate' => '/customerRateModify',
     ];
@@ -80,6 +83,47 @@ class LiPosStrategy extends PosStrategy
     }
 
     /**
+     * 修改 pos 费率
+     * @param PosRequestDto $dto
+     * @return PosProviderResponse
+     */
+    function setPosRate(PosRequestDto $dto): PosProviderResponse
+    {
+        $url = $this->getUrl(self::API_METHOD['modify_pos_rate']);
+        $params = [
+            // 该接口支持批量更新，我们还不支持
+            'materialsNoList' => [$dto->getDeviceSn(),],
+            'materialsDefaultRateList' => [
+                [
+                    // 信用卡
+                    'payTypeViewCode' => 'POS_CC',
+                    'rateValue' => $dto->getCreditRate()->toPercentage(6),
+                    // 附加费用
+                    'fixedValue' => '0.00',
+                    // 贷记卡封顶值
+                    'cappingValue' => '0.00',
+                ],
+                [
+                    // 借记卡
+                    'payTypeViewCode' => 'POS_DC',
+                    'rateValue' => $dto->getDebitCardRate()->toPercentage(6),
+                    // 附加费用
+                    'fixedValue' => '0.00',
+                    // 借记卡封顶值
+                    'cappingValue' => $dto->getDebitCardCappingValue()->toYuan(),
+                ],
+            ]
+        ];
+        try {
+            $this->post($url, $params);
+        } catch (Exception $e) {
+            $errorMsg = sprintf('pos服务商[%s]修改pos_sn=%s费率失败：%s', self::providerName(), $dto->getDeviceSn(), $e->getMessage());
+            return PosProviderResponse::fail($errorMsg);
+        }
+        return PosProviderResponse::success();
+    }
+
+    /**
      * 修改商户费率
      * @param MerchantRequestDto $dto
      * @return PosProviderResponse
@@ -113,7 +157,7 @@ class LiPosStrategy extends PosStrategy
         try {
             $this->post($url, $params);
         } catch (Exception $e) {
-            $errorMsg = sprintf('pos服务商[%s]修改商户费率失败：%s', self::providerName(), $e->getMessage());
+            $errorMsg = sprintf('pos服务商[%s]修改商户merchant_no=%s费率失败：%s', self::providerName(), $dto->getMerchantNo(), $e->getMessage());
             return PosProviderResponse::fail($errorMsg);
         }
 
