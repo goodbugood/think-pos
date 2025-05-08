@@ -60,7 +60,7 @@ class PosInfoResponse
         $this->creditRate = $creditRate;
     }
 
-    public function getWithdrawFee(): Money
+    public function getWithdrawFee(): ?Money
     {
         return $this->withdrawFee;
     }
