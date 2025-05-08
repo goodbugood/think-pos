@@ -39,6 +39,8 @@ class LiPosStrategy extends PosStrategy
      */
     private const API_METHOD = [
         'pos_info' => '/materialsDataQuery',
+        // 商户修改费率
+        'modify_merchant_rate' => '/customerRateModify',
     ];
 
     /**
@@ -75,6 +77,47 @@ class LiPosStrategy extends PosStrategy
         }
 
         return PosConvertor::toPosInfoResponse($res);
+    }
+
+    /**
+     * 修改商户费率
+     * @param MerchantRequestDto $dto
+     * @return PosProviderResponse
+     */
+    function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
+    {
+        $url = $this->getUrl(self::API_METHOD['modify_merchant_rate']);
+        $params = [
+            'customerNo' => $dto->getMerchantNo(),
+            'customerRateList' => [
+                [
+                    // 信用卡
+                    'payTypeViewCode' => 'POS_CC',
+                    'rateValue' => $dto->getCreditRate()->toPercentage(6),
+                    // 附加费用
+                    'fixedValue' => '0.00',
+                    // 贷记卡封顶值
+                    'cappingValue' => '0.00',
+                ],
+                [
+                    // 借记卡
+                    'payTypeViewCode' => 'POS_DC',
+                    'rateValue' => $dto->getDebitCardRate()->toPercentage(6),
+                    // 附加费用
+                    'fixedValue' => '0.00',
+                    // 借记卡封顶值
+                    'cappingValue' => $dto->getDebitCardCappingValue()->toYuan(),
+                ],
+            ],
+        ];
+        try {
+            $this->post($url, $params);
+        } catch (Exception $e) {
+            $errorMsg = sprintf('pos服务商[%s]修改商户费率失败：%s', self::providerName(), $e->getMessage());
+            return PosProviderResponse::fail($errorMsg);
+        }
+
+        return PosProviderResponse::success();
     }
 
     private function getUrl(string $apiMethod): string

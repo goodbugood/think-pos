@@ -24,15 +24,25 @@ class MerchantRequestDto
     private $merchantNo;
 
     /**
-     * @var Rate 贷记卡刷卡交易费率
+     * @var Rate|null 贷记卡刷卡交易费率
      */
     private $creditRate;
 
     /**
      * 刷卡后强制性提现到你卡里，所以提现手续费是必收取的，只不过我们默认不收取
-     * @var Money 提现手续费
+     * @var Money|null 提现手续费
      */
     private $withdrawFee;
+
+    /**
+     * @var Rate|null 借记卡刷卡交易费率
+     */
+    private $debitCardRate;
+
+    /**
+     * @var Money|null 借记卡封顶值
+     */
+    private $debitCardCappingValue;
 
     public function getDeviceSn(): string
     {
@@ -54,23 +64,49 @@ class MerchantRequestDto
         $this->merchantNo = $merchantNo;
     }
 
-    public function getCreditRate(): Rate
+    /**
+     * @return Rate|null
+     * */
+    public function getCreditRate(): ?Rate
     {
         return $this->creditRate;
     }
 
-    public function setCreditRate(Rate $creditRate): void
+    public function setCreditRate(?Rate $creditRate): void
     {
         $this->creditRate = $creditRate;
     }
 
-    public function getWithdrawFee(): Money
+    /**
+     * @return Money|null
+     */
+    public function getWithdrawFee(): ?Money
     {
         return $this->withdrawFee;
     }
 
-    public function setWithdrawFee(Money $withdrawFee): void
+    public function setWithdrawFee(?Money $withdrawFee): void
     {
         $this->withdrawFee = $withdrawFee;
+    }
+
+    public function getDebitCardCappingValue(): ?Money
+    {
+        return $this->debitCardCappingValue;
+    }
+
+    public function setDebitCardCappingValue(?Money $debitCardCappingValue): void
+    {
+        $this->debitCardCappingValue = $debitCardCappingValue;
+    }
+
+    public function getDebitCardRate(): ?Rate
+    {
+        return $this->debitCardRate;
+    }
+
+    public function setDebitCardRate(?Rate $debitCardRate): void
+    {
+        $this->debitCardRate = $debitCardRate;
     }
 }

@@ -5,6 +5,7 @@ namespace think\pos\tests\provider\lipos;
 use PHPUnit\Framework\TestCase;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
+use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\response\PosInfoResponse;
 use think\pos\PosStrategy;
@@ -20,6 +21,24 @@ class LiPosStrategyTest extends TestCase
     protected function setUp(): void
     {
         $this->posStrategy = PosStrategyFactory::create('lipos');
+    }
+
+    /**
+     * @test 测试设置商户费率
+     * @return void
+     */
+    function setMerchantRate()
+    {
+        $merchantNo = env('lipos.merchantNo');
+        self::assertNotEmpty($merchantNo, 'lishuaB.merchantNo is empty');
+        $merchantRequestDto = new MerchantRequestDto();
+        $merchantRequestDto->setMerchantNo($merchantNo);
+        $merchantRequestDto->setCreditRate(Rate::valuePercentage('0.66'));
+        $merchantRequestDto->setWithdrawFee(Money::valueOfYuan('100'));
+        $merchantRequestDto->setDebitCardRate(Rate::valuePercentage('0.55'));
+        $merchantRequestDto->setDebitCardCappingValue(Money::valueOfYuan('20'));
+        $posProviderResponse = $this->posStrategy->setMerchantRate($merchantRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
 
     public function testGetPosInfo()
