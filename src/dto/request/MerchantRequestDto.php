@@ -3,8 +3,8 @@
 namespace think\pos\dto\request;
 
 use shali\phpmate\util\Money;
-use shali\phpmate\util\Rate;
 use think\pos\dto\ProviderRequestTrait;
+use think\pos\dto\RateTrait;
 
 /**
  * 请求 pos 服务商接口的商户参数
@@ -12,6 +12,7 @@ use think\pos\dto\ProviderRequestTrait;
 class MerchantRequestDto
 {
     use ProviderRequestTrait;
+    use RateTrait;
 
     /**
      * @var string 设备序列号，pos sn
@@ -24,25 +25,10 @@ class MerchantRequestDto
     private $merchantNo;
 
     /**
-     * @var Rate|null 贷记卡刷卡交易费率
-     */
-    private $creditRate;
-
-    /**
      * 刷卡后强制性提现到你卡里，所以提现手续费是必收取的，只不过我们默认不收取
      * @var Money|null 提现手续费
      */
     private $withdrawFee;
-
-    /**
-     * @var Rate|null 借记卡刷卡交易费率
-     */
-    private $debitCardRate;
-
-    /**
-     * @var Money|null 借记卡封顶值
-     */
-    private $debitCardCappingValue;
 
     public function getDeviceSn(): string
     {
@@ -65,19 +51,6 @@ class MerchantRequestDto
     }
 
     /**
-     * @return Rate|null
-     * */
-    public function getCreditRate(): ?Rate
-    {
-        return $this->creditRate;
-    }
-
-    public function setCreditRate(?Rate $creditRate): void
-    {
-        $this->creditRate = $creditRate;
-    }
-
-    /**
      * @return Money|null
      */
     public function getWithdrawFee(): ?Money
@@ -88,25 +61,5 @@ class MerchantRequestDto
     public function setWithdrawFee(?Money $withdrawFee): void
     {
         $this->withdrawFee = $withdrawFee;
-    }
-
-    public function getDebitCardCappingValue(): ?Money
-    {
-        return $this->debitCardCappingValue;
-    }
-
-    public function setDebitCardCappingValue(?Money $debitCardCappingValue): void
-    {
-        $this->debitCardCappingValue = $debitCardCappingValue;
-    }
-
-    public function getDebitCardRate(): ?Rate
-    {
-        return $this->debitCardRate;
-    }
-
-    public function setDebitCardRate(?Rate $debitCardRate): void
-    {
-        $this->debitCardRate = $debitCardRate;
     }
 }
