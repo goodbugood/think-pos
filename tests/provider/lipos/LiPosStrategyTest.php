@@ -7,6 +7,7 @@ use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
+use think\pos\dto\request\SimRequestDto;
 use think\pos\dto\response\PosInfoResponse;
 use think\pos\PosStrategy;
 use think\pos\PosStrategyFactory;
