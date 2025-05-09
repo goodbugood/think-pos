@@ -35,7 +35,6 @@ class LiPosStrategyTest extends TestCase
         $merchantRequestDto = new MerchantRequestDto();
         $merchantRequestDto->setMerchantNo($merchantNo);
         $merchantRequestDto->setCreditRate(Rate::valuePercentage('0.66'));
-        $merchantRequestDto->setWithdrawFee(Money::valueOfYuan('100'));
         $merchantRequestDto->setDebitCardRate(Rate::valuePercentage('0.55'));
         $merchantRequestDto->setDebitCardCappingValue(Money::valueOfYuan('20'));
         $posProviderResponse = $this->posStrategy->setMerchantRate($merchantRequestDto);
@@ -52,8 +51,6 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
         $posRequestDto = new PosRequestDto();
         $posRequestDto->setDeviceSn($posSn);
-        $posRequestDto->setDeposit(Money::valueOfYuan('100'));
-        $posRequestDto->setSimPackageCode('123456');
         $posRequestDto->setCreditRate(Rate::valuePercentage('0.55'));
         $posRequestDto->setDebitCardRate(Rate::valuePercentage('0.55'));
         $posRequestDto->setDebitCardCappingValue(Money::valueOfYuan('20'));
