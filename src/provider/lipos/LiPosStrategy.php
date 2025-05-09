@@ -227,14 +227,15 @@ class LiPosStrategy extends PosStrategy
             $this->rawResponse = $this->httpClient->getRawResponse();
         }
         $res = json_decode($res, true);
-        if ($res['code'] !== self::RESPONSE_CODE_SUCCESS) {
-            $errorMsg = sprintf('code=%s&msg=%s', $res['code'], $res['msg']);
-            throw new ProviderGatewayException($errorMsg);
-        }
-        // 验签和解密
+        // 验签->检查是否成功->解密
         try {
-            if (false === $this->verifySign($res)) {
+            if (!empty($res['sign']) && false === $this->verifySign($res)) {
                 throw new ProviderGatewayException('验签失败');
+            }
+            // 检查
+            if ($res['code'] !== self::RESPONSE_CODE_SUCCESS) {
+                $errorMsg = sprintf('code=%s&msg=%s', $res['code'], $res['msg']);
+                throw new ProviderGatewayException($errorMsg);
             }
             $content = $this->decrypt($res['encryptKey'], $res['data']);
             // 日志记录明文
