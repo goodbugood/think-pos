@@ -205,6 +205,9 @@ class LiPosStrategy extends PosStrategy
                 throw new ProviderGatewayException('验签失败');
             }
             $content = $this->decrypt($res['encryptKey'], $res['data']);
+            // 日志记录明文
+            $this->rawRequest['params'] = $data;
+            $this->rawResponse['body'] = $content;
             return json_decode($content, true);
         } catch (PhpMateException $e) {
             $errorMsg = sprintf('请求响应数据解密异常：%s', $e->getMessage());
