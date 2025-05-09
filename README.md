@@ -39,42 +39,6 @@ $withdrawFee = $posInfoResponse->getWithdrawFee();
 你只需要在你定义业务中添加上述代码，后续再需要接入其他 pos 机厂商时，无需改动业务代码，只需要在 `pos.php` 配置文件中添加新的
 pos 机厂商的配置参数，即可完成接入。
 
-## tp5 和 tp6 的服务发现有区别
-
-tp5
-
-```json
-{
-    "extra": {
-        "think-config": {
-            "pos": "src/config/pos.php"
-        },
-        "think-extend": {
-            "service": [
-                "think\\pos\\service\\PosService"
-            ]
-        }
-    }
-}
-```
-
-tp6
-
-```json
-{
-    "extra": {
-        "think": {
-            "config": {
-                "pos": "src/config/pos.php"
-            },
-            "services": {
-                "pos": "think\\pos\\service\\PosService"
-            }
-        }
-    }
-}
-```
-
 ## 参与贡献
 
 ### 流程

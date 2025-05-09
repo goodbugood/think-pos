@@ -58,11 +58,6 @@
         "think-config": {
             "pos": "src/config/pos.php"
         },
-        "think-extend": {
-            "services": [
-                "think\\pos\\service\\PosService"
-            ]
-        },
         "think": {
             "config": {
                 "pos": "src/config/pos.php"
