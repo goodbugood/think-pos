@@ -13,6 +13,7 @@ use shali\phpmate\PhpMateException;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosCallbackRequest;
 use think\pos\dto\request\PosRequestDto;
+use think\pos\dto\request\SimRequestDto;
 use think\pos\dto\response\PosInfoResponse;
 use think\pos\dto\response\PosProviderResponse;
 use think\pos\exception\ProviderGatewayException;
@@ -42,6 +43,8 @@ class LiPosStrategy extends PosStrategy
         'pos_info' => '/materialsDataQuery',
         // 修改终端 pos 费率
         'modify_pos_rate' => '/batchSetDefaultRate',
+        // 设置 pos 通信服务费
+        'modify_pos_sim_fee' => '/simFeeChange',
         // 商户修改费率
         'modify_merchant_rate' => '/customerRateModify',
     ];
@@ -118,6 +121,35 @@ class LiPosStrategy extends PosStrategy
             $this->post($url, $params);
         } catch (Exception $e) {
             $errorMsg = sprintf('pos服务商[%s]修改pos_sn=%s费率失败：%s', self::providerName(), $dto->getDeviceSn(), $e->getMessage());
+            return PosProviderResponse::fail($errorMsg);
+        }
+        return PosProviderResponse::success();
+    }
+
+    /**
+     * 设置 pos 通信服务费，其实就是 pos 机里的 esim 流量费
+     * @param SimRequestDto $dto
+     * @return PosProviderResponse
+     */
+    function setSimFee(SimRequestDto $dto): PosProviderResponse
+    {
+        $url = $this->getUrl(self::API_METHOD['modify_pos_sim_fee']);
+        $params = [
+            'materialsNo' => $dto->getDeviceSn(),
+            // todo shali [2025/5/9] 具体的套餐信息从何处获取，力 pos 那边还未定下来
+            'simDeductionsList' => [
+                [
+                    // 通讯服务费阶段 integer
+                    'simRuleIndex' => null,
+                    // 通讯服务费档位 integer
+                    'simPhaseIndex' => null,
+                ]
+            ],
+        ];
+        try {
+            $this->post($url, $params);
+        } catch (Exception $e) {
+            $errorMsg = sprintf('pos服务商[%s]修改pos_sn=%s通信费失败：%s', self::providerName(), $dto->getDeviceSn(), $e->getMessage());
             return PosProviderResponse::fail($errorMsg);
         }
         return PosProviderResponse::success();

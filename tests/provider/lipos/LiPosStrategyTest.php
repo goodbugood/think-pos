@@ -80,6 +80,22 @@ class LiPosStrategyTest extends TestCase
     }
 
     /**
+     * @test 测试设置 pos sim 流量费
+     * @return void
+     */
+    function setPosSimFee()
+    {
+        $posSn = env('lipos.posSn');
+        self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
+        $simRequestDto = new SimRequestDto();
+        $simRequestDto->setDeviceSn($posSn);
+        // 套餐这个固定？
+        $simRequestDto->setSimPackageCode('123456789');
+        $posProviderResponse = $this->posStrategy->setSimFee($simRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
+    }
+
+    /**
      * @test 测试验签和解密
      * @return void
      */
