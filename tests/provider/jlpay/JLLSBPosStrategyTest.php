@@ -1,6 +1,6 @@
 <?php
 
-namespace think\pos\tests\jlpay;
+namespace think\pos\tests\provider\jlpay;
 
 use PHPUnit\Framework\TestCase;
 use shali\phpmate\util\Money;
