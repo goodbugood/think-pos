@@ -22,6 +22,16 @@ trait RateTrait
      */
     private $debitCardCappingValue;
 
+    /**
+     * @var Rate|null 微信费率
+     */
+    private $wechatRate;
+
+    /**
+     * @var Rate|null 支付宝费率
+     */
+    private $alipayRate;
+
     public function getCreditRate(): ?Rate
     {
         return $this->creditRate;
@@ -50,5 +60,25 @@ trait RateTrait
     public function setDebitCardCappingValue(?Money $debitCardCappingValue): void
     {
         $this->debitCardCappingValue = $debitCardCappingValue;
+    }
+
+    public function getWechatRate(): ?Rate
+    {
+        return $this->wechatRate;
+    }
+
+    public function setWechatRate(?Rate $wechatRate): void
+    {
+        $this->wechatRate = $wechatRate;
+    }
+
+    public function getAlipayRate(): ?Rate
+    {
+        return $this->alipayRate;
+    }
+
+    public function setAlipayRate(?Rate $alipayRate): void
+    {
+        $this->alipayRate = $alipayRate;
     }
 }

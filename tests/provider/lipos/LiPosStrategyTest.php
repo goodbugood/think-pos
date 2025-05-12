@@ -5,6 +5,8 @@ namespace think\pos\tests\provider\lipos;
 use PHPUnit\Framework\TestCase;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
+use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
+use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
@@ -128,5 +130,22 @@ class LiPosStrategyTest extends TestCase
         $data = json_decode($decrypted, true);
         self::assertIsArray($data);
         self::assertArrayHasKey('materialsNo', $data);
+    }
+
+    /**
+     * @test 测试商户注册回调
+     * @return void
+     */
+    function handleCallbackOfMerchantRegister()
+    {
+        $content = '{"serviceType":"CUSTOMER_LAST_RATE_NOTIFY","data":"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","appId":"61261936","sign":"K1Dw2u8QiZ1kqt4zhG4jtNbmWHyj4xrZ1cX0jJCiIEHUEMxNq1UT8shrntaLSadvqDBiVnaWyzgno/WWfguU0kPi2dtYjytoz3Lt7nFgzG2gpmtoV4I2edbmlXtmLM3U0PF5Mc7d+XJUX2CTb4IrLb5Ajyii0WsrEgP+C94AUQRgyB15jlDLlYIk3+FLXOJ9gf+/mOIYeD3pVdT/zeUvUXW9iREGiZDH0VlYiJuZyotDfd8PRkOEKHHfUsPv2Pi00WFhpW0cJD1Vm1/mTBCvREzgwq47Tc1GDPBgxtiFWaFdo08anZFSRz54BqptPErVBqERNo7YwM0EOvkjfRqmsg==","encryptKey":"GeKpiRQkc372PjwK+2nheLesaDsFAHEPRGReVFP0PG2qXETrZqhp/azentS6BQLcJ+UVzuCtBiPEec5J9qFqJenIkCtmIPhv8c/tHb0EUdVsRBC7MqnrQKEFVD8EILx/Xd717ktpTMd97wJJVnSsrav+VyYXkXR74gOuhsjTu0PrU+qso5O/Zf/JdIUgfSIltcvUMadu9ULyOOLD8bumaeAFfyDYY6DBKtwTiOE6QUwUtE+bAwTGa+TmF461UwES2k5H9/d0DdnJAhlpbJ2bpdgrBS2oDRFekpmL1bADruG+9gAGS0TrWG+vQfGIxVw0iXK1ekm2Z8PCNsqf16YK+A==","timestamp":"1747037392992","responseId":"JZY1216031860737"}';
+        $callbackRequest = $this->posStrategy->handleCallback($content);
+        self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
+        self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
+        self::assertInstanceOf(MerchantRateSetCallbackRequest::class, $callbackRequest);
+        self::assertInstanceOf(Rate::class, $callbackRequest->getWechatRate());
+        self::assertInstanceOf(Rate::class, $callbackRequest->getAlipayRate());
+        self::assertInstanceOf(Rate::class, $callbackRequest->getDebitCardRate());
+        self::assertInstanceOf(Rate::class, $callbackRequest->getCreditRate());
     }
 }

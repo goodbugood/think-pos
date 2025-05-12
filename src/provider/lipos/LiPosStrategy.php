@@ -10,14 +10,16 @@ use shali\phpmate\crypto\KeyUtil;
 use shali\phpmate\crypto\SignUtil;
 use shali\phpmate\http\HttpClient;
 use shali\phpmate\PhpMateException;
+use think\pos\dto\request\callback\PosCallbackRequest;
+use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
-use think\pos\dto\request\PosCallbackRequest;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
 use think\pos\dto\response\PosInfoResponse;
 use think\pos\dto\response\PosProviderResponse;
 use think\pos\exception\ProviderGatewayException;
 use think\pos\PosStrategy;
+use think\pos\provider\lipos\convertor\MerchantConvertor;
 use think\pos\provider\lipos\convertor\PosConvertor;
 
 /**
@@ -49,6 +51,14 @@ class LiPosStrategy extends PosStrategy
         'modify_pos_deposit' => '/machineFeeChange',
         // 设置商户费率
         'modify_merchant_rate' => '/customerRateModify',
+    ];
+
+    /**
+     * 力 pos 平台回调服务类型
+     */
+    private const CALLBACK_SERVICE_TYPE = [
+        // 商户费率设置成功回调
+        'merchant_rate_set_success' => 'CUSTOMER_LAST_RATE_NOTIFY',
     ];
 
     /**
@@ -314,7 +324,7 @@ class LiPosStrategy extends PosStrategy
             $this->rawResponse['body'] = $content;
             return json_decode($content, true);
         } catch (PhpMateException $e) {
-            $errorMsg = sprintf('请求响应数据解密异常：%s', $e->getMessage());
+            $errorMsg = sprintf('请求响应数据验签->解密异常：%s', $e->getMessage());
             throw new ProviderGatewayException($errorMsg);
         }
     }
@@ -337,5 +347,35 @@ class LiPosStrategy extends PosStrategy
     {
         $password = EncryptUtil::decryptByRSA_ECB_PKCS1PaddingToBase64(KeyUtil::toPrivateKeyValueOfBase64Str($this->config['privateKey']), $encryptKey);
         return EncryptUtil::decryptByAES_ECB_PKCS5PaddingToBase64($password, $encrypted);
+    }
+
+    /**
+     * @throws ProviderGatewayException
+     */
+    public function handleCallback(string $content)
+    {
+        $data = json_decode($content, true);
+        if (empty($data['serviceType'])) {
+            // 非力 pos 回调，拉倒吧不处理
+            return CallbackRequest::success();
+        }
+        try {
+            // 验签
+            if (!empty($data['sign']) && false === $this->verifySign($data)) {
+                $errorMsg = sprintf('力 pos %s 回调验签失败', $data['serviceType']);
+                return CallbackRequest::fail($errorMsg);
+            }
+            // 解密
+            $decrypted = $this->decrypt($data['encryptKey'], $data['data']);
+        } catch (PhpMateException $e) {
+            $errorMsg = sprintf('回调请求数据验签->解密异常：%s', $e->getMessage());
+            throw new ProviderGatewayException($errorMsg);
+        }
+        $decryptedData = json_decode($decrypted, true);
+        if (self::CALLBACK_SERVICE_TYPE['merchant_rate_set_success'] === $data['serviceType']) {
+            return MerchantConvertor::toMerchantRateSetCallbackRequest($decryptedData);
+        }
+
+        return CallbackRequest::fail('不理解你回调了啥');
     }
 }

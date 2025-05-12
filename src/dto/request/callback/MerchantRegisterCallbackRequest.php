@@ -2,10 +2,12 @@
 
 namespace think\pos\dto\request\callback;
 
+use think\pos\dto\request\CallbackRequest;
+
 /**
  * 商户注册回调参数
  */
-class MerchantRegisterCallbackRequest
+class MerchantRegisterCallbackRequest extends CallbackRequest
 {
     // 代理信息
     /**

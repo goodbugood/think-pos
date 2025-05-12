@@ -6,6 +6,7 @@ use BadMethodCallException;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosCallbackRequest;
+use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
@@ -171,6 +172,16 @@ abstract class PosStrategy
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入设置商户费率功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调，统一处理
+     * @param string $content
+     * @return CallbackRequest 由于 php7.3 不支持返回协变返回类型，所以没法返回 CallbackRequest
+     */
+    function handleCallback(string $content)
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos回调入口处理功能', static::providerName()));
     }
 
     /**
