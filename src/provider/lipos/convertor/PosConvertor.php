@@ -40,7 +40,7 @@ final class PosConvertor
                 $data['materialsSimInfo']['simPhaseList'][0]['deductionStatus'] ?? 'null'
             ));
         }
-        // 解析贷记卡费率
+        // 解析贷记卡费率，注意，pos 一旦绑定了商户，不再返回终端费率
         $materialsRateList = $data['materialsRateList'] ?? [];
         foreach ($materialsRateList as $item) {
             if ($item['payTypeViewCode'] === 'POS_CC') {

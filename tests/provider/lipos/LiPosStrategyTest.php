@@ -42,6 +42,7 @@ class LiPosStrategyTest extends TestCase
     }
 
     /**
+     * 已经绑定商户的 pos 不允许修改 pos 费率
      * @test 测试设置 pos 费率
      * @return void
      */
@@ -72,7 +73,8 @@ class LiPosStrategyTest extends TestCase
         self::assertInstanceOf(Money::class, $posInfoResponse->getDeposit());
         self::assertEquals($posSn, $posInfoResponse->getDeviceNo());
         self::assertNotEmpty($posInfoResponse->getSimPackageCode());
-        self::assertInstanceOf(Rate::class, $posInfoResponse->getCreditRate());
+        // 终端绑定商户后，不再返回终端费率
+        // self::assertInstanceOf(Rate::class, $posInfoResponse->getCreditRate());
         // 力 pos 不返回提现手续费
         self::assertNull($posInfoResponse->getWithdrawFee());
     }
