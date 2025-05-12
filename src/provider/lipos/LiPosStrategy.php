@@ -145,6 +145,8 @@ class LiPosStrategy extends PosStrategy
                     'simRuleIndex' => null,
                     // 通讯服务费档位 integer
                     'simPhaseIndex' => null,
+                    // 通讯服务费扣费起始天数 integer
+                    'beginDayNum' => null,
                 ]
             ],
         ];
