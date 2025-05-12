@@ -59,6 +59,23 @@ class LiPosStrategyTest extends TestCase
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
 
+    /**
+     * @test 测试设置 pos 押金
+     * @return void
+     */
+    function setPosDeposit()
+    {
+        $posSn = env('lipos.posSn');
+        self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
+        $posRequestDto = new PosRequestDto();
+        $posRequestDto->setDeviceSn($posSn);
+        $posRequestDto->setDeposit(Money::valueOfYuan('199'));
+        // 押金套餐码
+        $posRequestDto->setDepositPackageCode('1');
+        $posProviderResponse = $this->posStrategy->setPosDeposit($posRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
+    }
+
     public function testGetPosInfo()
     {
         $posSn = env('lipos.posSn');

@@ -31,6 +31,11 @@ class PosRequestDto
     private $deposit;
 
     /**
+     * @var string 押金套餐简码
+     */
+    private $depositPackageCode;
+
+    /**
      * @var string 流量卡套餐码
      */
     private $simPackageCode;
@@ -63,6 +68,16 @@ class PosRequestDto
     public function setDeposit(Money $deposit): void
     {
         $this->deposit = $deposit;
+    }
+
+    public function getDepositPackageCode(): string
+    {
+        return $this->depositPackageCode;
+    }
+
+    public function setDepositPackageCode(string $depositPackageCode): void
+    {
+        $this->depositPackageCode = $depositPackageCode;
     }
 
     public function getSimPackageCode(): string

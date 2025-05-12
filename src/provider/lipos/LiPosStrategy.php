@@ -41,11 +41,13 @@ class LiPosStrategy extends PosStrategy
     private const API_METHOD = [
         // 查询 pos 终端
         'pos_info' => '/materialsDataQuery',
-        // 修改终端 pos 费率
+        // 设置 pos 费率
         'modify_pos_rate' => '/batchSetDefaultRate',
         // 设置 pos 通信服务费
         'modify_pos_sim_fee' => '/simFeeChange',
-        // 商户修改费率
+        // 设置 pos 押金=服务费
+        'modify_pos_deposit' => '/machineFeeChange',
+        // 设置商户费率
         'modify_merchant_rate' => '/customerRateModify',
     ];
 
@@ -150,6 +152,29 @@ class LiPosStrategy extends PosStrategy
             $this->post($url, $params);
         } catch (Exception $e) {
             $errorMsg = sprintf('pos服务商[%s]修改pos_sn=%s通信费失败：%s', self::providerName(), $dto->getDeviceSn(), $e->getMessage());
+            return PosProviderResponse::fail($errorMsg);
+        }
+        return PosProviderResponse::success();
+    }
+
+    /**
+     * 设置终端押金 = 服务费设置
+     * 注意：绑定了商户的 pos 不能设置押金
+     * @param PosRequestDto $dto
+     * @return PosProviderResponse
+     */
+    public function setPosDeposit(PosRequestDto $dto): PosProviderResponse
+    {
+        $url = $this->getUrl(self::API_METHOD['modify_pos_deposit']);
+        $params = [
+            'materialsNo' => $dto->getDeviceSn(),
+            // 押金档位 integer
+            'machinePhaseIndex' => intval($dto->getDepositPackageCode()),
+        ];
+        try {
+            $this->post($url, $params);
+        } catch (Exception $e) {
+            $errorMsg = sprintf('pos服务商[%s]修改pos_sn=%s押金失败：%s', self::providerName(), $dto->getDeviceSn(), $e->getMessage());
             return PosProviderResponse::fail($errorMsg);
         }
         return PosProviderResponse::success();
