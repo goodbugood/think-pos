@@ -3,8 +3,10 @@
 namespace think\pos;
 
 use BadMethodCallException;
+use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
+use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
+use think\pos\dto\request\callback\PosCallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
-use think\pos\dto\request\PosCallbackRequest;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
 use think\pos\dto\response\PosInfoResponse;
@@ -148,6 +150,22 @@ abstract class PosStrategy
     }
 
     /**
+     * 商户绑定终端
+     */
+    function bindPos(MerchantRequestDto $merchantRequestDto, PosRequestDto $posRequestDto): PosProviderResponse
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户绑定终端功能', static::providerName()));
+    }
+
+    /**
+     * 商户解绑终端
+     */
+    function unbindPos(MerchantRequestDto $merchantRequestDto, PosRequestDto $posRequestDto): PosProviderResponse
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户解绑终端功能', static::providerName()));
+    }
+
+    /**
      * 设置商户费率
      */
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
@@ -156,12 +174,29 @@ abstract class PosStrategy
     }
 
     /**
+     * pos 平台回调，用来通知商户注册成功的商户信息
+     */
+    function handleCallbackOfMerchantRegister(string $content): MerchantRegisterCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户注册回调功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调，用来通知商户 pos 绑定成功
      * @param string $content 回调内容
      * @return mixed
      */
     function handleCallbackOfPosBind(string $content): PosCallbackRequest
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos绑定回调功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调商户费率设置成功
+     */
+    function handleCallbackOfMerchantRateSet(string $content): MerchantRateSetCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户费率设置回调功能', static::providerName()));
     }
 
     /**

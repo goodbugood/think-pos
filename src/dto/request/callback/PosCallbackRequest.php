@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace think\pos\dto\request;
+namespace think\pos\dto\request\callback;
 
 /**
  * pos 回调请求参数
