@@ -4,8 +4,10 @@ namespace think\pos\provider\lipos\convertor;
 
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
+use think\pos\constant\PaymentType;
 use think\pos\constant\PosStatus;
 use think\pos\constant\TransOrderStatus;
+use think\pos\constant\TransOrderType;
 use think\pos\dto\request\callback\PosActivateCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
 use think\pos\dto\request\callback\PosTransCallbackRequest;
@@ -118,6 +120,31 @@ final class PosConvertor
             $request->setStatus(TransOrderStatus::SUCCESS);
         } else {
             $request->setStatus(TransOrderStatus::FAILURE);
+        }
+        // 解析订单类型
+        if ('SIM' === $decryptedData['stopPayType' ?? '']) {
+            $request->setOrderType(TransOrderType::SIM);
+        } elseif ('MACHINE' === $decryptedData['stopPayType'] ?? '') {
+            $request->setOrderType(TransOrderType::DEPOSIT);
+        } else {
+            $request->setOrderType(TransOrderType::NORMAL);
+        }
+        // 解析支付方式
+        if ('Wechat' === $decryptedData['payType'] ?? '') {
+            $request->setPaymentType(PaymentType::WECHAT_QR);
+        } elseif ('AliPay' === $decryptedData['payType'] ?? '') {
+            $request->setPaymentType(PaymentType::ALIPAY_QR);
+        } elseif ('UnionQr' === $decryptedData['payType'] ?? '') {
+            $request->setPaymentType(PaymentType::UNION_QR);
+        } elseif ('QuickPass' === $decryptedData['payType'] ?? '') {
+            $request->setPaymentType(PaymentType::NFC);
+        } elseif ('DC' === $decryptedData['cardType'] ?? '') {
+            $request->setPaymentType(PaymentType::DEBIT_CARD);
+        } elseif ('CC' === $decryptedData['cardType'] ?? '') {
+            $request->setPaymentType(PaymentType::CREDIT_CARD);
+        } elseif ('MobilePay' === $decryptedData['payType'] ?? '') {
+            // 力 pos 反馈：手机Pay和闪付性质一样，也是手机贴近POS机，通过NFC读卡信息
+            $request->setPaymentType(PaymentType::NFC);
         }
         return $request;
     }
