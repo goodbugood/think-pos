@@ -50,3 +50,4 @@ equals(0, 'php');// false
 ## 依赖
 
 1. `ext-bcmath` 货币计算
+2. `ext-openssl` 签名验签

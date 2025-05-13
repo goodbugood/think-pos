@@ -1,0 +1,66 @@
+<?php declare(strict_types=1);
+
+namespace think\pos\provider\lipos\convertor;
+
+use shali\phpmate\util\Money;
+use shali\phpmate\util\Rate;
+use think\pos\constant\MerchantStatus;
+use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
+use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
+
+final class MerchantConvertor
+{
+    public static function toMerchantRateSetCallbackRequest(array $decryptedData): MerchantRateSetCallbackRequest
+    {
+        $request = MerchantRateSetCallbackRequest::success();
+        $request->setMerchantNo($decryptedData['customerNo']);
+        foreach ($decryptedData['rateNotifyList'] as $rateNotify) {
+            if ('ALIPAY' === $rateNotify['payTypeViewCode']) {
+                $request->setAlipayRate(Rate::valueOfPercentage(strval($rateNotify['rateValue'])));
+            } elseif ('WECHAT' === $rateNotify['payTypeViewCode']) {
+                $request->setWechatRate(Rate::valueOfPercentage(strval($rateNotify['rateValue'])));
+            } elseif ('POS_DC' === $rateNotify['payTypeViewCode']) {
+                // 借记卡
+                $request->setDebitCardRate(Rate::valueOfPercentage(strval($rateNotify['rateValue'])));
+                $request->setDebitCardCappingValue(Money::valueOfYuan(strval($rateNotify['cappingValue'])));
+            } elseif ('POS_CC' === $rateNotify['payTypeViewCode']) {
+                // 贷记卡
+                $request->setCreditRate(Rate::valueOfPercentage(strval($rateNotify['rateValue'])));
+            }
+        }
+
+        return $request;
+    }
+
+    public static function toMerchantRegisterCallbackRequest(array $decryptedData): MerchantRegisterCallbackRequest
+    {
+        $request = MerchantRegisterCallbackRequest::success();
+        $request->setAgentNo($decryptedData['customerInfoNotify']['agentNo']);
+        // 商户
+        $request->setMerchantNo($decryptedData['customerInfoNotify']['customerNo']);
+        $request->setMerchantName($decryptedData['customerInfoNotify']['customerName']);
+        $request->setRegDateTime($decryptedData['customerInfoNotify']['createTime']);
+        // 法人
+        $request->setIdCardName($decryptedData['customerInfoNotify']['idCardName']);
+        $request->setIdCardNo($decryptedData['customerInfoNotify']['idCardNo']);
+        $request->setIdCardExpireDate($decryptedData['customerInfoNotify']['idCardEffectiveEnd']);
+        $request->setPhoneNo($decryptedData['customerInfoNotify']['phoneNo']);
+        // 营业执照，上游 business 拼写错误
+        $request->setBusinessName($decryptedData['customerInfoNotify']['bussinessName']);
+        // 结算卡
+        $request->setBankAccountName($decryptedData['customerSettleCardNotify']['accountName']);
+        $request->setBankAccountNo($decryptedData['customerSettleCardNotify']['accountNo']);
+        if ('TRUE' === $decryptedData['customerInfoNotify']['isOpenSettleCard']) {
+            $request->setStatus(MerchantStatus::ENABLED);
+        } else {
+            $request->setStatus(MerchantStatus::DISABLED);
+        }
+
+        return $request;
+    }
+
+    // 禁止 new
+    private function __construct()
+    {
+    }
+}

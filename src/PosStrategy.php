@@ -3,6 +3,10 @@
 namespace think\pos;
 
 use BadMethodCallException;
+use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
+use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
+use think\pos\dto\request\callback\PosCallbackRequest;
+use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
@@ -53,6 +57,11 @@ abstract class PosStrategy
         // http body
         'body' => null,
     ];
+
+    /**
+     * 回调成功返回内容
+     */
+    private const CALLBACK_ACK_CONTENT = 'OK';
 
     public function __construct(array $config)
     {
@@ -142,10 +151,90 @@ abstract class PosStrategy
     }
 
     /**
+     * 商户绑定终端
+     */
+    function bindPos(MerchantRequestDto $merchantRequestDto, PosRequestDto $posRequestDto): PosProviderResponse
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户绑定终端功能', static::providerName()));
+    }
+
+    /**
+     * 商户解绑终端
+     */
+    function unbindPos(MerchantRequestDto $merchantRequestDto, PosRequestDto $posRequestDto): PosProviderResponse
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户解绑终端功能', static::providerName()));
+    }
+
+    /**
      * 设置商户费率
      */
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入设置商户费率功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调，统一处理
+     * @param string $content
+     * @return CallbackRequest 由于 php7.3 不支持返回协变返回类型，所以没法返回 CallbackRequest
+     */
+    function handleCallback(string $content)
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos回调入口处理功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调，用来通知代理平台商户注册成功的商户信息
+     */
+    function handleCallbackOfMerchantRegister(string $content): MerchantRegisterCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户注册回调功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调，用来通知代理平台商户绑定 pos 成功
+     * @param string $content 回调内容
+     * @return mixed
+     */
+    function handleCallbackOfPosBind(string $content): PosCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos绑定回调功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调，用来通知代理平台商户绑定 pos 成功，并激活成功
+     * pos 激活成功发生在绑定之后
+     */
+    function handleCallbackOfPosActive(string $content): PosCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos激活回调功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调，用来通知代理平台商户解绑 pos 成功
+     * @param string $content
+     * @return PosCallbackRequest
+     */
+    function handleCallbackOfPosUnbind(string $content): PosCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos解绑回调功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调代理平台商户费率设置成功
+     */
+    function handleCallbackOfMerchantRateSet(string $content): MerchantRateSetCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户费率设置回调功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调 ack 内容，用来通知平台停止回调
+     * @return string
+     */
+    function getCallbackAckContent(): string
+    {
+        return static::CALLBACK_ACK_CONTENT;
     }
 }

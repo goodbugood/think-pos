@@ -5,10 +5,30 @@
  */
 
 use think\pos\provider\jlpay\JLLSBPosStrategy;
+use think\pos\provider\lipos\LiPosStrategy;
 
 return [
     // pos 品牌服务提供者
     'providers' => [
+        // 力 pos
+        'lipos' => [
+            'class' => LiPosStrategy::class,
+            'config' => [
+                // 是否开启测试环境模式
+                'test' => false,
+                'agentNo' => '代理id',
+                // 正式网关地址
+                'gateway' => '力pos正式网关',
+                // 测试网关地址
+                'testGateway' => '力pos测试网关',
+                // 代理商私钥：签名使用
+                'privateKey' => '',
+                // 代理商公钥：验签平台响应使用
+                'publicKey' => '',
+                // pos 平台公钥，加密请求参数用
+                'platformPublicKey' => '',
+            ],
+        ],
         // 服务商标识
         'lishuaB' => [
             // pos 配置参数
