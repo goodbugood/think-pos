@@ -59,6 +59,8 @@ class LiPosStrategy extends PosStrategy
     private const CALLBACK_SERVICE_TYPE = [
         // 商户费率设置成功回调
         'merchant_rate_set_success' => 'CUSTOMER_LAST_RATE_NOTIFY',
+        // 商户注册成功回调商户信息
+        'merchant_register_success' => 'CUSTOMER_INFO_REGISTER_NOTIFY',
     ];
 
     /**
@@ -355,9 +357,9 @@ class LiPosStrategy extends PosStrategy
     public function handleCallback(string $content)
     {
         $data = json_decode($content, true);
-        if (empty($data['serviceType'])) {
+        if (empty($data['serviceType']) || empty($data['data']) || empty($data['encryptKey'])) {
             // 非力 pos 回调，拉倒吧不处理
-            return CallbackRequest::success();
+            return CallbackRequest::fail('非力 pos 回调，无法处理');
         }
         try {
             // 验签
@@ -374,6 +376,8 @@ class LiPosStrategy extends PosStrategy
         $decryptedData = json_decode($decrypted, true);
         if (self::CALLBACK_SERVICE_TYPE['merchant_rate_set_success'] === $data['serviceType']) {
             return MerchantConvertor::toMerchantRateSetCallbackRequest($decryptedData);
+        } elseif (self::CALLBACK_SERVICE_TYPE['merchant_register_success'] === $data['serviceType']) {
+            return MerchantConvertor::toMerchantRegisterCallbackRequest($decryptedData);
         }
 
         return CallbackRequest::fail('不理解你回调了啥');
