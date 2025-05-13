@@ -11,7 +11,7 @@ class PosInfoResponse
     use ResponseTrait;
 
     /**
-     * @var Money 押金
+     * @var null|Money 押金
      */
     private $deposit;
 
@@ -26,12 +26,12 @@ class PosInfoResponse
     private $simPackageCode;
 
     /**
-     * @var Rate 贷记卡费率
+     * @var null|Rate 贷记卡费率
      */
     private $creditRate;
 
     /**
-     * @var Money 提现手续费
+     * @var null|Money 提现手续费
      */
     private $withdrawFee;
 
@@ -40,32 +40,32 @@ class PosInfoResponse
      */
     private $isVip;
 
-    public function getDeposit(): Money
+    public function getDeposit(): ?Money
     {
         return $this->deposit;
     }
 
-    public function setDeposit(Money $deposit): void
+    public function setDeposit(?Money $deposit): void
     {
         $this->deposit = $deposit;
     }
 
-    public function getCreditRate(): Rate
+    public function getCreditRate(): ?Rate
     {
         return $this->creditRate;
     }
 
-    public function setCreditRate(Rate $creditRate): void
+    public function setCreditRate(?Rate $creditRate): void
     {
         $this->creditRate = $creditRate;
     }
 
-    public function getWithdrawFee(): Money
+    public function getWithdrawFee(): ?Money
     {
         return $this->withdrawFee;
     }
 
-    public function setWithdrawFee(Money $withdrawFee): void
+    public function setWithdrawFee(?Money $withdrawFee): void
     {
         $this->withdrawFee = $withdrawFee;
     }
