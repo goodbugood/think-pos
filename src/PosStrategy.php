@@ -185,7 +185,7 @@ abstract class PosStrategy
     }
 
     /**
-     * pos 平台回调，用来通知商户注册成功的商户信息
+     * pos 平台回调，用来通知代理平台商户注册成功的商户信息
      */
     function handleCallbackOfMerchantRegister(string $content): MerchantRegisterCallbackRequest
     {
@@ -193,7 +193,7 @@ abstract class PosStrategy
     }
 
     /**
-     * pos 平台回调，用来通知商户 pos 绑定成功
+     * pos 平台回调，用来通知代理平台商户绑定 pos 成功
      * @param string $content 回调内容
      * @return mixed
      */
@@ -203,7 +203,26 @@ abstract class PosStrategy
     }
 
     /**
-     * pos 平台回调商户费率设置成功
+     * pos 平台回调，用来通知代理平台商户绑定 pos 成功，并激活成功
+     * pos 激活成功发生在绑定之后
+     */
+    function handleCallbackOfPosActive(string $content): PosCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos激活回调功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调，用来通知代理平台商户解绑 pos 成功
+     * @param string $content
+     * @return PosCallbackRequest
+     */
+    function handleCallbackOfPosUnbind(string $content): PosCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos解绑回调功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调代理平台商户费率设置成功
      */
     function handleCallbackOfMerchantRateSet(string $content): MerchantRateSetCallbackRequest
     {
