@@ -10,15 +10,15 @@ interface MerchantStatus
     /**
      * 商户状态：可用
      */
-    public const ENABLED = 1;
+    public const ENABLED = 'enabled';
 
     /**
      * 商户状态：禁用
      */
-    public const DISABLED = 2;
+    public const DISABLED = 'disabled';
 
     /**
      * 商户状态：删除
      */
-    public const DELETED = 3;
+    public const DELETED = 'deleted';
 }

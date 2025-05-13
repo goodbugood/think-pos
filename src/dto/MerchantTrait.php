@@ -60,7 +60,7 @@ trait MerchantTrait
     private $bankAccountNo;
 
     /**
-     * @var int 商户状态
+     * @var string 商户状态
      * @see \think\pos\constant\MerchantStatus
      */
     private $status;
@@ -125,12 +125,12 @@ trait MerchantTrait
         $this->phoneNo = $phoneNo;
     }
 
-    public function getStatus(): int
+    public function getStatus(): string
     {
         return $this->status;
     }
 
-    public function setStatus(int $status): void
+    public function setStatus(string $status): void
     {
         $this->status = $status;
     }
