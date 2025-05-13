@@ -29,7 +29,7 @@ class LiPosStrategy extends PosStrategy
     /**
      * 回调成功返回内容
      */
-    private const CALLBACK_ACK_CONTENT = 'OK';
+    protected const CALLBACK_ACK_CONTENT = 'OK';
 
     /**
      * 响应 00 表示成功

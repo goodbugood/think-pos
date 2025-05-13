@@ -60,6 +60,7 @@ abstract class PosStrategy
 
     /**
      * 回调成功返回内容
+     * 此处私有属性，就是强迫子类重写成功返回内容
      */
     private const CALLBACK_ACK_CONTENT = 'OK';
 

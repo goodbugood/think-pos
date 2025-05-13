@@ -65,6 +65,7 @@ class LiPosStrategyTest extends TestCase
         self::assertInstanceOf(Rate::class, $callbackRequest->getAlipayRate());
         self::assertInstanceOf(Rate::class, $callbackRequest->getDebitCardRate());
         self::assertInstanceOf(Rate::class, $callbackRequest->getCreditRate());
+        self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
     }
 
     /**
@@ -167,6 +168,7 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($callbackRequest->getIdCardNo());
         self::assertNotEmpty($callbackRequest->getIdCardName());
         self::assertNotEmpty($callbackRequest->getPhoneNo());
+        self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
     }
 
     /**
@@ -201,6 +203,7 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($callbackRequest->getMerchantNo());
         self::assertNotEmpty($callbackRequest->getDeviceSn());
         self::assertNotEmpty($callbackRequest->getStatus());
+        self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
     }
 
     /**
@@ -235,6 +238,7 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($callbackRequest->getMerchantNo());
         self::assertNotEmpty($callbackRequest->getDeviceSn());
         self::assertNotEmpty($callbackRequest->getStatus());
+        self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
     }
 
     /**
@@ -248,6 +252,7 @@ class LiPosStrategyTest extends TestCase
         self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
         self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
         self::assertInstanceOf(PosCallbackRequest::class, $callbackRequest);
+        self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
     }
 
     /**
@@ -271,5 +276,6 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($callbackRequest->getFee());
         self::assertNotEmpty($callbackRequest->getSuccessDateTime());
         self::assertNotEmpty($callbackRequest->getStatus());
+        self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
     }
 }
