@@ -7,6 +7,9 @@ use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
+use think\pos\dto\request\callback\PosBindCallbackRequest;
+use think\pos\dto\request\callback\PosCallbackRequest;
+use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
@@ -45,6 +48,23 @@ class LiPosStrategyTest extends TestCase
         $merchantRequestDto->setAlipayRate(Rate::valuePercentage('0.55'));
         $posProviderResponse = $this->posStrategy->setMerchantRate($merchantRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
+    }
+
+    /**
+     * @test 测试商户汇率设置成功回调
+     * @return void
+     */
+    function handleCallbackOfMerchantRateSet()
+    {
+        $content = '{"serviceType":"CUSTOMER_LAST_RATE_NOTIFY","data":"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","appId":"61261936","sign":"K1Dw2u8QiZ1kqt4zhG4jtNbmWHyj4xrZ1cX0jJCiIEHUEMxNq1UT8shrntaLSadvqDBiVnaWyzgno/WWfguU0kPi2dtYjytoz3Lt7nFgzG2gpmtoV4I2edbmlXtmLM3U0PF5Mc7d+XJUX2CTb4IrLb5Ajyii0WsrEgP+C94AUQRgyB15jlDLlYIk3+FLXOJ9gf+/mOIYeD3pVdT/zeUvUXW9iREGiZDH0VlYiJuZyotDfd8PRkOEKHHfUsPv2Pi00WFhpW0cJD1Vm1/mTBCvREzgwq47Tc1GDPBgxtiFWaFdo08anZFSRz54BqptPErVBqERNo7YwM0EOvkjfRqmsg==","encryptKey":"GeKpiRQkc372PjwK+2nheLesaDsFAHEPRGReVFP0PG2qXETrZqhp/azentS6BQLcJ+UVzuCtBiPEec5J9qFqJenIkCtmIPhv8c/tHb0EUdVsRBC7MqnrQKEFVD8EILx/Xd717ktpTMd97wJJVnSsrav+VyYXkXR74gOuhsjTu0PrU+qso5O/Zf/JdIUgfSIltcvUMadu9ULyOOLD8bumaeAFfyDYY6DBKtwTiOE6QUwUtE+bAwTGa+TmF461UwES2k5H9/d0DdnJAhlpbJ2bpdgrBS2oDRFekpmL1bADruG+9gAGS0TrWG+vQfGIxVw0iXK1ekm2Z8PCNsqf16YK+A==","timestamp":"1747037392992","responseId":"JZY1216031860737"}';
+        $callbackRequest = $this->posStrategy->handleCallback($content);
+        self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
+        self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
+        self::assertInstanceOf(MerchantRateSetCallbackRequest::class, $callbackRequest);
+        self::assertInstanceOf(Rate::class, $callbackRequest->getWechatRate());
+        self::assertInstanceOf(Rate::class, $callbackRequest->getAlipayRate());
+        self::assertInstanceOf(Rate::class, $callbackRequest->getDebitCardRate());
+        self::assertInstanceOf(Rate::class, $callbackRequest->getCreditRate());
     }
 
     /**
@@ -134,23 +154,6 @@ class LiPosStrategyTest extends TestCase
     }
 
     /**
-     * @test 测试商户汇率设置成功回调
-     * @return void
-     */
-    function handleCallbackOfMerchantRateSet()
-    {
-        $content = '{"serviceType":"CUSTOMER_LAST_RATE_NOTIFY","data":"xJV5DfDhaByt0duc//6djMGdOWWFAQayboeHBoz1XgbdetUlNbsLHFhUSJQSc3W+k7igh+hk18jItF2w/338K3Wa6xlYt9BnjboXeYpJCmJGfnkNAC9x4jXYkqpv5Qk4fCc2EOowMRKuDg24MAGkmcKVKGvIwXygPcz75CXEkQCe/SD691ho08igT3A76esFoQ4SzxPNVlMYJs1VyFTpNmSdBkpSdNfeDwsng6Ttk2MBhWF+ousvKydBAA+4VCxIWL0UUZidsAM5oAv9sgwXgKKvt4YagGCzMvK3hpLSM4Onv2Shu3Iak6ZYpiubl20BZXHZ6D0yB2K7NxYT0cpV66kSPPA8BQ/9JID8LjMs08IyxrRSzOzo6WoXrmBbSxcvUKdSvboH0QNUBA56J5Mee2YicDeiSI1J+3ES4VqCHOQ8KdaUkKKiLRkVMGp8vD4cmVMjgHtfxyt0xF9m3uEhrYajiFbZn9/7VbYB81MkYsA/ct70d07B87UseovLMEqjQF7OAeeAjT6Un3G7fG3igae7N3pqZgR/4WF52aG6gC0nX6uoeAnnd5ma1Ejo87RMAW+pt6JbLD1uRNDIpoM4Rl5C6YTgLHpNS7gH6SBCcjsCR7fyElUIyZqGd8wETz+TAIwCYzsFQrmqy9DfPDaGJY3aPZ1OFRFEJRK8gwm+SRjF7X5cf9m0aXlaOiwWsZUE28LgO3jPdDmvmSfm0nkOBpeY+zzcryGci0P6Hl9/AwtBUN9gmhI3/cz6GCl3EM5Hvuqp5VS0CgyqTzqJRR0bVkO+KngRGR+FxeOWP7WdbjoUzdSsoJyF8WOr+sA0V+pWOIRWj0j/ojXS48P2vxb+fM4e/lm8b2dH4yQvfgHg8qmvMqMn7n19x//88ROsiiVohUOVWUFe8nORWcmgiEE1Oe47W7Kd3wnfbntykHvEqDJTwyqoe9bHsoUFuC4lMID4+1nNrIsMYZ8MiUdtteqIkJQfqWWj2GAp3m37s/vmqYI+z/vRmHJQqhZk+WWyrVfu+NreXa59jWnUaWV37mynBZoPvYYHlM3q7Lq0TsOpYYQfKQ2kYI2o+WibMGNSaz9bSicfFwkWprBVNyEuMtT9TZ2UtTjAc6LKJoHSd4L/Tg34Ow8DiRs96o6EnIzzpwcDNZV1sVTM2sOJ5PnAHTUwQAstel1qRvCT3q3hdiFXg7cKU1KNnf7M/dhFLeNv1CTq+X6AqZf9LpD0ds/t+hlbxEtON3PF0VtjaW/v8m3w6B4ggv/q5pWpB+bFz/GXrT46wq+7GbA9Kljt9ImRVaj3YXGABOHhRKejbVluHHq2UKMknXh2ouVkrcedHYulcC2jXKftpko4+CwxQgJTGjxfeuFWD2aY9t/mIkrbK7kPc6dgHwBqWR2d18P5ZkUsg99w572IdNfcuh5K6283C530OkQhwU34vz7oK2DzqUQEI4cU/qji1c2BPjTFtQGLp0z+J5I2cR4yA3WzvksJhZcrscjWVTI/Go8tY4E9CHDbYgN96v3+7cRm0KO0EZ4W0rpJwipYT9OAYJJapHye/rhvBuJ6eyZBW3rSCNEVIxGkZi/GLriuXkMzhN69h9wMPcyligPH8ThFqK/n7LpUYgt6fe47W7Kd3wnfbntykHvEqDJTwyqoe9bHsoUFuC4lMID4+1nNrIsMYZ8MiUdtteqIkJQfqWWj2GAp3m37s/vmqYI+z/vRmHJQqhZk+WWyrVfuN/IYo/0I7LTaL2dlk1LGA0Z+eQ0AL3HiNdiSqm/lCTh8JzYQ6jAxEq4ODbgwAaSZwpUoa8jBfKA9zPvkJcSRALpYynL9T6BcjiprUY+pNFib1Kn0A7NIu6igt2i+maejtJZ61D7+1VxYgBQ7zyix5RdeCIOi9ehWGTa+PQfMsFmcKJQqbLGfvfex7LfLMEbtkYUHiHR/6SUzeJwy4wY+izmklB/n5avchmMvGHWlDbHO+AUJNJFBDnxjMbcFqvFt2yyJBYJwP0r8LTxbe00S70+6LwP6YFRZa5HlVwESB1hs/26tK6fe2anDOXhfyvO4yltjI7Y8fszCGjRcvo3606y2z3DzNx9GzzQiI/qzG4tg8ysLdA8Bu8CZ0Q9hTTzJpKSRAoF9R4P8JWTwwnD8yQ7sYC+GtBKBsho102xfIds3/G+xJFsRCGAkxWDvf7Si","appId":"61261936","sign":"K1Dw2u8QiZ1kqt4zhG4jtNbmWHyj4xrZ1cX0jJCiIEHUEMxNq1UT8shrntaLSadvqDBiVnaWyzgno/WWfguU0kPi2dtYjytoz3Lt7nFgzG2gpmtoV4I2edbmlXtmLM3U0PF5Mc7d+XJUX2CTb4IrLb5Ajyii0WsrEgP+C94AUQRgyB15jlDLlYIk3+FLXOJ9gf+/mOIYeD3pVdT/zeUvUXW9iREGiZDH0VlYiJuZyotDfd8PRkOEKHHfUsPv2Pi00WFhpW0cJD1Vm1/mTBCvREzgwq47Tc1GDPBgxtiFWaFdo08anZFSRz54BqptPErVBqERNo7YwM0EOvkjfRqmsg==","encryptKey":"GeKpiRQkc372PjwK+2nheLesaDsFAHEPRGReVFP0PG2qXETrZqhp/azentS6BQLcJ+UVzuCtBiPEec5J9qFqJenIkCtmIPhv8c/tHb0EUdVsRBC7MqnrQKEFVD8EILx/Xd717ktpTMd97wJJVnSsrav+VyYXkXR74gOuhsjTu0PrU+qso5O/Zf/JdIUgfSIltcvUMadu9ULyOOLD8bumaeAFfyDYY6DBKtwTiOE6QUwUtE+bAwTGa+TmF461UwES2k5H9/d0DdnJAhlpbJ2bpdgrBS2oDRFekpmL1bADruG+9gAGS0TrWG+vQfGIxVw0iXK1ekm2Z8PCNsqf16YK+A==","timestamp":"1747037392992","responseId":"JZY1216031860737"}';
-        $callbackRequest = $this->posStrategy->handleCallback($content);
-        self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
-        self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
-        self::assertInstanceOf(MerchantRateSetCallbackRequest::class, $callbackRequest);
-        self::assertInstanceOf(Rate::class, $callbackRequest->getWechatRate());
-        self::assertInstanceOf(Rate::class, $callbackRequest->getAlipayRate());
-        self::assertInstanceOf(Rate::class, $callbackRequest->getDebitCardRate());
-        self::assertInstanceOf(Rate::class, $callbackRequest->getCreditRate());
-    }
-
-    /**
      * @test 测试商户注册成功回调
      */
     function handleCallbackOfMerchantRegister()
@@ -164,5 +167,109 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($callbackRequest->getIdCardNo());
         self::assertNotEmpty($callbackRequest->getIdCardName());
         self::assertNotEmpty($callbackRequest->getPhoneNo());
+    }
+
+    /**
+     * @test 测试 pos 绑定
+     * @return void
+     */
+    function posBind()
+    {
+        $posSn = env('lipos.posSn');
+        self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
+        $merchantNo = env('lipos.merchantNo');
+        self::assertNotEmpty($merchantNo, 'lishuaB.merchantNo is empty');
+        $merchantRequestDto = new MerchantRequestDto();
+        $merchantRequestDto->setMerchantNo($merchantNo);
+        $posRequestDto = new PosRequestDto();
+        $posRequestDto->setDeviceSn($posSn);
+        $posProviderResponse = $this->posStrategy->bindPos($merchantRequestDto, $posRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
+    }
+
+    /**
+     * @test 测试 pos 绑定回调
+     */
+    function handleCallbackOfPosBind()
+    {
+        $content = '{"serviceType":"MATERIAL_BIND_STATUS_NOTIFY","data":"9SIO43lNTsgQHaF5+G8+wWVKLN/rlxIyqV73iiYAbpdXh9+WtcNnK7CWAaGnaAy4n5tupEn5fxJGj++syht7MCsYUTB22TJ7vNtZl6JkTbKVKci+4sqMk4rWFXdbRYUM8CL9yKDhidk8WXEBKFl57ICT8We4UGrLNiIVpesVwvTASc/uIGNPqJ8MLlUO0kEB74lcrK7uDBvCj3zXL1I7bg==","appId":"61261936","sign":"XxaBBrcGfVWKtjzyvPblbvDUiLsF/aI090YX2/GMDToHVBzo/U5TdI+l4f62+QO1rz0KCgdOljozRP0jiNuZvLcRGmdtuG7Xml+ys74E7Hkm3TU76V5pW7xqXszXwkOh0Si/FVOMpBeWTVsOwZsIIyME9xxqaDoivjtPv9bKrWpqWvDHFurafs555IS3KZq3g4qrXxgtVRzZtaMnZeUV0V9fd0QJk8WNe5z7dipbmQRtIqhZefhzoDV3W9iovJ7LnpJjAcavG9L3E8u6Lnsx3AdYtlQ4cd5peU7K9Thg/V+Wb3nhDcHaRavJqgLGx4notX3BY2u69+BIHNj9DD1H4g==","encryptKey":"Mc00JBzqESAmFVtho3Gcx6u9/V0a1iJ75OxkeV+ULQF+BaFyncAVBQss8iYx5Yku+PFqMBXUDnCexv9xUmKaY0rvyz0Yna2x0BEEWKEKFbEvsa4YXs0ek1p6/f9OXQkKRcTPuG+41hP+sRhaKWqYv4wHCltGbbIQG/Txj7D1rmAPBidekDGYjidnx7th9Q7ehmN618Vwwb9BRhlHRkvgawmECKie9KNwUmfZTNQk9k+6BpoKb37eDK5ODQ0J/GcJcfeTL+ZOwit0BbYdzaiNfRyMyRSh2YW1C2XLk8MTNafpoY2Cva1kKl3Z5YfY9LVlv5ff54Y9iiDVreybqX2snw==","timestamp":"1747105746640","responseId":"JZY1311015243266"}';
+        $callbackRequest = $this->posStrategy->handleCallback($content);
+        self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
+        self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
+        self::assertInstanceOf(PosBindCallbackRequest::class, $callbackRequest);
+        self::assertNotEmpty($callbackRequest->getAgentNo());
+        self::assertNotEmpty($callbackRequest->getMerchantNo());
+        self::assertNotEmpty($callbackRequest->getDeviceSn());
+        self::assertNotEmpty($callbackRequest->getStatus());
+    }
+
+    /**
+     * @test 测试 pos 解绑
+     */
+    function posUnbind()
+    {
+        $posSn = env('lipos.posSn');
+        self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
+        $merchantNo = env('lipos.merchantNo');
+        self::assertNotEmpty($merchantNo, 'lishuaB.merchantNo is empty');
+        $merchantRequestDto = new MerchantRequestDto();
+        $merchantRequestDto->setMerchantNo($merchantNo);
+        $posRequestDto = new PosRequestDto();
+        $posRequestDto->setDeviceSn($posSn);
+        $posProviderResponse = $this->posStrategy->unbindPos($merchantRequestDto, $posRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
+    }
+
+    /**
+     * @test 测试 pos 解绑回调
+     */
+    function handleCallbackOfPosUnbind()
+    {
+        // todo shali [2025/5/13] 缺失真实解绑回调信息
+        $content = '';
+        $callbackRequest = $this->posStrategy->handleCallback($content);
+        self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
+        self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
+        self::assertInstanceOf(PosBindCallbackRequest::class, $callbackRequest);
+        self::assertNotEmpty($callbackRequest->getAgentNo());
+        self::assertNotEmpty($callbackRequest->getMerchantNo());
+        self::assertNotEmpty($callbackRequest->getDeviceSn());
+        self::assertNotEmpty($callbackRequest->getStatus());
+    }
+
+    /**
+     * @test 测试 pos 激活成功回调
+     */
+    function handleCallbackOfPosActivate()
+    {
+        // todo shali [2025/5/13] 缺失真实激活回调信息
+        $content = '';
+        $callbackRequest = $this->posStrategy->handleCallback($content);
+        self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
+        self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
+        self::assertInstanceOf(PosCallbackRequest::class, $callbackRequest);
+    }
+
+    /**
+     * @test 测试 pos 交易成功回调
+     */
+    function handleCallbackOfPosTrans()
+    {
+        // todo shali [2025/5/13] 缺失真实交易回调信息
+        $content = '';
+        $callbackRequest = $this->posStrategy->handleCallback($content);
+        self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
+        self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
+        self::assertInstanceOf(PosTransCallbackRequest::class, $callbackRequest);
+        self::assertNotEmpty($callbackRequest->getAgentNo());
+        self::assertNotEmpty($callbackRequest->getMerchantNo());
+        self::assertNotEmpty($callbackRequest->getDeviceSn());
+        self::assertNotEmpty($callbackRequest->getTransNo());
+        self::assertNotEmpty($callbackRequest->getAmount());
+        self::assertNotEmpty($callbackRequest->getSettleAmount());
+        self::assertNotEmpty($callbackRequest->getRate());
+        self::assertNotEmpty($callbackRequest->getFee());
+        self::assertNotEmpty($callbackRequest->getSuccessDateTime());
+        self::assertNotEmpty($callbackRequest->getStatus());
     }
 }

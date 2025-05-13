@@ -10,7 +10,6 @@ use shali\phpmate\crypto\KeyUtil;
 use shali\phpmate\crypto\SignUtil;
 use shali\phpmate\http\HttpClient;
 use shali\phpmate\PhpMateException;
-use think\pos\dto\request\callback\PosCallbackRequest;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
@@ -41,6 +40,10 @@ class LiPosStrategy extends PosStrategy
      * 接口方法
      */
     private const API_METHOD = [
+        // 商户绑定 pos
+        'bind_pos' => '/bindMaterials',
+        // 商户解绑 pos
+        'unbind_pos' => '/unBindMaterials',
         // 查询 pos 终端
         'pos_info' => '/materialsDataQuery',
         // 设置 pos 费率
@@ -61,16 +64,18 @@ class LiPosStrategy extends PosStrategy
         'merchant_rate_set_success' => 'CUSTOMER_LAST_RATE_NOTIFY',
         // 商户注册成功回调商户信息
         'merchant_register_success' => 'CUSTOMER_INFO_REGISTER_NOTIFY',
+        // pos 绑定成功回调
+        'pos_bind_success' => 'MATERIAL_BIND_STATUS_NOTIFY',
+        // pos 激活成功回调
+        'pos_activate_success' => 'MATERIALS_ACTIVATION_NOTIFY',
+        // 刷卡交易成功通知回调
+        'pos_trans_success' => 'PAY_ORDER_NOTIFY',
     ];
 
     /**
      * @var HttpClient
      */
     private $httpClient;
-
-    private static function sha256WithRSAVerify(bool $json_encode, string $sign, $publicKey)
-    {
-    }
 
     public static function providerName(): string
     {
@@ -191,6 +196,48 @@ class LiPosStrategy extends PosStrategy
             $errorMsg = sprintf('pos服务商[%s]修改pos_sn=%s押金失败：%s', self::providerName(), $dto->getDeviceSn(), $e->getMessage());
             return PosProviderResponse::fail($errorMsg);
         }
+        return PosProviderResponse::success();
+    }
+
+    /**
+     * 商户绑定 pos
+     */
+    public function bindPos(MerchantRequestDto $merchantRequestDto, PosRequestDto $posRequestDto): PosProviderResponse
+    {
+        $url = $this->getUrl(self::API_METHOD['bind_pos']);
+        $params = [
+            'customerNo' => $merchantRequestDto->getMerchantNo(),
+            'materialsNo' => $posRequestDto->getDeviceSn(),
+        ];
+        try {
+            $this->post($url, $params);
+        } catch (Exception $e) {
+            $errorMsg = sprintf('pos服务商[%s]绑定pos_sn=%s失败：%s', self::providerName(), $posRequestDto->getDeviceSn(), $e->getMessage());
+            return PosProviderResponse::fail($errorMsg);
+        }
+        return PosProviderResponse::success();
+    }
+
+    /**
+     * 商户解绑 pos
+     * @param MerchantRequestDto $merchantRequestDto
+     * @param PosRequestDto $posRequestDto
+     * @return PosProviderResponse
+     */
+    public function unbindPos(MerchantRequestDto $merchantRequestDto, PosRequestDto $posRequestDto): PosProviderResponse
+    {
+        $url = $this->getUrl(self::API_METHOD['unbind_pos']);
+        $params = [
+            'customerNo' => $merchantRequestDto->getMerchantNo(),
+            'materialsNo' => $posRequestDto->getDeviceSn(),
+        ];
+        try {
+            $this->post($url, $params);
+        } catch (Exception $e) {
+            $errorMsg = sprintf('pos服务商[%s]解绑pos_sn=%s失败：%s', self::providerName(), $posRequestDto->getDeviceSn(), $e->getMessage());
+            return PosProviderResponse::fail($errorMsg);
+        }
+
         return PosProviderResponse::success();
     }
 
@@ -378,6 +425,12 @@ class LiPosStrategy extends PosStrategy
             return MerchantConvertor::toMerchantRateSetCallbackRequest($decryptedData);
         } elseif (self::CALLBACK_SERVICE_TYPE['merchant_register_success'] === $data['serviceType']) {
             return MerchantConvertor::toMerchantRegisterCallbackRequest($decryptedData);
+        } elseif (self::CALLBACK_SERVICE_TYPE['pos_activate_success'] === $data['serviceType']) {
+            return PosConvertor::toPosActivateCallbackRequest($decryptedData);
+        } elseif (self::CALLBACK_SERVICE_TYPE['pos_bind_success'] === $data['serviceType']) {
+            return PosConvertor::toPosBindCallbackRequest($decryptedData);
+        } elseif (self::CALLBACK_SERVICE_TYPE['pos_trans_success'] === $data['serviceType']) {
+            return PosConvertor::toPosTransCallbackRequest($decryptedData);
         }
 
         return CallbackRequest::fail('不理解你回调了啥');
