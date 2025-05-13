@@ -4,7 +4,9 @@ namespace think\pos\dto\request\callback;
 
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
+use think\pos\constant\PaymentType;
 use think\pos\constant\TransOrderStatus;
+use think\pos\constant\TransOrderType;
 use think\pos\dto\request\CallbackRequest;
 
 class PosTransCallbackRequest extends CallbackRequest
@@ -64,6 +66,18 @@ class PosTransCallbackRequest extends CallbackRequest
      * @see TransOrderStatus
      */
     private $status;
+
+    /**
+     * @var string 订单类型
+     * @see TransOrderType
+     */
+    private $orderType;
+
+    /**
+     * @var string 支付方式，这是支付方式不是支付渠道
+     * @see PaymentType
+     */
+    private $paymentType;
 
     public function getAgentNo(): string
     {
@@ -173,5 +187,25 @@ class PosTransCallbackRequest extends CallbackRequest
     public function setStatus(string $status): void
     {
         $this->status = $status;
+    }
+
+    public function getOrderType(): string
+    {
+        return $this->orderType;
+    }
+
+    public function setOrderType(string $orderType): void
+    {
+        $this->orderType = $orderType;
+    }
+
+    public function getPaymentType(): string
+    {
+        return $this->paymentType;
+    }
+
+    public function setPaymentType(string $paymentType): void
+    {
+        $this->paymentType = $paymentType;
     }
 }
