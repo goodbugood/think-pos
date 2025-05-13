@@ -87,3 +87,4 @@ pos 机厂商的配置参数，即可完成接入。
 2. `ext-curl` http 请求依赖
 3. `ext-openssl` curl 请求，签名使用
 4. `ext-json` json 处理
+5. `php` 7.3+
