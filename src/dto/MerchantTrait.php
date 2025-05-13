@@ -20,25 +20,34 @@ trait MerchantTrait
     private $regDateTime;
 
     /**
-     * @var string 身份证号
+     * @var string 营业执照号
+     */
+    private $businessLicenseNo;
+
+    /**
+     * @var string 营业执照名称=商户经营名称=店铺名称
+     */
+    private $businessName;
+
+    /**
+     * @var string 法人身份证号码
      */
     private $idCardNo;
 
     /**
-     * @var string 身份证姓名
+     * @var string 法人姓名
      */
     private $idCardName;
 
     /**
-     * @var string 手机号
+     * @var string 法人身份证过期日期：Y-m-d
      */
-    private $phoneNo;
+    private $idCardExpireDate;
 
     /**
-     * @var int 商户状态
-     * @see \think\pos\constant\MerchantStatus
+     * @var string 法人手机号
      */
-    private $status;
+    private $phoneNo;
 
     /**
      * @var string 结算银行卡开户名称
@@ -49,6 +58,12 @@ trait MerchantTrait
      * @var string 结算银行卡卡号
      */
     private $bankAccountNo;
+
+    /**
+     * @var int 商户状态
+     * @see \think\pos\constant\MerchantStatus
+     */
+    private $status;
 
     public function getMerchantNo(): string
     {
@@ -138,5 +153,35 @@ trait MerchantTrait
     public function setBankAccountNo(string $bankAccountNo): void
     {
         $this->bankAccountNo = $bankAccountNo;
+    }
+
+    public function getBusinessLicenseNo(): string
+    {
+        return $this->businessLicenseNo;
+    }
+
+    public function setBusinessLicenseNo(string $businessLicenseNo): void
+    {
+        $this->businessLicenseNo = $businessLicenseNo;
+    }
+
+    public function getBusinessName(): string
+    {
+        return $this->businessName;
+    }
+
+    public function setBusinessName(string $businessName): void
+    {
+        $this->businessName = $businessName;
+    }
+
+    public function getIdCardExpireDate(): string
+    {
+        return $this->idCardExpireDate;
+    }
+
+    public function setIdCardExpireDate(string $idCardExpireDate): void
+    {
+        $this->idCardExpireDate = $idCardExpireDate;
     }
 }

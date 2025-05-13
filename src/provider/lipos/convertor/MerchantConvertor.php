@@ -4,7 +4,9 @@ namespace think\pos\provider\lipos\convertor;
 
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
+use think\pos\constant\MerchantStatus;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
+use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 
 final class MerchantConvertor
 {
@@ -25,6 +27,33 @@ final class MerchantConvertor
                 // 贷记卡
                 $request->setCreditRate(Rate::valueOfPercentage(strval($rateNotify['rateValue'])));
             }
+        }
+
+        return $request;
+    }
+
+    public static function toMerchantRegisterCallbackRequest(array $decryptedData): MerchantRegisterCallbackRequest
+    {
+        $request = MerchantRegisterCallbackRequest::success();
+        $request->setAgentNo($decryptedData['customerInfoNotify']['agentNo']);
+        // 商户
+        $request->setMerchantNo($decryptedData['customerInfoNotify']['customerNo']);
+        $request->setMerchantName($decryptedData['customerInfoNotify']['customerName']);
+        $request->setRegDateTime($decryptedData['customerInfoNotify']['createTime']);
+        // 法人
+        $request->setIdCardName($decryptedData['customerInfoNotify']['idCardName']);
+        $request->setIdCardNo($decryptedData['customerInfoNotify']['idCardNo']);
+        $request->setIdCardExpireDate($decryptedData['customerInfoNotify']['idCardEffectiveEnd']);
+        $request->setPhoneNo($decryptedData['customerInfoNotify']['phoneNo']);
+        // 营业执照
+        $request->setBusinessName($decryptedData['customerInfoNotify']['businessName']);
+        // 结算卡
+        $request->setBankAccountName($decryptedData['customerSettleCardNotify']['accountName']);
+        $request->setBankAccountNo($decryptedData['customerSettleCardNotify']['accountNo']);
+        if ('TRUE' === $decryptedData['customerInfoNotify']['isOpenSettleCard']) {
+            $request->setStatus(MerchantStatus::ENABLED);
+        } else {
+            $request->setStatus(MerchantStatus::DISABLED);
         }
 
         return $request;
