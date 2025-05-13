@@ -45,8 +45,8 @@ final class MerchantConvertor
         $request->setIdCardNo($decryptedData['customerInfoNotify']['idCardNo']);
         $request->setIdCardExpireDate($decryptedData['customerInfoNotify']['idCardEffectiveEnd']);
         $request->setPhoneNo($decryptedData['customerInfoNotify']['phoneNo']);
-        // 营业执照
-        $request->setBusinessName($decryptedData['customerInfoNotify']['businessName']);
+        // 营业执照，上游 business 拼写错误
+        $request->setBusinessName($decryptedData['customerInfoNotify']['bussinessName']);
         // 结算卡
         $request->setBankAccountName($decryptedData['customerSettleCardNotify']['accountName']);
         $request->setBankAccountNo($decryptedData['customerSettleCardNotify']['accountNo']);
