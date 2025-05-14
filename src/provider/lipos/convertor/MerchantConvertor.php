@@ -13,7 +13,7 @@ final class MerchantConvertor
     public static function toMerchantRateSetCallbackRequest(array $decryptedData): MerchantRateSetCallbackRequest
     {
         $request = MerchantRateSetCallbackRequest::success();
-        $request->setMerchantNo($decryptedData['customerNo']);
+        $request->setMerchantNo($decryptedData['customerNo'] ?? 'null');
         foreach ($decryptedData['rateNotifyList'] as $rateNotify) {
             if ('ALIPAY' === $rateNotify['payTypeViewCode']) {
                 $request->setAlipayRate(Rate::valueOfPercentage(strval($rateNotify['rateValue'])));
@@ -35,22 +35,22 @@ final class MerchantConvertor
     public static function toMerchantRegisterCallbackRequest(array $decryptedData): MerchantRegisterCallbackRequest
     {
         $request = MerchantRegisterCallbackRequest::success();
-        $request->setAgentNo($decryptedData['customerInfoNotify']['agentNo']);
+        $request->setAgentNo($decryptedData['customerInfoNotify']['agentNo'] ?? 'null');
         // 商户
-        $request->setMerchantNo($decryptedData['customerInfoNotify']['customerNo']);
-        $request->setMerchantName($decryptedData['customerInfoNotify']['customerName']);
-        $request->setRegDateTime($decryptedData['customerInfoNotify']['createTime']);
+        $request->setMerchantNo($decryptedData['customerInfoNotify']['customerNo'] ?? 'null');
+        $request->setMerchantName($decryptedData['customerInfoNotify']['customerName'] ?? 'null');
+        $request->setRegDateTime($decryptedData['customerInfoNotify']['createTime'] ?? 'null');
         // 法人
-        $request->setIdCardName($decryptedData['customerInfoNotify']['idCardName']);
-        $request->setIdCardNo($decryptedData['customerInfoNotify']['idCardNo']);
-        $request->setIdCardExpireDate($decryptedData['customerInfoNotify']['idCardEffectiveEnd']);
-        $request->setPhoneNo($decryptedData['customerInfoNotify']['phoneNo']);
+        $request->setIdCardName($decryptedData['customerInfoNotify']['idCardName'] ?? 'null');
+        $request->setIdCardNo($decryptedData['customerInfoNotify']['idCardNo'] ?? 'null');
+        $request->setIdCardExpireDate($decryptedData['customerInfoNotify']['idCardEffectiveEnd'] ?? 'null');
+        $request->setPhoneNo($decryptedData['customerInfoNotify']['phoneNo'] ?? 'null');
         // 营业执照，上游 business 拼写错误
-        $request->setBusinessName($decryptedData['customerInfoNotify']['bussinessName']);
+        $request->setBusinessName($decryptedData['customerInfoNotify']['bussinessName'] ?? 'null');
         // 结算卡
-        $request->setBankAccountName($decryptedData['customerSettleCardNotify']['accountName']);
-        $request->setBankAccountNo($decryptedData['customerSettleCardNotify']['accountNo']);
-        if ('TRUE' === $decryptedData['customerInfoNotify']['isOpenSettleCard']) {
+        $request->setBankAccountName($decryptedData['customerSettleCardNotify']['accountName'] ?? 'null');
+        $request->setBankAccountNo($decryptedData['customerSettleCardNotify']['accountNo'] ?? 'null');
+        if ('TRUE' === $decryptedData['customerInfoNotify']['status'] ?? 'null') {
             $request->setStatus(MerchantStatus::ENABLED);
         } else {
             $request->setStatus(MerchantStatus::DISABLED);

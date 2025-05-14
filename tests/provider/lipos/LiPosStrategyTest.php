@@ -1,10 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace think\pos\tests\provider\lipos;
 
 use PHPUnit\Framework\TestCase;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
+use think\pos\constant\MerchantStatus;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
@@ -168,6 +169,7 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($callbackRequest->getIdCardNo());
         self::assertNotEmpty($callbackRequest->getIdCardName());
         self::assertNotEmpty($callbackRequest->getPhoneNo());
+        self::assertEquals(MerchantStatus::ENABLED, $callbackRequest->getStatus());
         self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
     }
 
