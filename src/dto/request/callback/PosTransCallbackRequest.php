@@ -2,6 +2,7 @@
 
 namespace think\pos\dto\request\callback;
 
+use shali\phpmate\core\date\LocalDateTime;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\PaymentType;
@@ -57,7 +58,7 @@ class PosTransCallbackRequest extends CallbackRequest
     private $fee;
 
     /**
-     * @var string 交易成功时间
+     * @var LocalDateTime 交易成功时间
      */
     private $successDateTime;
 
@@ -183,12 +184,12 @@ class PosTransCallbackRequest extends CallbackRequest
         $this->fee = $fee;
     }
 
-    public function getSuccessDateTime(): string
+    public function getSuccessDateTime(): LocalDateTime
     {
         return $this->successDateTime;
     }
 
-    public function setSuccessDateTime(string $successDateTime): void
+    public function setSuccessDateTime(LocalDateTime $successDateTime): void
     {
         $this->successDateTime = $successDateTime;
     }

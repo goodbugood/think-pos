@@ -283,8 +283,40 @@ class LiPosStrategyTest extends TestCase
      */
     function handleCallbackOfPosTrans()
     {
-        // todo shali [2025/5/13] 缺失真实交易回调信息
-        $content = '';
+        // 自己模拟的回调信息
+        $posSn = env('lipos.posSn');
+        self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
+        $merchantNo = env('lipos.merchantNo');
+        self::assertNotEmpty($merchantNo, 'lishuaB.merchantNo is empty');
+        $agentNo = '11111111';
+        $data = [
+            'agentNo' => $agentNo,
+            'customerName' => '测试商户',
+            'customerNo' => $merchantNo,
+            'materialsNo' => $posSn,
+            'transType' => 'TRADE',
+            'payTypeCode' => 'WECHAT',
+            'orderNo' => strval(time()),
+            'amount' => 100,
+            // 结算金额
+            'settleAmount' => 98.00,
+            'feeRate' => 2,
+            // 手续费
+            'fee' => 2.00,
+            // 笔数费
+            'fixedValue' => 0.00,
+            'status' => 'SUCCESS',
+            'successTime' => date('Y-m-d H:i:s'),
+        ];
+        $password = '1234567890123456';
+        $params['data'] = $this->posStrategy->encryptData($password, json_encode($data));
+        $params['encryptKey'] = $this->posStrategy->encryptPassword($password);
+        $params['appId'] = $agentNo;
+        $params['timestamp'] = time();
+        $params['serviceType'] = 'PAY_ORDER_NOTIFY';
+        $params['sign'] = $this->posStrategy->sign($params);
+        $content = json_encode($params);
+        // exit($content);
         $callbackRequest = $this->posStrategy->handleCallback($content);
         self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
         self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
@@ -297,7 +329,7 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($callbackRequest->getSettleAmount());
         self::assertNotEmpty($callbackRequest->getRate());
         self::assertNotEmpty($callbackRequest->getFee());
-        self::assertNotEmpty($callbackRequest->getSuccessDateTime());
+        self::assertInstanceOf(LocalDateTime::class, $callbackRequest->getSuccessDateTime());
         self::assertNotEmpty($callbackRequest->getStatus());
         self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
     }

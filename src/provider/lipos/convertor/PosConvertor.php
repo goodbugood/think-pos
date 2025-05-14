@@ -114,16 +114,20 @@ final class PosConvertor
     public static function toPosTransCallbackRequest(array $decryptedData): PosTransCallbackRequest
     {
         $request = PosTransCallbackRequest::success();
-        $request->setAgentNo($decryptedData['agentNo'] ?? 'null');
-        $request->setMerchantNo($decryptedData['customerNo'] ?? 'null');
-        $request->setMerchantName($decryptedData['customerName'] ?? 'null');
-        $request->setDeviceSn($decryptedData['materialsNo'] ?? 'null');
-        $request->setTransNo($decryptedData['orderNo'] ?? 'null');
+        $request->setAgentNo(strval($decryptedData['agentNo'] ?? 'null'));
+        $request->setMerchantNo(strval($decryptedData['customerNo'] ?? 'null'));
+        $request->setMerchantName(strval($decryptedData['customerName'] ?? 'null'));
+        $request->setDeviceSn(strval($decryptedData['materialsNo'] ?? 'null'));
+        $request->setTransNo(strval($decryptedData['orderNo'] ?? 'null'));
         $request->setAmount(Money::valueOfYuan(strval($decryptedData['amount'] ?? 0)));
         $request->setSettleAmount(Money::valueOfYuan(strval($decryptedData['settleAmount'] ?? 0)));
         $request->setRate(Rate::valueOfPercentage(strval($decryptedData['feeRate'] ?? 0)));
         $request->setFee(Money::valueOfYuan(strval($decryptedData['fee'] ?? 0)));
-        $request->setSuccessDateTime($decryptedData['successTime'] ?? 'null');
+        if (empty($decryptedData['successTime'])) {
+            $request->setSuccessDateTime(LocalDateTime::now());
+        } else {
+            $request->setSuccessDateTime(LocalDateTime::valueOfString($decryptedData['successTime']));
+        }
         if ('SUCCESS' === $decryptedData['status']) {
             $request->setStatus(TransOrderStatus::SUCCESS);
         } else {
