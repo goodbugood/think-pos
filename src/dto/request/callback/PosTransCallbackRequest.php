@@ -74,6 +74,20 @@ class PosTransCallbackRequest extends CallbackRequest
     private $orderType;
 
     /**
+     * 有的服务商会将多个订单放在一个回调中推送
+     * 第二个订单类型
+     * @var string
+     * @see TransOrderType
+     */
+    private $secondOrderType;
+
+    /**
+     * 附加的第二个订单金额
+     * @var Money|null
+     */
+    private $secondOrderAmount;
+
+    /**
      * @var string 支付方式，这是支付方式不是支付渠道
      * @see PaymentType
      */
@@ -207,5 +221,25 @@ class PosTransCallbackRequest extends CallbackRequest
     public function setPaymentType(string $paymentType): void
     {
         $this->paymentType = $paymentType;
+    }
+
+    public function getSecondOrderType(): string
+    {
+        return $this->secondOrderType;
+    }
+
+    public function setSecondOrderType(string $secondOrderType): void
+    {
+        $this->secondOrderType = $secondOrderType;
+    }
+
+    public function getSecondOrderAmount(): ?Money
+    {
+        return $this->secondOrderAmount;
+    }
+
+    public function setSecondOrderAmount(?Money $secondOrderAmount): void
+    {
+        $this->secondOrderAmount = $secondOrderAmount;
     }
 }

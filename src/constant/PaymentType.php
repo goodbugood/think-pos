@@ -4,6 +4,7 @@ namespace think\pos\constant;
 
 /**
  * 支付方式枚举，我们是细分的支付方式，可不是支付渠道
+ * 有些平台自己自定义的优惠类型，无法枚举，例如力 pos 的 POS_DISCOUNT_CC，POS_DISCOUNT_GF_CC
  * @author shali
  * @date 2025/05/13
  */

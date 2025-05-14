@@ -75,7 +75,7 @@ final class PosConvertor
         $request->setMerchantName($decryptedData['customerName'] ?? 'null');
         $request->setDeviceSn($decryptedData['materialsNo'] ?? 'null');
         $request->setActivateDateTime($decryptedData['activationTime'] ?? 'null');
-        if ('FINISHED' === $decryptedData['activationStatus']) {
+        if ('FINISHED' === $decryptedData['activationStatus'] ?? 'null') {
             $request->setStatus(PosStatus::ACTIVATE_SUCCESS);
         }
         return $request;
@@ -87,16 +87,17 @@ final class PosConvertor
         $request->setAgentNo($decryptedData['agentNo'] ?? 'null');
         $request->setMerchantNo($decryptedData['customerNo'] ?? 'null');
         $request->setDeviceSn($decryptedData['materialsNo'] ?? 'null');
-        if ('TRUE' === $decryptedData['bindStatus']) {
+        $bindStatus = $decryptedData['bindStatus'] ?? 'null';
+        if ('TRUE' === $bindStatus) {
             // 解绑成功
             $request->setStatus(PosStatus::UNBIND_SUCCESS);
-        } elseif ('FORCED_UNBIND' === $decryptedData['bindStatus']) {
+        } elseif ('FORCED_UNBIND' === $bindStatus) {
             // 强制解绑成功
             $request->setStatus(PosStatus::UNBIND_SUCCESS);
-        } elseif ('BINDED' === $decryptedData['bindStatus']) {
+        } elseif ('BINDED' === $bindStatus) {
             // 绑定成功
             $request->setStatus(PosStatus::BIND_SUCCESS);
-        } elseif ('CHANGE_BIND' === $decryptedData['bindStatus']) {
+        } elseif ('CHANGE_BIND' === $bindStatus) {
             // 换绑成功
             $request->setStatus(PosStatus::BIND_SUCCESS);
         }
@@ -116,35 +117,36 @@ final class PosConvertor
         $request->setRate(Rate::valueOfPercentage(strval($decryptedData['feeRate'] ?? 0)));
         $request->setFee(Money::valueOfYuan(strval($decryptedData['fee'] ?? 0)));
         $request->setSuccessDateTime($decryptedData['successTime'] ?? 'null');
-        if ('' === $decryptedData['status']) {
+        if ('SUCCESS' === $decryptedData['status']) {
             $request->setStatus(TransOrderStatus::SUCCESS);
         } else {
             $request->setStatus(TransOrderStatus::FAILURE);
         }
         // 解析订单类型
-        if ('SIM' === $decryptedData['stopPayType' ?? '']) {
-            $request->setOrderType(TransOrderType::SIM);
-        } elseif ('MACHINE' === $decryptedData['stopPayType'] ?? '') {
+        $stopPayType = $decryptedData['stopPayType'] ?? 'null';
+        if ('SIM' === $stopPayType) {
+            $request->setOrderType(TransOrderType::NORMAL);
+            $request->setSecondOrderType(TransOrderType::SIM);
+            $request->setSecondOrderAmount(Money::valueOfYuan(strval($decryptedData['stopPayAmount'] ?? 0)));
+        } elseif ('MACHINE' === $stopPayType) {
             $request->setOrderType(TransOrderType::DEPOSIT);
         } else {
             $request->setOrderType(TransOrderType::NORMAL);
         }
         // 解析支付方式
-        if ('Wechat' === $decryptedData['payType'] ?? '') {
+        $payType = $decryptedData['payTypeCode'] ?? 'null';
+        if ('WECHAT' === $payType) {
             $request->setPaymentType(PaymentType::WECHAT_QR);
-        } elseif ('AliPay' === $decryptedData['payType'] ?? '') {
+        } elseif ('ALIPAY' === $payType) {
             $request->setPaymentType(PaymentType::ALIPAY_QR);
-        } elseif ('UnionQr' === $decryptedData['payType'] ?? '') {
+        } elseif ('UNIONPAY_DOWN_CC' === $payType) {
+            // 力 pos 反馈云闪付1000-可以当做微信和支付宝
             $request->setPaymentType(PaymentType::UNION_QR);
-        } elseif ('QuickPass' === $decryptedData['payType'] ?? '') {
-            $request->setPaymentType(PaymentType::NFC);
-        } elseif ('DC' === $decryptedData['cardType'] ?? '') {
+        } elseif ('POS_DC' === $payType) {
             $request->setPaymentType(PaymentType::DEBIT_CARD);
-        } elseif ('CC' === $decryptedData['cardType'] ?? '') {
+        } elseif (in_array($payType, ['POS_CC', 'POS_DISCOUNT_CC', 'POS_DISCOUNT_GF_CC', 'POS_DISCOUNT_MS_CC', 'POS_DISCOUNT_PA_CC'])) {
+            // 力 pos 反馈 4 个特惠类型用贷记卡
             $request->setPaymentType(PaymentType::CREDIT_CARD);
-        } elseif ('MobilePay' === $decryptedData['payType'] ?? '') {
-            // 力 pos 反馈：手机Pay和闪付性质一样，也是手机贴近POS机，通过NFC读卡信息
-            $request->setPaymentType(PaymentType::NFC);
         }
         return $request;
     }
