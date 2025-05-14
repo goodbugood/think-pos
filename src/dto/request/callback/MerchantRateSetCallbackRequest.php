@@ -12,7 +12,7 @@ class MerchantRateSetCallbackRequest extends CallbackRequest
     /**
      * @var string 商户号
      */
-    private $merchantNo;
+    private $merchantNo = '';
 
     public function getMerchantNo(): string
     {

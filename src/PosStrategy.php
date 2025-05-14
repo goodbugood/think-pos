@@ -5,7 +5,8 @@ namespace think\pos;
 use BadMethodCallException;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
-use think\pos\dto\request\callback\PosCallbackRequest;
+use think\pos\dto\request\callback\PosActivateCallbackRequest;
+use think\pos\dto\request\callback\PosBindCallbackRequest;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
@@ -198,7 +199,7 @@ abstract class PosStrategy
      * @param string $content 回调内容
      * @return mixed
      */
-    function handleCallbackOfPosBind(string $content): PosCallbackRequest
+    function handleCallbackOfPosBind(string $content): PosBindCallbackRequest
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos绑定回调功能', static::providerName()));
     }
@@ -207,7 +208,7 @@ abstract class PosStrategy
      * pos 平台回调，用来通知代理平台商户绑定 pos 成功，并激活成功
      * pos 激活成功发生在绑定之后
      */
-    function handleCallbackOfPosActive(string $content): PosCallbackRequest
+    function handleCallbackOfPosActive(string $content): PosActivateCallbackRequest
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos激活回调功能', static::providerName()));
     }
@@ -215,9 +216,8 @@ abstract class PosStrategy
     /**
      * pos 平台回调，用来通知代理平台商户解绑 pos 成功
      * @param string $content
-     * @return PosCallbackRequest
      */
-    function handleCallbackOfPosUnbind(string $content): PosCallbackRequest
+    function handleCallbackOfPosUnbind(string $content): PosBindCallbackRequest
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos解绑回调功能', static::providerName()));
     }

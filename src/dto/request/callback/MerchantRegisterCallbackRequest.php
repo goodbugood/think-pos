@@ -16,7 +16,7 @@ class MerchantRegisterCallbackRequest extends CallbackRequest
     /**
      * @var string 代理号
      */
-    private $agentNo;
+    private $agentNo = '';
 
     public function getAgentNo(): string
     {

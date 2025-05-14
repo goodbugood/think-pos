@@ -14,26 +14,26 @@ class PosActivateCallbackRequest extends CallbackRequest
     /**
      * @var string 商户编号
      */
-    private $merchantNo;
+    private $merchantNo = '';
 
     /**
      * @var string 商户名称
      */
-    private $merchantName;
+    private $merchantName = '';
 
     /**
      * @var string 设备序列号，pos sn
      */
-    private $deviceSn;
+    private $deviceSn = '';
 
     /**
      * @var string pos 状态
      * @see PosStatus
      */
-    private $status;
+    private $status = '';
 
     /**
-     * @var LocalDateTime pos 激活时间
+     * @var LocalDateTime|null pos 激活时间
      */
     private $activateDateTime;
 
@@ -77,12 +77,12 @@ class PosActivateCallbackRequest extends CallbackRequest
         $this->status = $status;
     }
 
-    public function getActivateDateTime(): LocalDateTime
+    public function getActivateDateTime(): ?LocalDateTime
     {
         return $this->activateDateTime;
     }
 
-    public function setActivateDateTime(LocalDateTime $activateDateTime): void
+    public function setActivateDateTime(?LocalDateTime $activateDateTime): void
     {
         $this->activateDateTime = $activateDateTime;
     }

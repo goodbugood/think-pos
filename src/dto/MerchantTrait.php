@@ -7,57 +7,57 @@ trait MerchantTrait
     /**
      * @var string 商户号
      */
-    private $merchantNo;
+    private $merchantNo = '';
 
     /**
      * @var string 商户名称
      */
-    private $merchantName;
+    private $merchantName = '';
 
     /**
      * @var string 注册时间
      */
-    private $regDateTime;
+    private $regDateTime = '';
 
     /**
      * @var string 营业执照号
      */
-    private $businessLicenseNo;
+    private $businessLicenseNo = '';
 
     /**
      * @var string 营业执照名称=商户经营名称=店铺名称
      */
-    private $businessName;
+    private $businessName = '';
 
     /**
      * @var string 法人身份证号码
      */
-    private $idCardNo;
+    private $idCardNo = '';
 
     /**
      * @var string 法人姓名
      */
-    private $idCardName;
+    private $idCardName = '';
 
     /**
      * @var string 法人身份证过期日期：Y-m-d
      */
-    private $idCardExpireDate;
+    private $idCardExpireDate = '';
 
     /**
      * @var string 法人手机号
      */
-    private $phoneNo;
+    private $phoneNo = '';
 
     /**
      * @var string 结算银行卡开户名称
      */
-    private $bankAccountName;
+    private $bankAccountName = '';
 
     /**
      * @var string 结算银行卡卡号
      */
-    private $bankAccountNo;
+    private $bankAccountNo = '';
 
     /**
      * @var string 商户状态

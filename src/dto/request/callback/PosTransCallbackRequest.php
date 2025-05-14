@@ -15,27 +15,27 @@ class PosTransCallbackRequest extends CallbackRequest
     /**
      * @var string 代理编号
      */
-    private $agentNo;
+    private $agentNo = '';
 
     /**
      * @var string 商户编号
      */
-    private $merchantNo;
+    private $merchantNo = '';
 
     /**
      * @var string 商户名称
      */
-    private $merchantName;
+    private $merchantName = '';
 
     /**
      * @var string 终端编号
      */
-    private $deviceSn;
+    private $deviceSn = '';
 
     /**
      * @var string 交易流水号
      */
-    private $transNo;
+    private $transNo = '';
 
     /**
      * @var Money|null 交易金额
@@ -58,7 +58,7 @@ class PosTransCallbackRequest extends CallbackRequest
     private $fee;
 
     /**
-     * @var LocalDateTime 交易成功时间
+     * @var LocalDateTime|null 交易成功时间
      */
     private $successDateTime;
 
@@ -66,13 +66,13 @@ class PosTransCallbackRequest extends CallbackRequest
      * @var string 交易状态
      * @see TransOrderStatus
      */
-    private $status;
+    private $status = '';
 
     /**
      * @var string 订单类型
      * @see TransOrderType
      */
-    private $orderType;
+    private $orderType = '';
 
     /**
      * 有的服务商会将多个订单放在一个回调中推送
@@ -80,7 +80,7 @@ class PosTransCallbackRequest extends CallbackRequest
      * @var string
      * @see TransOrderType
      */
-    private $secondOrderType;
+    private $secondOrderType = '';
 
     /**
      * 附加的第二个订单金额
@@ -92,7 +92,7 @@ class PosTransCallbackRequest extends CallbackRequest
      * @var string 支付方式，这是支付方式不是支付渠道
      * @see PaymentType
      */
-    private $paymentType;
+    private $paymentType = '';
 
     public function getAgentNo(): string
     {
@@ -184,12 +184,12 @@ class PosTransCallbackRequest extends CallbackRequest
         $this->fee = $fee;
     }
 
-    public function getSuccessDateTime(): LocalDateTime
+    public function getSuccessDateTime(): ?LocalDateTime
     {
         return $this->successDateTime;
     }
 
-    public function setSuccessDateTime(LocalDateTime $successDateTime): void
+    public function setSuccessDateTime(?LocalDateTime $successDateTime): void
     {
         $this->successDateTime = $successDateTime;
     }

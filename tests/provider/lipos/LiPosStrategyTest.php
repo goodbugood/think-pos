@@ -9,8 +9,8 @@ use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
+use think\pos\dto\request\callback\PosActivateCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
-use think\pos\dto\request\callback\PosCallbackRequest;
 use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
@@ -274,7 +274,7 @@ class LiPosStrategyTest extends TestCase
         $callbackRequest = $this->posStrategy->handleCallback($content);
         self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
         self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
-        self::assertInstanceOf(PosCallbackRequest::class, $callbackRequest);
+        self::assertInstanceOf(PosActivateCallbackRequest::class, $callbackRequest);
         self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
     }
 

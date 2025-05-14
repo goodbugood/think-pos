@@ -10,75 +10,60 @@ class PosBindCallbackRequest extends CallbackRequest
 {
     /**
      * 代理编号
+     * @var string
      */
-    private $agentNo;
+    private $agentNo = '';
 
     /**
      * 商户编号
+     * @var string
      */
-    private $merchantNo;
+    private $merchantNo = '';
 
     /**
      * 终端编号
+     * @var string
      */
-    private $deviceSn;
+    private $deviceSn = '';
 
     /**
      * @var string 状态
      * @see PosStatus
      */
-    private $status;
+    private $status = '';
 
     /**
      * 状态变更时间
-     * @var LocalDateTime 格式 YYYY-MM-DD HH:mm:ss
+     * @var LocalDateTime|null 格式 YYYY-MM-DD HH:mm:ss
      */
     private $modifyTime;
 
-    /**
-     * @return mixed
-     */
-    public function getAgentNo()
+    public function getAgentNo(): string
     {
         return $this->agentNo;
     }
 
-    /**
-     * @param mixed $agentNo
-     */
-    public function setAgentNo($agentNo): void
+    public function setAgentNo(string $agentNo): void
     {
         $this->agentNo = $agentNo;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getMerchantNo()
+    public function getMerchantNo(): string
     {
         return $this->merchantNo;
     }
 
-    /**
-     * @param mixed $merchantNo
-     */
-    public function setMerchantNo($merchantNo): void
+    public function setMerchantNo(string $merchantNo): void
     {
         $this->merchantNo = $merchantNo;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDeviceSn()
+    public function getDeviceSn(): string
     {
         return $this->deviceSn;
     }
 
-    /**
-     * @param mixed $deviceSn
-     */
-    public function setDeviceSn($deviceSn): void
+    public function setDeviceSn(string $deviceSn): void
     {
         $this->deviceSn = $deviceSn;
     }
@@ -93,12 +78,12 @@ class PosBindCallbackRequest extends CallbackRequest
         $this->status = $status;
     }
 
-    public function getModifyTime(): LocalDateTime
+    public function getModifyTime(): ?LocalDateTime
     {
         return $this->modifyTime;
     }
 
-    public function setModifyTime(LocalDateTime $modifyTime): void
+    public function setModifyTime(?LocalDateTime $modifyTime): void
     {
         $this->modifyTime = $modifyTime;
     }
