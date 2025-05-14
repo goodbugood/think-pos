@@ -2,6 +2,7 @@
 
 namespace think\pos\dto\request\callback;
 
+use shali\phpmate\core\date\LocalDateTime;
 use think\pos\constant\PosStatus;
 use think\pos\dto\request\CallbackRequest;
 
@@ -32,7 +33,7 @@ class PosActivateCallbackRequest extends CallbackRequest
     private $status;
 
     /**
-     * @var string pos 激活时间
+     * @var LocalDateTime pos 激活时间
      */
     private $activateDateTime;
 
@@ -76,12 +77,12 @@ class PosActivateCallbackRequest extends CallbackRequest
         $this->status = $status;
     }
 
-    public function getActivateDateTime(): string
+    public function getActivateDateTime(): LocalDateTime
     {
         return $this->activateDateTime;
     }
 
-    public function setActivateDateTime(string $activateDateTime): void
+    public function setActivateDateTime(LocalDateTime $activateDateTime): void
     {
         $this->activateDateTime = $activateDateTime;
     }

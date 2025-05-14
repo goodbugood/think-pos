@@ -15,17 +15,18 @@ final class MerchantConvertor
         $request = MerchantRateSetCallbackRequest::success();
         $request->setMerchantNo($decryptedData['customerNo'] ?? 'null');
         foreach ($decryptedData['rateNotifyList'] as $rateNotify) {
+            $rate = $rateNotify['rateValue'] ?? 0;
             if ('ALIPAY' === $rateNotify['payTypeViewCode']) {
-                $request->setAlipayRate(Rate::valueOfPercentage(strval($rateNotify['rateValue'])));
+                $request->setAlipayRate(Rate::valueOfPercentage(strval($rate)));
             } elseif ('WECHAT' === $rateNotify['payTypeViewCode']) {
-                $request->setWechatRate(Rate::valueOfPercentage(strval($rateNotify['rateValue'])));
+                $request->setWechatRate(Rate::valueOfPercentage(strval($rate)));
             } elseif ('POS_DC' === $rateNotify['payTypeViewCode']) {
                 // 借记卡
-                $request->setDebitCardRate(Rate::valueOfPercentage(strval($rateNotify['rateValue'])));
-                $request->setDebitCardCappingValue(Money::valueOfYuan(strval($rateNotify['cappingValue'])));
+                $request->setDebitCardRate(Rate::valueOfPercentage(strval($rate)));
+                $request->setDebitCardCappingValue(Money::valueOfYuan(strval($rateNotify['cappingValue'] ?? 0)));
             } elseif ('POS_CC' === $rateNotify['payTypeViewCode']) {
                 // 贷记卡
-                $request->setCreditRate(Rate::valueOfPercentage(strval($rateNotify['rateValue'])));
+                $request->setCreditRate(Rate::valueOfPercentage(strval($rate)));
             }
         }
 

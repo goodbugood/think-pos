@@ -76,6 +76,11 @@ final class PosConvertor
         $request->setMerchantName($decryptedData['customerName'] ?? 'null');
         $request->setDeviceSn($decryptedData['materialsNo'] ?? 'null');
         $request->setActivateDateTime($decryptedData['activationTime'] ?? 'null');
+        if (empty($decryptedData['activationTime'])) {
+            $request->setActivateDateTime(LocalDateTime::now());
+        } else {
+            $request->setActivateDateTime(LocalDateTime::valueOfString($decryptedData['activationTime']));
+        }
         if ('FINISHED' === $decryptedData['activationStatus'] ?? 'null') {
             $request->setStatus(PosStatus::ACTIVATE_SUCCESS);
         }
