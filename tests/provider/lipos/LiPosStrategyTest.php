@@ -3,6 +3,7 @@
 namespace think\pos\tests\provider\lipos;
 
 use PHPUnit\Framework\TestCase;
+use shali\phpmate\core\date\LocalDateTime;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
@@ -205,6 +206,7 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($callbackRequest->getMerchantNo());
         self::assertNotEmpty($callbackRequest->getDeviceSn());
         self::assertNotEmpty($callbackRequest->getStatus());
+        self::assertInstanceOf(LocalDateTime::class, $callbackRequest->getModifyTime());
         self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
     }
 
@@ -230,8 +232,27 @@ class LiPosStrategyTest extends TestCase
      */
     function handleCallbackOfPosUnbind()
     {
-        // todo shali [2025/5/13] 缺失真实解绑回调信息
-        $content = '';
+        // 自己模拟的回调信息
+        $posSn = env('lipos.posSn');
+        self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
+        $merchantNo = env('lipos.merchantNo');
+        self::assertNotEmpty($merchantNo, 'lishuaB.merchantNo is empty');
+        $agentNo = '11111111';
+        $data = [
+            'agentNo' => $agentNo,
+            'customerNo' => $merchantNo,
+            'materialsNo' => $posSn,
+            'bindStatus' => 'TRUE',
+            'changeTime' => date('Y-m-d H:i:s'),
+        ];
+        $password = '1234567890123456';
+        $params['data'] = $this->posStrategy->encryptData($password, json_encode($data));
+        $params['encryptKey'] = $this->posStrategy->encryptPassword($password);
+        $params['appId'] = $agentNo;
+        $params['timestamp'] = time();
+        $params['serviceType'] = 'MATERIAL_BIND_STATUS_NOTIFY';
+        $params['sign'] = $this->posStrategy->sign($params);
+        $content = json_encode($params);
         $callbackRequest = $this->posStrategy->handleCallback($content);
         self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
         self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
