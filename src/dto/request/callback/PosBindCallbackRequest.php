@@ -2,6 +2,7 @@
 
 namespace think\pos\dto\request\callback;
 
+use shali\phpmate\core\date\LocalDateTime;
 use think\pos\constant\PosStatus;
 use think\pos\dto\request\CallbackRequest;
 
@@ -27,6 +28,12 @@ class PosBindCallbackRequest extends CallbackRequest
      * @see PosStatus
      */
     private $status;
+
+    /**
+     * 状态变更时间
+     * @var LocalDateTime 格式 YYYY-MM-DD HH:mm:ss
+     */
+    private $modifyTime;
 
     /**
      * @return mixed
@@ -84,5 +91,15 @@ class PosBindCallbackRequest extends CallbackRequest
     public function setStatus(string $status): void
     {
         $this->status = $status;
+    }
+
+    public function getModifyTime(): LocalDateTime
+    {
+        return $this->modifyTime;
+    }
+
+    public function setModifyTime(LocalDateTime $modifyTime): void
+    {
+        $this->modifyTime = $modifyTime;
     }
 }

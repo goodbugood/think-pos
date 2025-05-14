@@ -2,6 +2,7 @@
 
 namespace think\pos\provider\lipos\convertor;
 
+use shali\phpmate\core\date\LocalDateTime;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\PaymentType;
@@ -100,6 +101,12 @@ final class PosConvertor
         } elseif ('CHANGE_BIND' === $bindStatus) {
             // 换绑成功
             $request->setStatus(PosStatus::BIND_SUCCESS);
+        }
+        // 状态变更时间
+        if (empty($decryptedData['changeTime'])) {
+            $request->setModifyTime(LocalDateTime::now());
+        } else {
+            $request->setModifyTime(LocalDateTime::valueOfString($decryptedData['changeTime']));
         }
         return $request;
     }
