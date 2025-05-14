@@ -344,12 +344,11 @@ class LiPosStrategy extends PosStrategy
     {
         // 加密和签名
         $password = RandomUtil::randomString(16);
-        $params['data'] = EncryptUtil::encryptByAES_ECB_PKCS5PaddingToBase64($password, json_encode($data));
-        $params['encryptKey'] = EncryptUtil::encryptByRSA_ECB_PKCS1PaddingToBase64(KeyUtil::toPublicKeyValueOfBase64Str($this->config['platformPublicKey']), $password);
+        $params['data'] = $this->encryptData($password, json_encode($data));
+        $params['encryptKey'] = $this->encryptPassword($password);
         $params['appId'] = $this->config['agentNo'];
         $params['timestamp'] = time();
-        $content = StrUtil::httpBuildQuery($params, true);
-        $params['sign'] = SignUtil::signBySHA256withRSAToBase64(KeyUtil::toPrivateKeyValueOfBase64Str($this->config['privateKey']), $content);
+        $params['sign'] = $this->sign($params);
         try {
             $res = $this->httpClient->post($url, $params, ['Content-Type' => 'application/json']);
         } finally {
@@ -381,6 +380,16 @@ class LiPosStrategy extends PosStrategy
     /**
      * @throws PhpMateException
      */
+    function sign(array $data): string
+    {
+        // 字典序
+        $content = StrUtil::httpBuildQuery($data, true);
+        return SignUtil::signBySHA256withRSAToBase64(KeyUtil::toPrivateKeyValueOfBase64Str($this->config['privateKey']), $content);
+    }
+
+    /**
+     * @throws PhpMateException
+     */
     public function verifySign(array $data): bool
     {
         $sign = $data['sign'];
@@ -396,6 +405,24 @@ class LiPosStrategy extends PosStrategy
     {
         $password = EncryptUtil::decryptByRSA_ECB_PKCS1PaddingToBase64(KeyUtil::toPrivateKeyValueOfBase64Str($this->config['privateKey']), $encryptKey);
         return EncryptUtil::decryptByAES_ECB_PKCS5PaddingToBase64($password, $encrypted);
+    }
+
+    /**
+     * 使用对称加密密码加密数据
+     * @throws PhpMateException
+     */
+    public function encryptData(string $password, string $json): string
+    {
+        return EncryptUtil::encryptByAES_ECB_PKCS5PaddingToBase64($password, $json);
+    }
+
+    /**
+     * 加密对称加密数据的密码
+     * @throws PhpMateException
+     */
+    public function encryptPassword(string $password): string
+    {
+        return EncryptUtil::encryptByRSA_ECB_PKCS1PaddingToBase64(KeyUtil::toPublicKeyValueOfBase64Str($this->config['platformPublicKey']), $password);
     }
 
     /**
