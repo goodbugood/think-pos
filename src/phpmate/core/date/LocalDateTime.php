@@ -35,9 +35,14 @@ final class LocalDateTime
         return date($format, $this->timestamp);
     }
 
-    public function __toString()
+    public function toString()
     {
         return $this->format('Y-m-d H:i:s');
+    }
+
+    public function __toString()
+    {
+        return $this->toString();
     }
 
     public static function now(): self
