@@ -127,9 +127,11 @@ class LiPosStrategy extends PosStrategy
             // 该接口支持批量更新，我们还不支持
             'materialsNoList' => [$dto->getDeviceSn(),],
             'materialsDefaultRateList' => [
+                // 信用卡，4 种特惠使用贷记卡的费率
                 [
                     // 信用卡
                     'payTypeViewCode' => 'POS_CC',
+                    // 费率
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
                     // 附加费用
                     'fixedValue' => '0.00',
@@ -137,13 +139,55 @@ class LiPosStrategy extends PosStrategy
                     'cappingValue' => '0.00',
                 ],
                 [
-                    // 借记卡
+                    'payTypeViewCode' => 'POS_DISCOUNT_CC',
+                    'rateValue' => $dto->getCreditRate()->toPercentage(6),
+                    'fixedValue' => '0.00',
+                    'cappingValue' => '0.00',
+                ],
+                [
+                    'payTypeViewCode' => 'POS_DISCOUNT_GF_CC',
+                    'rateValue' => $dto->getCreditRate()->toPercentage(6),
+                    'fixedValue' => '0.00',
+                    'cappingValue' => '0.00',
+                ],
+                [
+                    'payTypeViewCode' => 'POS_DISCOUNT_PA_CC',
+                    'rateValue' => $dto->getCreditRate()->toPercentage(6),
+                    'fixedValue' => '0.00',
+                    'cappingValue' => '0.00',
+                ],
+                [
+                    'payTypeViewCode' => 'POS_DISCOUNT_MS_CC',
+                    'rateValue' => $dto->getCreditRate()->toPercentage(6),
+                    'fixedValue' => '0.00',
+                    'cappingValue' => '0.00',
+                ],
+                // 借记卡
+                [
                     'payTypeViewCode' => 'POS_DC',
                     'rateValue' => $dto->getDebitCardRate()->toPercentage(6),
-                    // 附加费用
                     'fixedValue' => '0.00',
-                    // 借记卡封顶值
                     'cappingValue' => $dto->getDebitCardCappingValue()->toYuan(),
+                ],
+                // 微信，云闪付1000- 统一使用微信费率
+                [
+                    'payTypeViewCode' => 'WECHAT',
+                    'rateValue' => $dto->getWechatRate()->toPercentage(6),
+                    'fixedValue' => '0.00',
+                    'cappingValue' => '0.00',
+                ],
+                [
+                    'payTypeViewCode' => 'UNIONPAY_DOWN_CC',
+                    'rateValue' => $dto->getWechatRate()->toPercentage(6),
+                    'fixedValue' => '0.00',
+                    'cappingValue' => '0.00',
+                ],
+                // 支付宝
+                [
+                    'payTypeViewCode' => 'ALIPAY',
+                    'rateValue' => $dto->getAlipayRate()->toPercentage(6),
+                    'fixedValue' => '0.00',
+                    'cappingValue' => '0.00',
                 ],
             ]
         ];
