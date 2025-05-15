@@ -88,6 +88,17 @@ class LiPosStrategy extends PosStrategy
         $this->httpClient = new HttpClient();
     }
 
+    /**
+     * pos 初始化
+     * @param PosRequestDto $dto
+     * @return PosProviderResponse
+     */
+    public function initPosConfig(PosRequestDto $dto): PosProviderResponse
+    {
+        // 初始化代理费率
+        return $this->setPosRate($dto);
+    }
+
     function getPosInfo(PosRequestDto $dto): PosInfoResponse
     {
         $url = $this->getUrl(self::API_METHOD['pos_info']);

@@ -108,6 +108,7 @@ abstract class PosStrategy
     /**
      * 初始化pos配置
      * 例如设置是否购买会员，交易费率，押金啥的
+     * 代理的 pos 入库后，需要代理进行 pos 的初始化，避免 pos 划拨给用户后执行 pos 平台的默认费率
      * @param PosRequestDto $dto
      * @return PosProviderResponse
      */
