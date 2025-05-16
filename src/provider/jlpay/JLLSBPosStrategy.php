@@ -307,13 +307,13 @@ class JLLSBPosStrategy extends PosStrategy
     private static function toPosInfoResponse(array $res): PosInfoResponse
     {
         $posInfoResponse = PosInfoResponse::success();
-        $money = Money::valueFen(strval($res['deposit_amount']));
+        $money = Money::valueOfFen(strval($res['deposit_amount']));
         $posInfoResponse->setDeposit($money);
         $posInfoResponse->setDeviceNo($res['device_sn']);
         $posInfoResponse->setSimPackageCode($res['message_fee_package_id']);
-        $posInfoResponse->setWithdrawFee(Money::valueFen(strval($res['quick_fee'])));
+        $posInfoResponse->setWithdrawFee(Money::valueOfFen(strval($res['quick_fee'])));
         // 百分数转小数
-        $posInfoResponse->setCreditRate(Rate::valuePercentage(strval($res['trans_rate'])));
+        $posInfoResponse->setCreditRate(Rate::valueOfPercentage(strval($res['trans_rate'])));
         $posInfoResponse->setIsVip('1' === $res['vip_fee_flag']);
 
         return $posInfoResponse;
