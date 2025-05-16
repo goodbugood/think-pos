@@ -39,7 +39,7 @@ final class PosConvertor
                     $money->add(Money::valueOfYuan(strval($item['deductionAmount'])));
                 }
             }
-            $posInfoResponse->setSimPackageCode(sprintf(
+            $posInfoResponse->setSimPackageDesc(sprintf(
                 '绑定后扣费：免费 %s 天，第 %s-%s 天，计划扣费 %s 元，扣费状态【%s】',
                 $data['materialsSimInfo']['simFreeDay'] ?? 'null',
                 $data['materialsSimInfo']['simPhaseList'][0]['beginDayNum'] ?? 'null',
@@ -47,6 +47,8 @@ final class PosConvertor
                 $money->toYuan(),
                 $data['materialsSimInfo']['simPhaseList'][0]['deductionStatus'] ?? 'null'
             ));
+            // 返回套餐内容，自行解析 {"beginDayMaxRang":7,"beginDayMinRang":1,"beginDayNum":1,"deductionStatus":"NO","endDayNum":60,"simDeductionsList":[{"deductionAmount":19,"enableStatus":"YES","simPhaseIndex":19},{"deductionAmount":29,"enableStatus":"NO","simPhaseIndex":29},{"deductionAmount":39,"enableStatus":"NO","simPhaseIndex":39}],"simRuleIndex":1}
+            $posInfoResponse->setSimPackageCode(json_encode($data['materialsSimInfo']['simPhaseList'][0]));
         }
         // 解析贷记卡费率，注意，pos 一旦绑定了商户，不再返回终端费率
         $materialsRateList = $data['materialsRateList'] ?? [];

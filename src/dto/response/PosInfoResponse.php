@@ -18,12 +18,17 @@ class PosInfoResponse
     /**
      * @var string 设备号
      */
-    private $deviceNo;
+    private $deviceNo = '';
 
     /**
-     * @var string sim 套餐简码
+     * @var string sim 流量卡套餐简码/内容
      */
-    private $simPackageCode;
+    private $simPackageCode = '';
+
+    /**
+     * @var string 流量卡套餐描述
+     */
+    private $simPackageDesc = '';
 
     /**
      * @var null|Rate 贷记卡费率
@@ -88,6 +93,16 @@ class PosInfoResponse
     public function setSimPackageCode(string $simPackageCode): void
     {
         $this->simPackageCode = $simPackageCode;
+    }
+
+    public function getSimPackageDesc(): string
+    {
+        return $this->simPackageDesc;
+    }
+
+    public function setSimPackageDesc(string $simPackageDesc): void
+    {
+        $this->simPackageDesc = $simPackageDesc;
     }
 
     public function isVip(): bool
