@@ -96,7 +96,12 @@ class LiPosStrategy extends PosStrategy
     public function initPosConfig(PosRequestDto $dto): PosProviderResponse
     {
         // 初始化代理费率
-        return $this->setPosRate($dto);
+        $posProviderResponse = $this->setPosRate($dto);
+        if ($posProviderResponse->isFail()) {
+            return $posProviderResponse;
+        }
+        // 初始化代理押金
+        return $this->setPosDeposit($dto);
     }
 
     function getPosInfo(PosRequestDto $dto): PosInfoResponse
