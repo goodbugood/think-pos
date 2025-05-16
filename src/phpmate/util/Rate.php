@@ -17,36 +17,12 @@ final class Rate
     private $value;
 
     /**
-     * 小数构建
-     * @deprecated 废弃
-     * @see self::valueOfDecimal()
-     */
-    public static function valueDecimal(string $decimal): Rate
-    {
-        $rate = new self();
-        $rate->value = $decimal;
-        return $rate;
-    }
-
-    /**
      * 小数构费率
      */
     public static function valueOfDecimal(string $decimal): Rate
     {
         $rate = new self();
         $rate->value = $decimal;
-        return $rate;
-    }
-
-    /**
-     * 百分数构建
-     * @deprecated 废弃了，后面会移除
-     * @see self::valueOfPercentage()
-     */
-    public static function valuePercentage(string $percentage): Rate
-    {
-        $rate = new self();
-        $rate->value = bcdiv($percentage, '100', self::MAX_SCALE);
         return $rate;
     }
 

@@ -10,7 +10,7 @@ class RateTest extends TestCase
     public function testToPercentage()
     {
         // 百分比构建
-        $rate = Rate::valuePercentage('0.5');
+        $rate = Rate::valueOfPercentage('0.5');
         $this->assertEquals('0.50', $rate->toPercentage());
         $this->assertEquals('0.5', $rate->toPercentage(1));
         self::assertEquals('0.0050', $rate->toDecimal());
@@ -20,7 +20,7 @@ class RateTest extends TestCase
     public function testToDecimal()
     {
         // 小数构建
-        $rate = Rate::valueDecimal('0.5');
+        $rate = Rate::valueOfDecimal('0.5');
         $this->assertEquals('0.5000', $rate->toDecimal());
         $this->assertEquals('0.500', $rate->toDecimal(3));
         self::assertEquals('50.00', $rate->toPercentage());
@@ -29,7 +29,7 @@ class RateTest extends TestCase
     public function testValuePercentage()
     {
         // 百分比构建
-        $rate = Rate::valuePercentage('0.5');
+        $rate = Rate::valueOfPercentage('0.5');
         self::assertInstanceOf(Rate::class, $rate);
         $this->assertEquals('0.50', $rate->toPercentage());
         $this->assertEquals('0.5', $rate->toPercentage(1));
@@ -40,7 +40,7 @@ class RateTest extends TestCase
     public function testValueDecimal()
     {
         // 小数构建
-        $rate = Rate::valueDecimal('0.5');
+        $rate = Rate::valueOfDecimal('0.5');
         self::assertInstanceOf(Rate::class, $rate);
         $this->assertEquals('0.5000', $rate->toDecimal());
         $this->assertEquals('0.500', $rate->toDecimal(3));

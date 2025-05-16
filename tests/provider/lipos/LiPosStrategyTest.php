@@ -42,12 +42,12 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($merchantNo, 'lishuaB.merchantNo is empty');
         $merchantRequestDto = new MerchantRequestDto();
         $merchantRequestDto->setMerchantNo($merchantNo);
-        $merchantRequestDto->setCreditRate(Rate::valuePercentage('0.50'));
-        $merchantRequestDto->setDebitCardRate(Rate::valuePercentage('0.55'));
-        $merchantRequestDto->setDebitCardCappingValue(Money::valueOfYuan('55'));
+        $merchantRequestDto->setCreditRate(Rate::valueOfPercentage('0.50'));
+        $merchantRequestDto->setDebitCardRate(Rate::valueOfPercentage('0.55'));
+        $merchantRequestDto->setDebitCardCappingValue(Money::valueOfYuan('18'));
         // 设置微信费率
-        $merchantRequestDto->setWechatRate(Rate::valuePercentage('0.55'));
-        $merchantRequestDto->setAlipayRate(Rate::valuePercentage('0.55'));
+        $merchantRequestDto->setWechatRate(Rate::valueOfPercentage('0.55'));
+        $merchantRequestDto->setAlipayRate(Rate::valueOfPercentage('0.55'));
         $posProviderResponse = $this->posStrategy->setMerchantRate($merchantRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
