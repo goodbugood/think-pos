@@ -42,9 +42,9 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($merchantNo, 'lishuaB.merchantNo is empty');
         $merchantRequestDto = new MerchantRequestDto();
         $merchantRequestDto->setMerchantNo($merchantNo);
-        $merchantRequestDto->setCreditRate(Rate::valuePercentage('0.60'));
+        $merchantRequestDto->setCreditRate(Rate::valuePercentage('0.50'));
         $merchantRequestDto->setDebitCardRate(Rate::valuePercentage('0.55'));
-        $merchantRequestDto->setDebitCardCappingValue(Money::valueOfYuan('20'));
+        $merchantRequestDto->setDebitCardCappingValue(Money::valueOfYuan('55'));
         // 设置微信费率
         $merchantRequestDto->setWechatRate(Rate::valuePercentage('0.55'));
         $merchantRequestDto->setAlipayRate(Rate::valuePercentage('0.55'));
@@ -81,9 +81,14 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
         $posRequestDto = new PosRequestDto();
         $posRequestDto->setDeviceSn($posSn);
-        $posRequestDto->setCreditRate(Rate::valuePercentage('0.55'));
-        $posRequestDto->setDebitCardRate(Rate::valuePercentage('0.55'));
+        $posRequestDto->setCreditRate(Rate::valueOfPercentage('0.66'));
+        $posRequestDto->setDebitCardRate(Rate::valueOfPercentage('0.66'));
+        // 必须设置 20，否则 {"code":"98","msg":"机具默认封顶值需大于本级代理成本","success":false}
         $posRequestDto->setDebitCardCappingValue(Money::valueOfYuan('20'));
+        // 微信扫码
+        $scanRate = Rate::valueOfPercentage('0.66');
+        $posRequestDto->setWechatRate($scanRate);
+        $posRequestDto->setAlipayRate($scanRate);
         $posProviderResponse = $this->posStrategy->setPosRate($posRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
@@ -98,9 +103,9 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
         $posRequestDto = new PosRequestDto();
         $posRequestDto->setDeviceSn($posSn);
+        // 押金套餐码：0 - 免费，1 - 199，2 - 299
         $posRequestDto->setDeposit(Money::valueOfYuan('199'));
-        // 押金套餐码
-        $posRequestDto->setDepositPackageCode('1');
+        $posRequestDto->setDepositPackageCode('2');
         $posProviderResponse = $this->posStrategy->setPosDeposit($posRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
@@ -119,8 +124,14 @@ class LiPosStrategyTest extends TestCase
         self::assertInstanceOf(Money::class, $posInfoResponse->getDeposit());
         self::assertEquals($posSn, $posInfoResponse->getDeviceNo());
         self::assertNotEmpty($posInfoResponse->getSimPackageCode());
+        // 检查押金
+        self::assertEquals('299.00', $posInfoResponse->getDeposit()->toYuan());
         // 终端绑定商户后，不再返回终端费率
-        // self::assertInstanceOf(Rate::class, $posInfoResponse->getCreditRate());
+        self::assertEquals('0.66', $posInfoResponse->getCreditRate()->toPercentage());
+        self::assertEquals('0.66', $posInfoResponse->getDebitCardRate()->toPercentage());
+        self::assertEquals('20.00', $posInfoResponse->getDebitCardCappingValue()->toYuan());
+        self::assertEquals('0.66', $posInfoResponse->getWechatRate()->toPercentage());
+        self::assertEquals('0.66', $posInfoResponse->getAlipayRate()->toPercentage());
         // 力 pos 不返回提现手续费
         self::assertNull($posInfoResponse->getWithdrawFee());
     }
@@ -136,7 +147,14 @@ class LiPosStrategyTest extends TestCase
         $simRequestDto = new SimRequestDto();
         $simRequestDto->setDeviceSn($posSn);
         // 套餐这个固定？
-        $simRequestDto->setSimPackageCode('123456789');
+        $simRequestDto->setSimPackageCode(json_encode([
+            // 通讯服务费阶段
+            'simRuleIndex' => 1,
+            // 通讯服务费扣费起始天数
+            'beginDayNum' => 1,
+            // 通讯服务费档位
+            'simPhaseIndex' => 29,
+        ]));
         $posProviderResponse = $this->posStrategy->setSimFee($simRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
@@ -161,7 +179,25 @@ class LiPosStrategyTest extends TestCase
      */
     function handleCallbackOfMerchantRegister()
     {
-        $content = '{"serviceType":"CUSTOMER_INFO_REGISTER_NOTIFY","data":"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","appId":"61261936","sign":"ViaUkJQiRBqIN4lpbGk+9KMw9dpFW1iy4AcN/zvQDu0k+08hQKMSJRnYE8e9AsjdkCXBPyuGhAsfYTsXDbO5DI5iBekGmjBFxNZfhUlzDkph1EGH3AItyVbPDkmO/k0Wi2Ezjavn5HHo6lUrZJA/rvOSowwWsXitDpDAda571eMNVm1U/y5IfVLMaTzKr4yEm2PMgo2J69CMyA1i2cWPWu0UMQFxWyi0hFP+tHGbHkC6E3Itq5QAW08GxMn3En3Xf+kob9r1QvLP0AEAsXVkvJZpjm0LdJe2m+8dfvWZ2UkIRsYnPVIg3jGB8MvDqeFVD6lzGQqvECXSDmQ6rEEhzw==","encryptKey":"Th50ONplYwuzf5/1S0+mm1rta6bMU7JFz33DkzECUDZyCsUgYHNzXX9LHobysKaCiyhLbB09G/rRMYyUu9EfcnnXafCNNRJbnsDUcFEPHHSrp1Uy7aL0zFcUUs3aKE05WJCEGLq+rBxe5ZP8HDGdxqsT/KdOPfV2Lz7Wh56QjV8a+9anXK3c+cadE/HsjFE6xhKdxR75Lhcsm7LtIYobvtkvKK41HGpsYhY0yInM7WfcBr4c9w/RXwzC/WgTiDlU+vzqR3o04SesqrctWzX+2ysl2fPCYKGN/r4D0k8hXjGW482Mrns2aJxgeOplkaMHsc/w47mdtHfaW+gZt4l6XA==","timestamp":"1747102515253","responseId":"JZY1310595823617"}';
+        // 自己模拟的回调信息
+        $posSn = env('lipos.posSn');
+        self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
+        $merchantNo = env('lipos.merchantNo');
+        self::assertNotEmpty($merchantNo, 'lishuaB.merchantNo is empty');
+        // 立刷自己的回调
+        // $content = '{"serviceType":"CUSTOMER_INFO_REGISTER_NOTIFY","data":"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","appId":"61261936","sign":"ViaUkJQiRBqIN4lpbGk+9KMw9dpFW1iy4AcN/zvQDu0k+08hQKMSJRnYE8e9AsjdkCXBPyuGhAsfYTsXDbO5DI5iBekGmjBFxNZfhUlzDkph1EGH3AItyVbPDkmO/k0Wi2Ezjavn5HHo6lUrZJA/rvOSowwWsXitDpDAda571eMNVm1U/y5IfVLMaTzKr4yEm2PMgo2J69CMyA1i2cWPWu0UMQFxWyi0hFP+tHGbHkC6E3Itq5QAW08GxMn3En3Xf+kob9r1QvLP0AEAsXVkvJZpjm0LdJe2m+8dfvWZ2UkIRsYnPVIg3jGB8MvDqeFVD6lzGQqvECXSDmQ6rEEhzw==","encryptKey":"Th50ONplYwuzf5/1S0+mm1rta6bMU7JFz33DkzECUDZyCsUgYHNzXX9LHobysKaCiyhLbB09G/rRMYyUu9EfcnnXafCNNRJbnsDUcFEPHHSrp1Uy7aL0zFcUUs3aKE05WJCEGLq+rBxe5ZP8HDGdxqsT/KdOPfV2Lz7Wh56QjV8a+9anXK3c+cadE/HsjFE6xhKdxR75Lhcsm7LtIYobvtkvKK41HGpsYhY0yInM7WfcBr4c9w/RXwzC/WgTiDlU+vzqR3o04SesqrctWzX+2ysl2fPCYKGN/r4D0k8hXjGW482Mrns2aJxgeOplkaMHsc/w47mdtHfaW+gZt4l6XA==","timestamp":"1747102515253","responseId":"JZY1310595823617"}';
+        // 自定义回调
+        $content = '{"serviceType":"CUSTOMER_INFO_REGISTER_NOTIFY","data":"{\"customerInfoNotify\":{\"agentNo\":\"61261936\",\"bussinessName\":\"\u7504\u9009\u94b1\u5546\u4e03\u5341\u4e94\",\"category\":\"5712\",\"categoryName\":\"\u5bb6\u5177\u5e97\",\"createTime\":\"2025-05-07 16:48:32\",\"customerName\":\"\u7504\u9009\u94b1\u5546\u4e03\u5341\u4e94\",\"customerNo\":\"825814187159639\",\"customerType\":\"SMALL\",\"idCardEffectiveBegin\":\"2018-01-03\",\"idCardEffectiveEnd\":\"2035-01-03\",\"idCardName\":\"\u8c2d**\",\"idCardNo\":\"450881********7747\",\"idType\":\"ID\",\"phoneNo\":\"150****1075\",\"registerAddress\":\"\u5e78\u798f\u5bb6\u56ed1\u53f7\u697c3\u5355\u5143\",\"status\":\"TRUE\",\"unionOrgCode\":\"1611\"},\"customerSettleCardNotify\":{\"accountName\":\"\u8c2d**\",\"accountNo\":\"621700********1850\",\"accountType\":\"TO_PRIVATE\",\"bankName\":\"\u4e2d\u56fd\u5efa\u8bbe\u94f6\u884c\",\"cardType\":\"DC\",\"phoneNo\":\"135****8227\"},\"rateNotifyList\":[{\"cappingValue\":0.00,\"fixedValue\":0.00,\"payTypeViewCode\":\"WECHAT\",\"rateValue\":0.55,\"rateVersion\":\"82581418715963920250512160951867\"},{\"cappingValue\":0.00,\"fixedValue\":0.00,\"payTypeViewCode\":\"ALIPAY\",\"rateValue\":0.55,\"rateVersion\":\"82581418715963920250512160951867\"},{\"cappingValue\":20.00,\"fixedValue\":0.00,\"payTypeViewCode\":\"POS_DC\",\"rateValue\":0.55,\"rateVersion\":\"82581418715963920250512160951867\"},{\"cappingValue\":0.00,\"fixedValue\":0.00,\"payTypeViewCode\":\"POS_CC\",\"rateValue\":0.6,\"rateVersion\":\"82581418715963920250512160951867\"},{\"cappingValue\":0.00,\"fixedValue\":0.00,\"payTypeViewCode\":\"POS_DISCOUNT_CC\",\"rateValue\":0.6,\"rateVersion\":\"82581418715963920250512160951867\"},{\"cappingValue\":0.00,\"fixedValue\":0.00,\"payTypeViewCode\":\"POS_DISCOUNT_GF_CC\",\"rateValue\":0.6,\"rateVersion\":\"82581418715963920250512160951867\"},{\"cappingValue\":0.00,\"fixedValue\":0.00,\"payTypeViewCode\":\"POS_DISCOUNT_PA_CC\",\"rateValue\":0.6,\"rateVersion\":\"82581418715963920250512160951867\"},{\"cappingValue\":0.00,\"fixedValue\":0.00,\"payTypeViewCode\":\"POS_DISCOUNT_MS_CC\",\"rateValue\":0.6,\"rateVersion\":\"82581418715963920250512160951867\"},{\"cappingValue\":0.00,\"fixedValue\":0.00,\"payTypeViewCode\":\"UNIONPAY_DOWN_CC\",\"rateValue\":0.55,\"rateVersion\":\"82581418715963920250512160951867\"}]}","appId":"61261936","sign":"ViaUkJQiRBqIN4lpbGk+9KMw9dpFW1iy4AcN\/zvQDu0k+08hQKMSJRnYE8e9AsjdkCXBPyuGhAsfYTsXDbO5DI5iBekGmjBFxNZfhUlzDkph1EGH3AItyVbPDkmO\/k0Wi2Ezjavn5HHo6lUrZJA\/rvOSowwWsXitDpDAda571eMNVm1U\/y5IfVLMaTzKr4yEm2PMgo2J69CMyA1i2cWPWu0UMQFxWyi0hFP+tHGbHkC6E3Itq5QAW08GxMn3En3Xf+kob9r1QvLP0AEAsXVkvJZpjm0LdJe2m+8dfvWZ2UkIRsYnPVIg3jGB8MvDqeFVD6lzGQqvECXSDmQ6rEEhzw==","encryptKey":"HD8D1XNkBCiLmplL","timestamp":"1747102515253","responseId":"JZY1310595823617"}';
+        $data = json_decode($content, true);
+        $data['data'] = json_decode($data['data'], true);
+        $data['data']['customerInfoNotify']['customerNo'] = $merchantNo;
+        $data['data']['customerInfoNotify']['customerName'] = '测试商户';
+        $data['encryptKey'] = '1234567890123456';
+        $data['data'] = $this->posStrategy->encryptData($data['encryptKey'], json_encode($data['data'], JSON_UNESCAPED_UNICODE));
+        $data['encryptKey'] = $this->posStrategy->encryptPassword($data['encryptKey']);
+        $data['sign'] = $this->posStrategy->sign($data);
+        $content = json_encode($data);
+        // exit($content);
         $callbackRequest = $this->posStrategy->handleCallback($content);
         self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
         self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
@@ -197,7 +233,23 @@ class LiPosStrategyTest extends TestCase
      */
     function handleCallbackOfPosBind()
     {
+        // pos 平台官方回调
         $content = '{"serviceType":"MATERIAL_BIND_STATUS_NOTIFY","data":"9SIO43lNTsgQHaF5+G8+wWVKLN/rlxIyqV73iiYAbpdXh9+WtcNnK7CWAaGnaAy4n5tupEn5fxJGj++syht7MCsYUTB22TJ7vNtZl6JkTbKVKci+4sqMk4rWFXdbRYUM8CL9yKDhidk8WXEBKFl57ICT8We4UGrLNiIVpesVwvTASc/uIGNPqJ8MLlUO0kEB74lcrK7uDBvCj3zXL1I7bg==","appId":"61261936","sign":"XxaBBrcGfVWKtjzyvPblbvDUiLsF/aI090YX2/GMDToHVBzo/U5TdI+l4f62+QO1rz0KCgdOljozRP0jiNuZvLcRGmdtuG7Xml+ys74E7Hkm3TU76V5pW7xqXszXwkOh0Si/FVOMpBeWTVsOwZsIIyME9xxqaDoivjtPv9bKrWpqWvDHFurafs555IS3KZq3g4qrXxgtVRzZtaMnZeUV0V9fd0QJk8WNe5z7dipbmQRtIqhZefhzoDV3W9iovJ7LnpJjAcavG9L3E8u6Lnsx3AdYtlQ4cd5peU7K9Thg/V+Wb3nhDcHaRavJqgLGx4notX3BY2u69+BIHNj9DD1H4g==","encryptKey":"Mc00JBzqESAmFVtho3Gcx6u9/V0a1iJ75OxkeV+ULQF+BaFyncAVBQss8iYx5Yku+PFqMBXUDnCexv9xUmKaY0rvyz0Yna2x0BEEWKEKFbEvsa4YXs0ek1p6/f9OXQkKRcTPuG+41hP+sRhaKWqYv4wHCltGbbIQG/Txj7D1rmAPBidekDGYjidnx7th9Q7ehmN618Vwwb9BRhlHRkvgawmECKie9KNwUmfZTNQk9k+6BpoKb37eDK5ODQ0J/GcJcfeTL+ZOwit0BbYdzaiNfRyMyRSh2YW1C2XLk8MTNafpoY2Cva1kKl3Z5YfY9LVlv5ff54Y9iiDVreybqX2snw==","timestamp":"1747105746640","responseId":"JZY1311015243266"}';
+        // 自己模拟的回调信息
+        $posSn = env('lipos.posSn');
+        self::assertNotEmpty($posSn, 'lishuaB.posSn is empty');
+        $merchantNo = env('lipos.merchantNo');
+        self::assertNotEmpty($merchantNo, 'lishuaB.merchantNo is empty');
+        $data = json_decode($content, true);
+        $data['data'] = json_decode('{"agentNo":"61261936","bindStatus":"BINDED","changeTime":"2025-05-13 11:08:56","customerNo":"825814187159639","materialsNo":"000031000000000000008"}', true);
+        $data['data']['customerNo'] = $merchantNo;
+        $data['data']['materialsNo'] = $posSn;
+        $data['encryptKey'] = '1234567890123456';
+        $data['data'] = $this->posStrategy->encryptData($data['encryptKey'], json_encode($data['data'], JSON_UNESCAPED_UNICODE));
+        $data['encryptKey'] = $this->posStrategy->encryptPassword($data['encryptKey']);
+        $data['sign'] = $this->posStrategy->sign($data);
+        $content = json_encode($data);
+        exit($content);
         $callbackRequest = $this->posStrategy->handleCallback($content);
         self::assertInstanceOf(CallbackRequest::class, $callbackRequest);
         self::assertTrue($callbackRequest->isSuccess(), $callbackRequest->getErrorMsg() ?? '');
@@ -297,7 +349,7 @@ class LiPosStrategyTest extends TestCase
             'transType' => 'TRADE',
             'payTypeCode' => 'WECHAT',
             'orderNo' => strval(time()),
-            'amount' => 100,
+            'amount' => 299,
             // 结算金额
             'settleAmount' => 98.00,
             'feeRate' => 2,
@@ -307,6 +359,9 @@ class LiPosStrategyTest extends TestCase
             'fixedValue' => 0.00,
             'status' => 'SUCCESS',
             'successTime' => date('Y-m-d H:i:s'),
+            // 模拟押金订单
+            'stopPayType' => 'MACHINE',
+            'stopPayAmount' => 299.00
         ];
         $password = '1234567890123456';
         $params['data'] = $this->posStrategy->encryptData($password, json_encode($data));
