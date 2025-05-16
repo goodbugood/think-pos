@@ -48,7 +48,7 @@ final class PosConvertor
                 $data['materialsSimInfo']['simPhaseList'][0]['deductionStatus'] ?? 'null'
             ));
             // 返回套餐内容，自行解析 {"beginDayMaxRang":7,"beginDayMinRang":1,"beginDayNum":1,"deductionStatus":"NO","endDayNum":60,"simDeductionsList":[{"deductionAmount":19,"enableStatus":"YES","simPhaseIndex":19},{"deductionAmount":29,"enableStatus":"NO","simPhaseIndex":29},{"deductionAmount":39,"enableStatus":"NO","simPhaseIndex":39}],"simRuleIndex":1}
-            $posInfoResponse->setSimPackageCode(json_encode($data['materialsSimInfo']['simPhaseList'][0]));
+            $posInfoResponse->setSimPackageCode(json_encode($data['materialsSimInfo']));
         }
         // 解析贷记卡费率，注意，pos 一旦绑定了商户，不再返回终端费率
         $materialsRateList = $data['materialsRateList'] ?? [];
