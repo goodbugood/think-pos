@@ -202,6 +202,7 @@ class LiPosStrategy extends PosStrategy
 
     /**
      * 设置 pos 通信服务费，其实就是 pos 机里的 esim 流量费
+     * 流量卡套餐 getSimPackageCode 格式：[{"simRuleIndex": "通讯服务费阶段 integer", "simPhaseIndex": "通讯服务费档位 integer", "beginDayNum": "通讯服务费扣费起始天数 integer"}]
      * @param SimRequestDto $dto
      * @return PosProviderResponse
      */
@@ -210,17 +211,8 @@ class LiPosStrategy extends PosStrategy
         $url = $this->getUrl(self::API_METHOD['modify_pos_sim_fee']);
         $params = [
             'materialsNo' => $dto->getDeviceSn(),
-            // todo shali [2025/5/9] 具体的套餐信息从何处获取，力 pos 那边还未定下来
-            'simDeductionsList' => [
-                [
-                    // 通讯服务费阶段 integer
-                    'simRuleIndex' => null,
-                    // 通讯服务费档位 integer
-                    'simPhaseIndex' => null,
-                    // 通讯服务费扣费起始天数 integer
-                    'beginDayNum' => null,
-                ]
-            ],
+            // 套餐信息，自行去力 pos 平台配置，然后按照 pos 查询返回
+            'simDeductionsList' => json_decode($dto->getSimPackageCode(), true),
         ];
         try {
             $this->post($url, $params);
@@ -438,6 +430,7 @@ class LiPosStrategy extends PosStrategy
     function sign(array $data): string
     {
         // 字典序
+        unset($data['sign'], $data['success']);
         $content = StrUtil::httpBuildQuery($data, true);
         return SignUtil::signBySHA256withRSAToBase64(KeyUtil::toPrivateKeyValueOfBase64Str($this->config['privateKey']), $content);
     }
