@@ -3,17 +3,23 @@
 namespace think\pos\dto\response;
 
 use shali\phpmate\util\Money;
-use shali\phpmate\util\Rate;
+use think\pos\dto\RateTrait;
 use think\pos\dto\ResponseTrait;
 
 class PosInfoResponse
 {
     use ResponseTrait;
+    use RateTrait;
 
     /**
      * @var null|Money 押金
      */
     private $deposit;
+
+    /**
+     * @var string 押金套餐简码
+     */
+    private $depositPackageCode = '';
 
     /**
      * @var string 设备号
@@ -29,11 +35,6 @@ class PosInfoResponse
      * @var string 流量卡套餐描述
      */
     private $simPackageDesc = '';
-
-    /**
-     * @var null|Rate 贷记卡费率
-     */
-    private $creditRate;
 
     /**
      * @var null|Money 提现手续费
@@ -55,14 +56,14 @@ class PosInfoResponse
         $this->deposit = $deposit;
     }
 
-    public function getCreditRate(): ?Rate
+    public function getDepositPackageCode(): string
     {
-        return $this->creditRate;
+        return $this->depositPackageCode;
     }
 
-    public function setCreditRate(?Rate $creditRate): void
+    public function setDepositPackageCode(string $depositPackageCode): void
     {
-        $this->creditRate = $creditRate;
+        $this->depositPackageCode = $depositPackageCode;
     }
 
     public function getWithdrawFee(): ?Money

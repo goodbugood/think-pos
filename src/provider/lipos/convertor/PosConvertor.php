@@ -54,7 +54,14 @@ final class PosConvertor
         $materialsRateList = $data['materialsRateList'] ?? [];
         foreach ($materialsRateList as $item) {
             if ($item['payTypeViewCode'] === 'POS_CC') {
-                $posInfoResponse->setCreditRate(Rate::valuePercentage(strval($item['rateValue'] ?? 0)));
+                $posInfoResponse->setCreditRate(Rate::valueOfPercentage(strval($item['rateValue'] ?? 0)));
+            } elseif ($item['payTypeViewCode'] === 'POS_DC') {
+                $posInfoResponse->setDebitCardRate(Rate::valueOfPercentage(strval($item['rateValue'] ?? 0)));
+                $posInfoResponse->setDebitCardCappingValue(Money::valueOfYuan(strval($item['cappingValue'] ?? 0)));
+            } elseif ($item['payTypeViewCode'] === 'WECHAT') {
+                $posInfoResponse->setWechatRate(Rate::valueOfPercentage(strval($item['rateValue'] ?? 0)));
+            } elseif ($item['payTypeViewCode'] === 'ALIPAY') {
+                $posInfoResponse->setAlipayRate(Rate::valueOfPercentage(strval($item['rateValue'] ?? 0)));
             }
         }
         // 解析押金
@@ -63,6 +70,7 @@ final class PosConvertor
             foreach ($data['materialsMachineInfo']['materialsMachineList'] as $item) {
                 if ('YES' === $item['enableStatus']) {
                     $deposit->add(Money::valueOfYuan(strval($item['machineAmount'] ?? 0)));
+                    $posInfoResponse->setDepositPackageCode(strval($item['machinePhaseIndex'] ?? ''));
                 }
             }
             $posInfoResponse->setDeposit($deposit);
