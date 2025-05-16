@@ -57,6 +57,8 @@ abstract class PosStrategy
         'message' => null,
         // http body
         'body' => null,
+        // 解密后的响应数据
+        'decryptedBody' => null,
     ];
 
     /**
