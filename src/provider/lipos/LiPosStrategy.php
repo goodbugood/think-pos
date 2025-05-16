@@ -10,6 +10,7 @@ use shali\phpmate\crypto\KeyUtil;
 use shali\phpmate\crypto\SignUtil;
 use shali\phpmate\http\HttpClient;
 use shali\phpmate\PhpMateException;
+use shali\phpmate\util\Money;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
@@ -127,6 +128,9 @@ class LiPosStrategy extends PosStrategy
      */
     function setPosRate(PosRequestDto $dto): PosProviderResponse
     {
+        if (false === $this->cappingValueCheck($dto->getDebitCardCappingValue())) {
+            return PosProviderResponse::fail('借记卡封顶金额区间为 [18, 25]');
+        }
         $url = $this->getUrl(self::API_METHOD['modify_pos_rate']);
         $params = [
             // 该接口支持批量更新，我们还不支持
@@ -300,6 +304,9 @@ class LiPosStrategy extends PosStrategy
      */
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
+        if (false === $this->cappingValueCheck($dto->getDebitCardCappingValue())) {
+            return PosProviderResponse::fail('借记卡封顶金额区间为 [18, 25]');
+        }
         $url = $this->getUrl(self::API_METHOD['modify_merchant_rate']);
         $params = [
             'customerNo' => $dto->getMerchantNo(),
@@ -514,5 +521,22 @@ class LiPosStrategy extends PosStrategy
         }
 
         return CallbackRequest::fail('不理解你回调了啥');
+    }
+
+    /**
+     * 力 pos 限制借记卡封顶金额 [18, 25]
+     * @param Money $debitCardCappingValue
+     * @return bool
+     */
+    private function cappingValueCheck(Money $debitCardCappingValue): bool
+    {
+        $yuan = $debitCardCappingValue->toYuan();
+        if (bccomp($yuan, '18', 2) < 0) {
+            return false;
+        } elseif (bccomp('25', $yuan, 2) < 0) {
+            return false;
+        }
+
+        return true;
     }
 }
