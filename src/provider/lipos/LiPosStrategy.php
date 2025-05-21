@@ -429,7 +429,8 @@ class LiPosStrategy extends PosStrategy
             // 日志记录明文
             $this->rawRequest['params'] = $data;
             $this->rawResponse['decryptedBody'] = $content;
-            return json_decode($content, true);
+            // 25年5月21日，鉴于力POS很多设置接口，返回消息内容格式不统一，这里做兼容
+            return StrUtil::isJson($content) ? json_decode($content, true) : [$content];
         } catch (PhpMateException $e) {
             $errorMsg = sprintf('请求响应数据验签->解密异常：%s', $e->getMessage());
             throw new ProviderGatewayException($errorMsg);
