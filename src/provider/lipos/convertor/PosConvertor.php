@@ -55,6 +55,8 @@ final class PosConvertor
         foreach ($materialsRateList as $item) {
             if ($item['payTypeViewCode'] === 'POS_CC') {
                 $posInfoResponse->setCreditRate(Rate::valueOfPercentage(strval($item['rateValue'] ?? 0)));
+                // 解析提现手续费
+                $posInfoResponse->setWithdrawFee(Money::valueOfYuan(strval($item['fixedValue'] ?? 0)));
             } elseif ($item['payTypeViewCode'] === 'POS_DC') {
                 $posInfoResponse->setDebitCardRate(Rate::valueOfPercentage(strval($item['rateValue'] ?? 0)));
                 $posInfoResponse->setDebitCardCappingValue(Money::valueOfYuan(strval($item['cappingValue'] ?? 0)));
