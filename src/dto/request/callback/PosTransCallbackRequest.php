@@ -88,6 +88,11 @@ class PosTransCallbackRequest extends CallbackRequest
     private $secondOrderType = '';
 
     /**
+     * @var string 第二个交易流水号，通常是止付订单号，例如多个订单一起下发（交易和流量卡订单）
+     */
+    private $secondTransNo = '';
+
+    /**
      * 附加的第二个订单金额
      * @var Money|null
      */
@@ -247,6 +252,16 @@ class PosTransCallbackRequest extends CallbackRequest
     public function setSecondOrderType(string $secondOrderType): void
     {
         $this->secondOrderType = $secondOrderType;
+    }
+
+    public function getSecondTransNo(): string
+    {
+        return $this->secondTransNo;
+    }
+
+    public function setSecondTransNo(string $secondTransNo): void
+    {
+        $this->secondTransNo = $secondTransNo;
     }
 
     public function getSecondOrderAmount(): ?Money

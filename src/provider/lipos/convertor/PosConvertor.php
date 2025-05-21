@@ -133,7 +133,6 @@ final class PosConvertor
         $request->setMerchantNo(strval($decryptedData['customerNo'] ?? 'null'));
         $request->setMerchantName(strval($decryptedData['customerName'] ?? 'null'));
         $request->setDeviceSn(strval($decryptedData['materialsNo'] ?? 'null'));
-        $request->setTransNo(strval($decryptedData['orderNo'] ?? 'null'));
         $request->setAmount(Money::valueOfYuan(strval($decryptedData['amount'] ?? 0)));
         $request->setSettleAmount(Money::valueOfYuan(strval($decryptedData['settleAmount'] ?? 0)));
         $request->setRate(Rate::valueOfPercentage(strval($decryptedData['feeRate'] ?? 0)));
@@ -152,13 +151,21 @@ final class PosConvertor
         // 解析订单类型
         $stopPayType = $decryptedData['stopPayType'] ?? 'null';
         if ('SIM' === $stopPayType) {
+            // 第一笔订单：交易订单
             $request->setOrderType(TransOrderType::NORMAL);
+            $request->setTransNo(strval($decryptedData['orderNo'] ?? 'null'));
+            // 第二笔订单：流量卡订单
             $request->setSecondOrderType(TransOrderType::SIM);
+            $request->setSecondTransNo(strval($decryptedData['stopOrderNo'] ?? 'null'));
             $request->setSecondOrderAmount(Money::valueOfYuan(strval($decryptedData['stopPayAmount'] ?? 0)));
         } elseif ('MACHINE' === $stopPayType) {
+            // 押金订单
             $request->setOrderType(TransOrderType::DEPOSIT);
+            $request->setTransNo(strval($decryptedData['stopOrderNo'] ?? 'null'));
         } else {
+            // 交易订单
             $request->setOrderType(TransOrderType::NORMAL);
+            $request->setTransNo(strval($decryptedData['orderNo'] ?? 'null'));
         }
         // 解析支付方式
         $payType = $decryptedData['payTypeCode'] ?? 'null';
