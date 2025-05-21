@@ -16,4 +16,17 @@ class StrUtil
         $sort && ksort($params);
         return urldecode(http_build_query($params));
     }
+
+    /**
+     * @param mixed $jsonStr
+     * @return bool
+     */
+    public static function isJson($jsonStr): bool
+    {
+        if (!is_string($jsonStr)) {
+            return false;
+        }
+        $json = json_decode($jsonStr, true);
+        return json_last_error() === JSON_ERROR_NONE && is_array($json);
+    }
 }
