@@ -115,7 +115,7 @@ final class PosConvertor
             $request->setStatus(PosStatus::BIND_SUCCESS);
         } elseif ('CHANGE_BIND' === $bindStatus) {
             // 换绑成功
-            $request->setStatus(PosStatus::BIND_SUCCESS);
+            $request->setStatus(PosStatus::REBIND_SUCCESS);
         }
         // 状态变更时间
         if (empty($decryptedData['changeTime'])) {

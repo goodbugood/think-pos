@@ -21,6 +21,12 @@ class PosBindCallbackRequest extends CallbackRequest
     private $merchantNo = '';
 
     /**
+     * [C] 旧设备号，换绑时才会存在此字段，终端执行换绑时，会通知代理平台进行解绑旧设备操作
+     * @var string
+     */
+    private $oldDeviceSn = '';
+
+    /**
      * 终端编号
      * @var string
      */
@@ -66,6 +72,16 @@ class PosBindCallbackRequest extends CallbackRequest
     public function setDeviceSn(string $deviceSn): void
     {
         $this->deviceSn = $deviceSn;
+    }
+
+    public function getOldDeviceSn(): string
+    {
+        return $this->oldDeviceSn;
+    }
+
+    public function setOldDeviceSn(string $oldDeviceSn): void
+    {
+        $this->oldDeviceSn = $oldDeviceSn;
     }
 
     public function getStatus(): string
