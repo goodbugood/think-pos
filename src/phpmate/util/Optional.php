@@ -77,7 +77,7 @@ final class Optional implements ArrayAccess
      */
     public function ifPresentConsumer(callable $consumer): void
     {
-        if ($this->isNoPresent()) {
+        if ($this->isPresent()) {
             $consumer($this->value);
         }
     }
