@@ -318,7 +318,7 @@ class LiPosStrategy extends PosStrategy
                     // 费率
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
                     // 附加费用
-                    'fixedValue' => '0.00',
+                    'fixedValue' => $dto->getWithdrawFee()->toYuan(),
                     // 贷记卡封顶值
                     'cappingValue' => '0.00',
                 ],
