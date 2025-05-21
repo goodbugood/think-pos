@@ -143,32 +143,32 @@ class LiPosStrategy extends PosStrategy
                     // 费率
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
                     // 附加费用
-                    'fixedValue' => '0.00',
+                    'fixedValue' => $dto->getWithdrawFee()->toYuan(),
                     // 贷记卡封顶值
                     'cappingValue' => '0.00',
                 ],
                 [
                     'payTypeViewCode' => 'POS_DISCOUNT_CC',
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
-                    'fixedValue' => '0.00',
+                    'fixedValue' => $dto->getWithdrawFee()->toYuan(),
                     'cappingValue' => '0.00',
                 ],
                 [
                     'payTypeViewCode' => 'POS_DISCOUNT_GF_CC',
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
-                    'fixedValue' => '0.00',
+                    'fixedValue' => $dto->getWithdrawFee()->toYuan(),
                     'cappingValue' => '0.00',
                 ],
                 [
                     'payTypeViewCode' => 'POS_DISCOUNT_PA_CC',
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
-                    'fixedValue' => '0.00',
+                    'fixedValue' => $dto->getWithdrawFee()->toYuan(),
                     'cappingValue' => '0.00',
                 ],
                 [
                     'payTypeViewCode' => 'POS_DISCOUNT_MS_CC',
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
-                    'fixedValue' => '0.00',
+                    'fixedValue' => $dto->getWithdrawFee()->toYuan(),
                     'cappingValue' => '0.00',
                 ],
                 // 借记卡
@@ -325,25 +325,25 @@ class LiPosStrategy extends PosStrategy
                 [
                     'payTypeViewCode' => 'POS_DISCOUNT_CC',// 特惠
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
-                    'fixedValue' => '0.00',
+                    'fixedValue' => $dto->getWithdrawFee()->toYuan(),
                     'cappingValue' => '0.00',
                 ],
                 [
                     'payTypeViewCode' => 'POS_DISCOUNT_GF_CC',// 特惠 GF
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
-                    'fixedValue' => '0.00',
+                    'fixedValue' => $dto->getWithdrawFee()->toYuan(),
                     'cappingValue' => '0.00',
                 ],
                 [
                     'payTypeViewCode' => 'POS_DISCOUNT_PA_CC',// 特惠 PA
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
-                    'fixedValue' => '0.00',
+                    'fixedValue' => $dto->getWithdrawFee()->toYuan(),
                     'cappingValue' => '0.00',
                 ],
                 [
                     'payTypeViewCode' => 'POS_DISCOUNT_MS_CC',// 特惠 MS
                     'rateValue' => $dto->getCreditRate()->toPercentage(6),
-                    'fixedValue' => '0.00',
+                    'fixedValue' => $dto->getWithdrawFee()->toYuan(),
                     'cappingValue' => '0.00',
                 ],
                 // 借记卡
