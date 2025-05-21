@@ -58,6 +58,11 @@ class PosTransCallbackRequest extends CallbackRequest
     private $fee;
 
     /**
+     * @var Money|null 提现手续费：你刷完卡，只是扣了交易手续费，钱到你账户，还要扣这个提现手续费
+     */
+    private $withdrawFee;
+
+    /**
      * @var LocalDateTime|null 交易成功时间
      */
     private $successDateTime;
@@ -182,6 +187,16 @@ class PosTransCallbackRequest extends CallbackRequest
     public function setFee(?Money $fee): void
     {
         $this->fee = $fee;
+    }
+
+    public function getWithdrawFee(): ?Money
+    {
+        return $this->withdrawFee;
+    }
+
+    public function setWithdrawFee(?Money $withdrawFee): void
+    {
+        $this->withdrawFee = $withdrawFee;
     }
 
     public function getSuccessDateTime(): ?LocalDateTime

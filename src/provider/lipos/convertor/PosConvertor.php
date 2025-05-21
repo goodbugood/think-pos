@@ -138,6 +138,7 @@ final class PosConvertor
         $request->setSettleAmount(Money::valueOfYuan(strval($decryptedData['settleAmount'] ?? 0)));
         $request->setRate(Rate::valueOfPercentage(strval($decryptedData['feeRate'] ?? 0)));
         $request->setFee(Money::valueOfYuan(strval($decryptedData['fee'] ?? 0)));
+        $request->setWithdrawFee(Money::valueOfYuan(strval($decryptedData['fixedValue'] ?? 0)));
         if (empty($decryptedData['successTime'])) {
             $request->setSuccessDateTime(LocalDateTime::now());
         } else {
