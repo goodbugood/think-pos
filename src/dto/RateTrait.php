@@ -8,6 +8,7 @@ use shali\phpmate\util\Rate;
 trait RateTrait
 {
     /**
+     * 刷卡后强制性提现到你卡里，所以提现手续费是必收取的，只不过我们默认不收取
      * @var Money|null 所有支付方式的提现手续费
      */
     private $withdrawFee;

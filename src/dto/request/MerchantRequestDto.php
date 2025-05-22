@@ -2,7 +2,6 @@
 
 namespace think\pos\dto\request;
 
-use shali\phpmate\util\Money;
 use think\pos\dto\ProviderRequestTrait;
 use think\pos\dto\RateTrait;
 
@@ -24,12 +23,6 @@ class MerchantRequestDto
      */
     private $merchantNo;
 
-    /**
-     * 刷卡后强制性提现到你卡里，所以提现手续费是必收取的，只不过我们默认不收取
-     * @var Money|null 提现手续费
-     */
-    private $withdrawFee;
-
     public function getDeviceSn(): string
     {
         return $this->deviceSn;
@@ -48,18 +41,5 @@ class MerchantRequestDto
     public function setMerchantNo(string $merchantNo): void
     {
         $this->merchantNo = $merchantNo;
-    }
-
-    /**
-     * @return Money|null
-     */
-    public function getWithdrawFee(): ?Money
-    {
-        return $this->withdrawFee;
-    }
-
-    public function setWithdrawFee(?Money $withdrawFee): void
-    {
-        $this->withdrawFee = $withdrawFee;
     }
 }

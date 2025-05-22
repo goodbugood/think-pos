@@ -37,11 +37,6 @@ class PosInfoResponse
     private $simPackageDesc = '';
 
     /**
-     * @var null|Money 提现手续费
-     */
-    private $withdrawFee;
-
-    /**
      * @var boolean 是否开了 vip 会员
      */
     private $isVip;
@@ -64,16 +59,6 @@ class PosInfoResponse
     public function setDepositPackageCode(string $depositPackageCode): void
     {
         $this->depositPackageCode = $depositPackageCode;
-    }
-
-    public function getWithdrawFee(): ?Money
-    {
-        return $this->withdrawFee;
-    }
-
-    public function setWithdrawFee(?Money $withdrawFee): void
-    {
-        $this->withdrawFee = $withdrawFee;
     }
 
     public function getDeviceNo(): string
