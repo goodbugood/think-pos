@@ -513,6 +513,7 @@ class LiPosStrategy extends PosStrategy
         }
         $decryptedData = json_decode($decrypted, true);
         $this->rawRequest['data'] = $decryptedData;
+        $this->rawResponse = $this->getCallbackAckContent();
         if (self::CALLBACK_SERVICE_TYPE['merchant_rate_set_success'] === $data['serviceType']) {
             return MerchantConvertor::toMerchantRateSetCallbackRequest($decryptedData);
         } elseif (self::CALLBACK_SERVICE_TYPE['merchant_register_success'] === $data['serviceType']) {
@@ -525,7 +526,9 @@ class LiPosStrategy extends PosStrategy
             return PosConvertor::toPosTransCallbackRequest($decryptedData);
         }
 
-        return CallbackRequest::fail('不理解你回调了啥');
+        $errorMsg = '';
+        $this->rawResponse = $errorMsg;
+        return CallbackRequest::fail($errorMsg);
     }
 
     /**
