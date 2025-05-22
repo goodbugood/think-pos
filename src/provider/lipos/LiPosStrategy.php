@@ -412,6 +412,8 @@ class LiPosStrategy extends PosStrategy
             $res = $this->httpClient->post($url, $params, ['Content-Type' => 'application/json']);
         } finally {
             $this->rawRequest = $this->httpClient->getRawRequest();
+            // 请求参数记录明文
+            $this->rawRequest['params']['data'] = $data;
             $this->rawResponse = $this->httpClient->getRawResponse();
         }
         $res = json_decode($res, true);
