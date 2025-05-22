@@ -8,6 +8,11 @@ use shali\phpmate\util\Rate;
 trait RateTrait
 {
     /**
+     * @var Money|null 所有支付方式的提现手续费
+     */
+    private $withdrawFee;
+
+    /**
      * @var Rate|null 贷记卡刷卡交易费率
      */
     private $creditRate;
@@ -31,6 +36,16 @@ trait RateTrait
      * @var Rate|null 支付宝费率
      */
     private $alipayRate;
+
+    public function getWithdrawFee(): ?Money
+    {
+        return $this->withdrawFee;
+    }
+
+    public function setWithdrawFee(?Money $withdrawFee): void
+    {
+        $this->withdrawFee = $withdrawFee;
+    }
 
     public function getCreditRate(): ?Rate
     {
