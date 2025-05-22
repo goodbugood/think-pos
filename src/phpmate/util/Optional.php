@@ -20,9 +20,20 @@ final class Optional implements ArrayAccess
      */
     private $value;
 
+    /**
+     * @var self<null>
+     */
+    private static $empty = null;
+
+    /**
+     * @return self<null>
+     */
     public static function empty(): self
     {
-        return new self();
+        if (is_null(self::$empty)) {
+            self::$empty = new self();
+        }
+        return self::$empty;
     }
 
     /**
@@ -31,14 +42,15 @@ final class Optional implements ArrayAccess
      */
     public static function of($value): self
     {
+        $v = Variables::requireNonNull($value);
         $optional = new self();
-        $optional->value = Variables::requireNonNull($value);
+        $optional->value = $v;
         return $optional;
     }
 
     /**
      * @param T|null $value
-     * @return self<T>
+     * @return self<T|null>
      */
     public static function ofNullable($value): self
     {
@@ -47,7 +59,6 @@ final class Optional implements ArrayAccess
 
     /**
      * @return T
-     * @throws RuntimeException
      */
     public function get()
     {
@@ -97,7 +108,7 @@ final class Optional implements ArrayAccess
     }
 
     /**
-     * @param callable(T): void $predicate
+     * @param callable(T): bool $predicate
      * @return self<T>
      */
     public function filter(callable $predicate): Optional
@@ -120,27 +131,31 @@ final class Optional implements ArrayAccess
 
     /**
      * @template R
-     * @param callable(T): R $mapper
-     * @return self<R>
+     * @param callable(T): self<R> $mapper
+     * @return self<R|null>
      */
     public function flatMap(callable $mapper): Optional
     {
-        return $this->isNoPresent() ? self::empty() : self::ofNullable(Variables::requireNonNull($mapper($this->value)));
+        if ($this->isNoPresent()) {
+            return self::empty();
+        }
+        $result = $mapper($this->value);
+        return $result instanceof Optional ? $result : self::ofNullable($result);
     }
 
     /**
      * @template R
-     * @param callable(): R $supplier
+     * @param callable(): self<T> $supplier
      * @return self<T|R>
      */
     public function or(callable $supplier): Optional
     {
-        return $this->isPresent() ? $this : self::of($supplier());
+        return $this->isPresent() ? $this : self::ofNullable(Variables::requireNonNull($supplier()));
     }
 
     /**
      * @param mixed $other
-     * @return mixed|T
+     * @return T|mixed
      */
     public function orElse($other)
     {
@@ -159,7 +174,6 @@ final class Optional implements ArrayAccess
 
     /**
      * @return T
-     * @throws Exception
      */
     public function orElseThrow(callable $exceptionSupplier)
     {
@@ -213,7 +227,22 @@ final class Optional implements ArrayAccess
         return $this->toString();
     }
 
-    // 下面参照 laravel 的 Optional
+    //region Option 当拥有属性的对象访问
+
+    /**
+     * @param string $method
+     * @param mixed $params
+     * @return self<T|mixed>
+     */
+    public function __call(string $method, $params): self
+    {
+        if (is_object($this->value) && is_callable([$this->value, $method])) {
+            return self::ofNullable($this->value->$method(...$params));
+        } elseif (is_array($this->value) && is_callable($this->value[$method])) {
+            return self::ofNullable($this->value[$method](...$params));
+        }
+        return self::empty();
+    }
 
     /**
      * 获取对象属性
@@ -222,14 +251,21 @@ final class Optional implements ArrayAccess
      */
     public function __get(string $attribute): self
     {
-        if ($this->isNoPresent()) {
-            return self::empty();
-        } elseif (is_object($this->value)) {
+        if (is_object($this->value) && property_exists($this->value, $attribute)) {
             return self::ofNullable($this->value->$attribute);
-        } elseif (is_array($this->value)) {
+        } elseif (is_array($this->value) && array_key_exists($attribute, $this->value)) {
             return self::ofNullable($this->value[$attribute]);
         }
         return self::empty();
+    }
+
+    public function __set($attribute, $value): void
+    {
+        if (is_object($this->value)) {
+            $this->value->$attribute = $value;
+        } elseif (is_array($this->value)) {
+            $this->value[$attribute] = $value;
+        }
     }
 
     /**
@@ -238,9 +274,7 @@ final class Optional implements ArrayAccess
      */
     public function __isset(string $attribute): bool
     {
-        if ($this->isNoPresent()) {
-            return false;
-        } elseif (is_object($this->value)) {
+        if (is_object($this->value)) {
             return isset($this->value->$attribute);
         } elseif (is_array($this->value)) {
             return isset($this->value[$attribute]);
@@ -248,66 +282,63 @@ final class Optional implements ArrayAccess
         return false;
     }
 
-    /**
-     * @param string $method
-     * @param mixed $params
-     * @return self<mixed>
-     */
-    public function __call(string $method, $params): self
+    public function __unset(string $attribute)
     {
-        if ($this->isNoPresent()) {
-            return self::empty();
-        } elseif (is_object($this->value) && is_callable([$this->value, $method])) {
-            return self::ofNullable($this->value->$method(...$params));
-        } elseif (is_array($this->value) && is_callable($this->value[$method])) {
-            return self::ofNullable($this->value[$method](...$params));
+        if (is_object($this->value) && property_exists($this->value, $attribute)) {
+            unset($this->value->$attribute);
+        } elseif (is_array($this->value) && array_key_exists($attribute, $this->value)) {
+            unset($this->value[$attribute]);
         }
-        return self::empty();
     }
+    //endregion
 
-    // 当数组使用
+    //region Optional 当数组使用
     public function offsetExists($offset): bool
     {
-        if (is_array($this->value)) {
+        if (is_object($this->value)) {
+            return property_exists($this->value, $offset);
+        } elseif (is_array($this->value)) {
             return array_key_exists($offset, $this->value);
-        } elseif (is_object($this->value) && property_exists($this->value, $offset)) {
-            return true;
         }
         return false;
     }
 
+    /**
+     * @param $offset
+     * @return self<T>
+     */
     public function offsetGet($offset): self
     {
-        if ($this->isNoPresent()) {
-            return self::empty();
-        } elseif (is_array($this->value)) {
-            return self::ofNullable($this->value[$offset]);
-        } elseif (is_object($this->value) && property_exists($this->value, $offset)) {
+        if (is_object($this->value) && property_exists($this->value, $offset)) {
             return self::ofNullable($this->value->$offset);
+        } elseif (is_array($this->value) && array_key_exists($offset, $this->value)) {
+            return self::ofNullable($this->value[$offset]);
         }
         return self::empty();
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
-        if (is_array($this->value)) {
-            $this->value[$offset] = $value;
-        } elseif (is_object($this->value) && property_exists($this->value, $offset)) {
+        if (is_object($this->value)) {
             $this->value->$offset = $value;
+        } elseif (is_array($this->value)) {
+            $this->value[$offset] = $value;
         }
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
-        if (is_array($this->value)) {
-            unset($this->value[$offset]);
-        } elseif (is_object($this->value) && property_exists($this->value, $offset)) {
+        if (is_object($this->value) && property_exists($this->value, $offset)) {
             unset($this->value->$offset);
+        } elseif (is_array($this->value) && array_key_exists($offset, $this->value)) {
+            unset($this->value[$offset]);
         }
     }
+    //endregion
 
     // forbid new
     private function __construct()
     {
+        $this->value = null;
     }
 }
