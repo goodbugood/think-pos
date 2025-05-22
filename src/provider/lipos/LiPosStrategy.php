@@ -494,6 +494,7 @@ class LiPosStrategy extends PosStrategy
     public function handleCallback(string $content)
     {
         $data = json_decode($content, true);
+        $this->rawRequest = $data;
         if (empty($data['serviceType']) || empty($data['data']) || empty($data['encryptKey'])) {
             // 非力 pos 回调，拉倒吧不处理
             return CallbackRequest::fail('非力 pos 回调，无法处理');
@@ -511,6 +512,7 @@ class LiPosStrategy extends PosStrategy
             throw new ProviderGatewayException($errorMsg);
         }
         $decryptedData = json_decode($decrypted, true);
+        $this->rawRequest['data'] = $decryptedData;
         if (self::CALLBACK_SERVICE_TYPE['merchant_rate_set_success'] === $data['serviceType']) {
             return MerchantConvertor::toMerchantRateSetCallbackRequest($decryptedData);
         } elseif (self::CALLBACK_SERVICE_TYPE['merchant_register_success'] === $data['serviceType']) {
