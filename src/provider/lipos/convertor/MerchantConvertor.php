@@ -27,6 +27,7 @@ final class MerchantConvertor
             } elseif ('POS_CC' === $rateNotify['payTypeViewCode']) {
                 // 贷记卡
                 $request->setCreditRate(Rate::valueOfPercentage(strval($rate)));
+                $request->setWithdrawFee(Money::valueOfYuan(strval($rateNotify['fixedValue'] ?? 0)));
             }
         }
 
