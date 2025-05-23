@@ -385,6 +385,7 @@ class LiPosStrategyTest extends TestCase
         self::assertNotEmpty($callbackRequest->getSettleAmount());
         self::assertNotEmpty($callbackRequest->getRate());
         self::assertNotEmpty($callbackRequest->getFee());
+        self::assertFalse($callbackRequest->isFeeCapping());
         self::assertInstanceOf(LocalDateTime::class, $callbackRequest->getSuccessDateTime());
         self::assertNotEmpty($callbackRequest->getStatus());
         self::assertEquals('OK', $this->posStrategy->getCallbackAckContent());
