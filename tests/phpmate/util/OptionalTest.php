@@ -247,6 +247,8 @@ class OptionalTest extends TestCase
     {
         $optional = Optional::of(new User());
         self::assertEquals(95, $optional->getMathScore()->get());
+        $optional1 = Optional::of(['name' => 'shali']);
+        self::assertEquals(23, $optional1->getName()->orElse(23));
     }
 
     //endregion

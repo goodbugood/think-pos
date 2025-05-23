@@ -238,7 +238,7 @@ final class Optional implements ArrayAccess
     {
         if (is_object($this->value) && is_callable([$this->value, $method])) {
             return self::ofNullable($this->value->$method(...$params));
-        } elseif (is_array($this->value) && is_callable($this->value[$method])) {
+        } elseif (is_array($this->value) && array_key_exists($method, $this->value) && is_callable($this->value[$method])) {
             return self::ofNullable($this->value[$method](...$params));
         }
         return self::empty();
