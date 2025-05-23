@@ -39,7 +39,7 @@ class PosInfoResponse
     /**
      * @var boolean 是否开了 vip 会员
      */
-    private $isVip;
+    private $isVip = false;
 
     public function getDeposit(): ?Money
     {

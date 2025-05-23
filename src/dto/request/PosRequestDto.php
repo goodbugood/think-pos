@@ -17,7 +17,7 @@ class PosRequestDto
     /**
      * @var string 设备序列号，pos sn
      */
-    private $deviceSn;
+    private $deviceSn = '';
 
     /**
      * @var Money pos 机押金
@@ -27,12 +27,12 @@ class PosRequestDto
     /**
      * @var string 押金套餐简码
      */
-    private $depositPackageCode;
+    private $depositPackageCode = '';
 
     /**
      * @var string 流量卡套餐码
      */
-    private $simPackageCode;
+    private $simPackageCode = '';
 
     public function getDeviceSn(): string
     {

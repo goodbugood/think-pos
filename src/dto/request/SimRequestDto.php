@@ -14,12 +14,12 @@ class SimRequestDto
     /**
      * @var string 设备号
      */
-    public $deviceSn;
+    public $deviceSn = '';
 
     /**
      * @var string 流量卡套餐码
      */
-    private $simPackageCode;
+    private $simPackageCode = '';
 
     public function getDeviceSn(): string
     {

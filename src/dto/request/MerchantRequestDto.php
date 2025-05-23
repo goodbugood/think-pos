@@ -16,12 +16,12 @@ class MerchantRequestDto
     /**
      * @var string 设备序列号，pos sn
      */
-    private $deviceSn;
+    private $deviceSn = '';
 
     /**
      * @var string 商户号
      */
-    private $merchantNo;
+    private $merchantNo = '';
 
     public function getDeviceSn(): string
     {
