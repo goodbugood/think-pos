@@ -58,6 +58,12 @@ class PosTransCallbackRequest extends CallbackRequest
     private $fee;
 
     /**
+     * 交易手续费是否达到封顶金额，目前仅有借记卡交易才会存在封顶交易手续费
+     * @var bool true:达到封顶金额
+     */
+    private $isFeeCapping = false;
+
+    /**
      * @var Money|null 提现手续费：你刷完卡，只是扣了交易手续费，钱到你账户，还要扣这个提现手续费
      */
     private $withdrawFee;
@@ -192,6 +198,16 @@ class PosTransCallbackRequest extends CallbackRequest
     public function setFee(?Money $fee): void
     {
         $this->fee = $fee;
+    }
+
+    public function isFeeCapping(): bool
+    {
+        return $this->isFeeCapping;
+    }
+
+    public function setIsFeeCapping(bool $isFeeCapping): void
+    {
+        $this->isFeeCapping = $isFeeCapping;
     }
 
     public function getWithdrawFee(): ?Money
