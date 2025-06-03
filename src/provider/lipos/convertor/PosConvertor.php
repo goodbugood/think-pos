@@ -104,6 +104,7 @@ final class PosConvertor
         $request->setAgentNo($decryptedData['agentNo'] ?? 'null');
         $request->setMerchantNo($decryptedData['customerNo'] ?? 'null');
         $request->setDeviceSn($decryptedData['materialsNo'] ?? 'null');
+        $request->setOldDeviceSn($decryptedData['oldMaterialsNo'] ?? 'null');
         $bindStatus = $decryptedData['bindStatus'] ?? 'null';
         if ('TRUE' === $bindStatus) {
             // 解绑成功
