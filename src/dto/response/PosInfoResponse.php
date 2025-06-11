@@ -2,6 +2,7 @@
 
 namespace think\pos\dto\response;
 
+use shali\phpmate\core\util\StrUtil;
 use shali\phpmate\util\Money;
 use think\pos\dto\RateTrait;
 use think\pos\dto\ResponseTrait;
@@ -56,9 +57,9 @@ class PosInfoResponse
         return $this->depositPackageCode;
     }
 
-    public function setDepositPackageCode(string $depositPackageCode): void
+    public function setDepositPackageCode(?string $depositPackageCode): void
     {
-        $this->depositPackageCode = $depositPackageCode;
+        $this->depositPackageCode = $depositPackageCode ?? StrUtil::NULL;
     }
 
     public function getDeviceNo(): string
@@ -66,9 +67,9 @@ class PosInfoResponse
         return $this->deviceNo;
     }
 
-    public function setDeviceNo(string $deviceNo): void
+    public function setDeviceNo(?string $deviceNo): void
     {
-        $this->deviceNo = $deviceNo;
+        $this->deviceNo = $deviceNo ?? StrUtil::NULL;
     }
 
     public function getSimPackageCode(): string
@@ -76,9 +77,9 @@ class PosInfoResponse
         return $this->simPackageCode;
     }
 
-    public function setSimPackageCode(string $simPackageCode): void
+    public function setSimPackageCode(?string $simPackageCode): void
     {
-        $this->simPackageCode = $simPackageCode;
+        $this->simPackageCode = $simPackageCode ?? StrUtil::NULL;
     }
 
     public function getSimPackageDesc(): string
@@ -86,9 +87,9 @@ class PosInfoResponse
         return $this->simPackageDesc;
     }
 
-    public function setSimPackageDesc(string $simPackageDesc): void
+    public function setSimPackageDesc(?string $simPackageDesc): void
     {
-        $this->simPackageDesc = $simPackageDesc;
+        $this->simPackageDesc = $simPackageDesc ?? StrUtil::NULL;
     }
 
     public function isVip(): bool

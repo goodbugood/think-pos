@@ -4,6 +4,12 @@ namespace shali\phpmate\core\util;
 
 class StrUtil
 {
+    const EMPTY = '';
+
+    const SPACE = ' ';
+
+    const NULL = 'null';
+
     /**
      * 数组转成 & 拼接，字典序
      * @param array $params

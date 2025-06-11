@@ -3,6 +3,7 @@
 namespace think\pos\provider\jlpay;
 
 use Exception;
+use shali\phpmate\core\util\StrUtil;
 use shali\phpmate\http\HttpClient;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
@@ -307,14 +308,14 @@ class JLLSBPosStrategy extends PosStrategy
     private static function toPosInfoResponse(array $res): PosInfoResponse
     {
         $posInfoResponse = PosInfoResponse::success();
-        $money = Money::valueOfFen(strval($res['deposit_amount']));
+        $money = Money::valueOfFen(strval($res['deposit_amount'] ?? 0));
         $posInfoResponse->setDeposit($money);
         $posInfoResponse->setDeviceNo($res['device_sn']);
         $posInfoResponse->setSimPackageCode($res['message_fee_package_id']);
-        $posInfoResponse->setWithdrawFee(Money::valueOfFen(strval($res['quick_fee'])));
+        $posInfoResponse->setWithdrawFee(Money::valueOfFen(strval($res['quick_fee'] ?? 0)));
         // 百分数转小数
-        $posInfoResponse->setCreditRate(Rate::valueOfPercentage(strval($res['trans_rate'])));
-        $posInfoResponse->setIsVip('1' === $res['vip_fee_flag']);
+        $posInfoResponse->setCreditRate(Rate::valueOfPercentage(strval($res['trans_rate'] ?? 0)));
+        $posInfoResponse->setIsVip('1' === ($res['vip_fee_flag'] ?? StrUtil::NULL));
 
         return $posInfoResponse;
     }
