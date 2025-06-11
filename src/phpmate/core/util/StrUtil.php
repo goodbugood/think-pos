@@ -35,4 +35,32 @@ class StrUtil
         $json = json_decode($jsonStr, true);
         return json_last_error() === JSON_ERROR_NONE && is_array($json);
     }
+
+    /**
+     * 判断字符串是否以指定字符串开头，且严格区分大小写
+     * @param string $str
+     * @param string $prefix
+     * @return bool
+     */
+    public static function startWith(string $str, string $prefix): bool
+    {
+        if (self::EMPTY === $prefix) {
+            return self::EMPTY === $str;
+        }
+        return strpos($str, $prefix) === 0;
+    }
+
+    /**
+     * 判断字符串是否以指定字符串结尾，且严格区分大小写
+     * @param string $str
+     * @param string $suffix
+     * @return bool
+     */
+    public static function endWith(string $str, string $suffix): bool
+    {
+        if (self::EMPTY === $suffix) {
+            return self::EMPTY === $str;
+        }
+        return strrpos($str, $suffix) === strlen($str) - strlen($suffix);
+    }
 }

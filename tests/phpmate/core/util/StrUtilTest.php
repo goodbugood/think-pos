@@ -35,4 +35,42 @@ class StrUtilTest extends TestCase
         self::assertFalse(StrUtil::isJson('null'));
         self::assertFalse(StrUtil::isJson('"name"'));
     }
+
+    /**
+     * @test 测试字符串是否以某个字符串开头
+     * @return void
+     */
+    function startWith()
+    {
+        self::assertTrue(StrUtil::startWith('123456', '123'));
+        self::assertFalse(StrUtil::startWith('123456', '124'));
+        self::assertTrue(StrUtil::startWith('abc', 'ab'));
+        self::assertFalse(StrUtil::startWith('abc', 'Ab'));
+        self::assertFalse(StrUtil::startWith('abc', ' '));
+        self::assertFalse(StrUtil::startWith('abc', ''));
+        self::assertTrue(StrUtil::startWith('', ''));
+        self::assertFalse(StrUtil::startWith('', 'abc'));
+        self::assertFalse(StrUtil::startWith('', ' '));
+        self::assertTrue(StrUtil::startWith(' ', ' '));
+        self::assertFalse(StrUtil::startWith(' ', ''));
+    }
+
+    /**
+     * @test 测试字符串是否以某个字符串结尾
+     * @return void
+     */
+    function endWith()
+    {
+        self::assertTrue(StrUtil::endWith('123456', '456'));
+        self::assertFalse(StrUtil::endWith('123456', '457'));
+        self::assertTrue(StrUtil::endWith('abc', 'bc'));
+        self::assertFalse(StrUtil::endWith('abc', 'Bc'));
+        self::assertFalse(StrUtil::endWith('abc', ' '));
+        self::assertFalse(StrUtil::endWith('abc', ''));
+        self::assertTrue(StrUtil::endWith('', ''));
+        self::assertFalse(StrUtil::endWith('', 'abc'));
+        self::assertFalse(StrUtil::endWith('', ' '));
+        self::assertTrue(StrUtil::endWith(' ', ' '));
+        self::assertFalse(StrUtil::endWith(' ', ''));
+    }
 }
