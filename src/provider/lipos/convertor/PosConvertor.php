@@ -162,9 +162,9 @@ final class PosConvertor
             $request->setSecondTransNo(strval($decryptedData['stopOrderNo'] ?? 'null'));
             $request->setSecondOrderAmount(Money::valueOfYuan(strval($decryptedData['stopPayAmount'] ?? 0)));
         } elseif ('MACHINE' === $stopPayType) {
-            // 押金订单
+            // 押金订单，押金订单不是混合订单，虽然有止付订单号 stopOrderNo，我们决定参照普通交易订单统一取 orderNo
             $request->setOrderType(TransOrderType::DEPOSIT);
-            $request->setTransNo(strval($decryptedData['stopOrderNo'] ?? 'null'));
+            $request->setTransNo(strval($decryptedData['orderNo'] ?? 'null'));
         } else {
             // 交易订单
             $request->setOrderType(TransOrderType::NORMAL);
