@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "62276527c1d357eb47b1e0323405781c",
+    "content-hash": "4917b63a19ca8ea0fe96b76408b2ef37",
     "packages": [
         {
             "name": "php-curl-class/php-curl-class",
