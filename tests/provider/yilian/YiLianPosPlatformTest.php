@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\dto\request\MerchantRequestDto;
+use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
 use think\pos\PosStrategy;
 use think\pos\PosStrategyFactory;
@@ -65,7 +66,12 @@ class YiLianPosPlatformTest extends TestCase
 
     public function testUnbindPos()
     {
-
+        $posSn = env('yilian.posSn');
+        self::assertNotEmpty($posSn, 'yilian.posSn is empty');
+        $merchantRequestDto = new MerchantRequestDto();
+        $posRequestDto = new PosRequestDto();
+        $posProviderResponse = $this->posStrategy->unbindPos($merchantRequestDto, $posRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
 
     public function testHandleCallback()
