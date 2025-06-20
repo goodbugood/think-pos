@@ -146,6 +146,7 @@ class YiLianPosPlatform extends PosStrategy
 
     function setSimFee(SimRequestDto $dto): PosProviderResponse
     {
+        $url = $this->getUrl(self::API_METHOD['modify_pos_sim_fee']);
         $params = [
             'merchantNo' => $dto->getMerchantNo(),
             // 免收期，x 天，我们不配置，统一去 pos 平台配置
@@ -153,7 +154,6 @@ class YiLianPosPlatform extends PosStrategy
             'merchantFlowList' => json_decode($dto->getSimPackageCode(), true),
         ];
         try {
-            $url = $this->getUrl(self::API_METHOD['modify_pos_sim_fee']);
             $this->post($url, $params);
         } catch (Exception $e) {
             $errorMsg = sprintf('pos服务商[%s]设置商户merchant_no=%s sim卡套餐失败：%s', self::providerName(), $dto->getMerchantNo(), $e->getMessage());
