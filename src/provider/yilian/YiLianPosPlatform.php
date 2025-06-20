@@ -3,9 +3,11 @@
 namespace think\pos\provider\yilian;
 
 use Exception;
+use shali\phpmate\core\date\LocalDateTime;
 use shali\phpmate\crypto\EncryptUtil;
 use shali\phpmate\http\HttpClient;
 use shali\phpmate\PhpMateException;
+use think\pos\constant\PosStatus;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
@@ -189,7 +191,7 @@ class YiLianPosPlatform extends PosStrategy
      */
     function handleCallbackOfMerchantRegister(string $content): MerchantRegisterCallbackRequest
     {
-        $data = $this->decryptAndVerifySign($content);
+        $data = $this->decryptAndVerifySign('商户注册信息', $content);
         return MerchantConvertor::toMerchantRegisterCallbackRequest($data);
     }
 
@@ -198,29 +200,44 @@ class YiLianPosPlatform extends PosStrategy
      */
     public function handleCallbackOfPosBind(string $content): PosBindCallbackRequest
     {
-        $data = $this->decryptAndVerifySign($content);
+        $data = $this->decryptAndVerifySign('机具绑定', $content);
         return MerchantConvertor::toPosBindCallbackRequest($data);
     }
 
     /**
      * @throws ProviderGatewayException
      */
-    private function decryptAndVerifySign(string $content): array
+    public function handleCallbackOfPosUnbind(string $content): PosBindCallbackRequest
+    {
+        $data = $this->decryptAndVerifySign('机具解绑', $content);
+        $callbackRequest = PosBindCallbackRequest::success();
+        $callbackRequest->setAgentNo($data['agentNo'] ?? 'null');
+        $callbackRequest->setMerchantNo($data['merchantNo'] ?? 'null');
+        $callbackRequest->setDeviceSn($data['terminalId'] ?? 'null');
+        $callbackRequest->setStatus(PosStatus::UNBIND_SUCCESS);
+        $callbackRequest->setModifyTime($data['createTime'] ?? LocalDateTime::now());
+        return $callbackRequest;
+    }
+
+    /**
+     * @throws ProviderGatewayException
+     */
+    private function decryptAndVerifySign(string $businessTitle, string $content): array
     {
         parse_str($content, $result);
         try {
             $params = $this->decryptData($result['data']);
         } catch (PhpMateException $e) {
-            throw new ProviderGatewayException(sprintf('pos服务商[%s]解密回调数据失败：%s', self::providerName(), $e->getMessage()));
+            throw new ProviderGatewayException(sprintf('pos服务商[%s]解密[%s]回调数据失败：%s', self::providerName(), $businessTitle, $e->getMessage()));
         }
         $data = json_decode($params, true);
         $this->rawRequest = $data;
         if (empty($data['sign']) || empty($data['jsonData'])) {
             // 非移联标准回调数据格式
-            throw new ProviderGatewayException(sprintf('pos服务商[%s]回调数据格式错误', self::providerName()));
+            throw new ProviderGatewayException(sprintf('pos服务商[%s][%s]回调数据格式错误', $businessTitle, self::providerName()));
         }
         if (false === $this->verifySign($data['sign'], $data['jsonData'])) {
-            throw new ProviderGatewayException(sprintf('pos服务商[%s]回调数据验签失败', self::providerName()));
+            throw new ProviderGatewayException(sprintf('pos服务商[%s][%s]回调数据验签失败', $businessTitle, self::providerName()));
         }
         $decryptedData = json_decode($data['jsonData'], true);
         $this->rawRequest['jsonData'] = $decryptedData;
