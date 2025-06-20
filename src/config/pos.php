@@ -29,6 +29,18 @@ return [
                 'platformPublicKey' => '',
             ],
         ],
+        // 移联
+        'yilian' => [
+            'class' => '\think\pos\provider\yilian\YiLianPosPlatform',
+            'config' => [
+                'test' => false,
+                'gateway' => 'https://extra-business-api.51ydmw.com/',
+                'testGateway' => 'https://extra-business-api.ylv3.com/',
+                // 代理商编号
+                'agentNo' => '119911',
+                'aesKey' => '12345678',
+            ],
+        ],
         // 服务商标识
         'lishuaB' => [
             // pos 配置参数
