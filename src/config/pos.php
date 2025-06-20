@@ -38,7 +38,8 @@ return [
                 'testGateway' => 'https://extra-business-api.ylv3.com/',
                 // 代理商编号
                 'agentNo' => '119911',
-                'aesKey' => '12345678',
+                'aesKey' => '79b13739ff4e4e07',
+                'md5Key' => '7d11ffd7850bd7626ac21bb8bdd3dabb',
             ],
         ],
         // 服务商标识
