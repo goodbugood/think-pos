@@ -176,12 +176,12 @@ final class PosConvertor
             $request->setPaymentType(PaymentType::WECHAT_QR);
         } elseif ('ALIPAY' === $payType) {
             $request->setPaymentType(PaymentType::ALIPAY_QR);
-        } elseif ('UNIONPAY_DOWN_CC' === $payType) {
+        } elseif (in_array($payType, ['UNIONPAY_DOWN_CC', 'UNIONPAY_DOWN_DC'])) {
             // 力 pos 反馈云闪付1000-可以当做微信和支付宝
             $request->setPaymentType(PaymentType::UNION_QR);
-        } elseif ('POS_DC' === $payType) {
+        } elseif (in_array($payType, ['POS_DC', 'UNIONPAY_UP_DC',])) {
             $request->setPaymentType(PaymentType::DEBIT_CARD);
-        } elseif (in_array($payType, ['POS_CC', 'POS_DISCOUNT_CC', 'POS_DISCOUNT_GF_CC', 'POS_DISCOUNT_MS_CC', 'POS_DISCOUNT_PA_CC'])) {
+        } elseif (in_array($payType, ['POS_CC', 'UNIONPAY_UP_CC', 'POS_DISCOUNT_CC', 'POS_DISCOUNT_GF_CC', 'POS_DISCOUNT_MS_CC', 'POS_DISCOUNT_PA_CC'])) {
             // 力 pos 反馈 4 个特惠类型用贷记卡
             $request->setPaymentType(PaymentType::CREDIT_CARD);
         }
