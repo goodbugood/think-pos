@@ -7,6 +7,7 @@ use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosActivateCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
+use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
@@ -231,6 +232,16 @@ abstract class PosStrategy
     function handleCallbackOfMerchantRateSet(string $content): MerchantRateSetCallbackRequest
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户费率设置回调功能', static::providerName()));
+    }
+
+    function handleCallbackOfGeneralTrans(string $content): PosTransCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入普通交易回调功能', static::providerName()));
+    }
+
+    function handleCallbackOfSimTrans(string $content): PosTransCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入流量卡交易回调功能', static::providerName()));
     }
 
     /**
