@@ -174,7 +174,7 @@ class YiLianPosPlatform extends PosStrategy
         return PosProviderResponse::success();
     }
 
-    function setSimFee(SimRequestDto $dto): PosProviderResponse
+    function setMerchantSimFee(SimRequestDto $dto): PosProviderResponse
     {
         $url = $this->getUrl(self::API_METHOD['modify_pos_sim_fee']);
         $params = [

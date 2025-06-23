@@ -122,6 +122,7 @@ abstract class PosStrategy
 
     /**
      * 获取 pos 的信息
+     * 适用于有些平台，一个接口能够返回服务费，通讯费，费率
      */
     function getPosInfo(PosRequestDto $dto): PosInfoResponse
     {
@@ -178,6 +179,11 @@ abstract class PosStrategy
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入设置商户费率功能', static::providerName()));
+    }
+
+    function setMerchantSimFee(SimRequestDto $dto): PosProviderResponse
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入设置商户流量卡费用功能', static::providerName()));
     }
 
     /**
