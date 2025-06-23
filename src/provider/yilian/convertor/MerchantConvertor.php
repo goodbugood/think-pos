@@ -3,10 +3,14 @@
 namespace think\pos\provider\yilian\convertor;
 
 use shali\phpmate\core\date\LocalDateTime;
+use shali\phpmate\util\Money;
+use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
 use think\pos\constant\PosStatus;
+use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
+use think\pos\provider\yilian\YiLianPosPlatform;
 
 class MerchantConvertor
 {
@@ -41,6 +45,29 @@ class MerchantConvertor
         } else {
             $request->setModifyTime(LocalDateTime::valueOfString($decryptedData['bindTime']));
         }
+        return $request;
+    }
+
+    /**
+     * 移联反馈，商户费率修改通知，仅通知扫码费率的变更，刷卡费率的变更不会通知
+     * @param array $decryptedData
+     * @return MerchantRateSetCallbackRequest
+     */
+    public static function toMerchantRateSetCallbackRequest(array $decryptedData): MerchantRateSetCallbackRequest
+    {
+        $request = MerchantRateSetCallbackRequest::success();
+        $request->setMerchantNo($decryptedData['merchantNo'] ?? 'null');
+        foreach ($decryptedData['feeRateList'] as $rateNotify) {
+            // 移联不会通知刷卡费率的变更
+            if (!YiLianPosPlatform::isBankCardType($rateNotify['payTypeViewCode'])) {
+                $rate = Rate::valueOfPercentage(strval($rateNotify['rateValue']));
+                $request->setWechatRate($rate);
+                $request->setAlipayRate($rate);
+                $request->setWithdrawFee(Money::valueOfYuan(strval($rateNotify['withdrawRate'] ?? 0)));
+                break;
+            }
+        }
+
         return $request;
     }
 }

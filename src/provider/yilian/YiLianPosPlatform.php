@@ -279,7 +279,7 @@ class YiLianPosPlatform extends PosStrategy
      * @param string $transType
      * @return bool
      */
-    private static function isBankCardType(string $transType): bool
+    public static function isBankCardType(string $transType): bool
     {
         return in_array($transType, [
             // POS刷卡-标准类
