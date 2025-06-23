@@ -9,6 +9,7 @@ use shali\phpmate\http\HttpClient;
 use shali\phpmate\PhpMateException;
 use think\pos\constant\PaymentType;
 use think\pos\constant\PosStatus;
+use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
 use think\pos\dto\request\callback\PosTransCallbackRequest;
