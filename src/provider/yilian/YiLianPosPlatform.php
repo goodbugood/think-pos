@@ -7,9 +7,11 @@ use shali\phpmate\core\date\LocalDateTime;
 use shali\phpmate\crypto\EncryptUtil;
 use shali\phpmate\http\HttpClient;
 use shali\phpmate\PhpMateException;
+use think\pos\constant\PaymentType;
 use think\pos\constant\PosStatus;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
+use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
@@ -17,6 +19,7 @@ use think\pos\dto\response\PosProviderResponse;
 use think\pos\exception\ProviderGatewayException;
 use think\pos\PosStrategy;
 use think\pos\provider\yilian\convertor\MerchantConvertor;
+use think\pos\provider\yilian\convertor\PosConvertor;
 
 /**
  * 注意：
@@ -101,6 +104,24 @@ class YiLianPosPlatform extends PosStrategy
         $this->httpClient = new HttpClient();
     }
 
+    /**
+     * 转换交易类型编码为 think-pos 统一的支付类型
+     * @param string $groupType 交易类型
+     * @param string $cardType 刷卡类型，扫码交易类型时，此字段为空
+     * @return string
+     */
+    public static function toPaymentType(string $groupType, string $cardType): string
+    {
+        if ('ZFB_SCAN' === $groupType) {
+            return PaymentType::ALIPAY_QR;
+        } elseif (self::isBankCardType($groupType)) {
+            // 把大额扫码归属到刷卡，待验证
+            return 'CREDIT' === $cardType ? PaymentType::CREDIT_CARD : PaymentType::DEBIT_CARD;
+        }
+        // 除了微信，支付宝扫码，刷卡，其他的默认为微信扫码
+        return PaymentType::WECHAT_QR;
+    }
+
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
         $url = $this->getUrl(self::API_METHOD['modify_merchant_rate']);
@@ -117,7 +138,7 @@ class YiLianPosPlatform extends PosStrategy
                 // 提现费单位类型，FIXED 固定金额，PERCENT 百分比
                 'withdrawRateUnit' => 'FIXED',
             ];
-            if ($this->isBankCardType($transType)) {
+            if (self::isBankCardType($transType)) {
                 foreach (self::PARAMS_CARD_TYPE_MAP as $cardType) {
                     $item['cardType'] = $cardType;
                     if (self::PARAMS_CARD_TYPE_MAP['debit'] === $cardType) {
@@ -222,6 +243,24 @@ class YiLianPosPlatform extends PosStrategy
     /**
      * @throws ProviderGatewayException
      */
+    public function handleCallbackOfMerchantRateSet(string $content): MerchantRateSetCallbackRequest
+    {
+        $data = $this->decryptAndVerifySign('商户费率变更', $content);
+        return MerchantConvertor::toMerchantRateSetCallbackRequest($data);
+    }
+
+    /**
+     * @throws ProviderGatewayException
+     */
+    public function handleCallbackOfGeneralTrans(string $content): PosTransCallbackRequest
+    {
+        $data = $this->decryptAndVerifySign('普通交易信息', $content);
+        return PosConvertor::toPosTransCallbackRequest($data);
+    }
+
+    /**
+     * @throws ProviderGatewayException
+     */
     private function decryptAndVerifySign(string $businessTitle, string $content): array
     {
         parse_str($content, $result);
@@ -248,10 +287,11 @@ class YiLianPosPlatform extends PosStrategy
     /**
      * 判断交易类型是否为银行卡类型
      * 云闪付小额属于扫码，大额属于刷卡
+     * 银联云闪付小额属于扫码，大额属于刷卡
      * @param string $transType
      * @return bool
      */
-    private function isBankCardType(string $transType): bool
+    private static function isBankCardType(string $transType): bool
     {
         return in_array($transType, [
             // POS刷卡-标准类
@@ -355,7 +395,7 @@ class YiLianPosPlatform extends PosStrategy
     /**
      * 验签
      */
-    public function verifySign(string $sign, string $jsonData): bool
+    private function verifySign(string $sign, string $jsonData): bool
     {
         $sign1 = $this->sign($jsonData);
         return $sign === $sign1;
