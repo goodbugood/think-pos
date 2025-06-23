@@ -261,6 +261,15 @@ class YiLianPosPlatform extends PosStrategy
         $data = $this->decryptAndVerifySign('普通交易信息', $content);
         return PosConvertor::toPosTransCallbackRequest($data);
     }
+
+    /**
+     * @throws ProviderGatewayException
+     */
+    public function handleCallbackOfSimTrans(string $content): PosTransCallbackRequest
+    {
+        $data = $this->decryptAndVerifySign('流量费扣费推送', $content);
+        return PosConvertor::toPosTransCallbackRequestByLakala($data);
+    }
     //</editor-fold>
 
     /**

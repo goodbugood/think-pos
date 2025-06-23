@@ -19,6 +19,7 @@ final class PosConvertor
         $request->setMerchantNo(strval($decryptedData['merchantNo'] ?? 'null'));
         $request->setMerchantName(strval($decryptedData['merchantName'] ?? 'null'));
         $request->setDeviceSn(strval($decryptedData['terminalId'] ?? 'null'));
+        $request->setTransNo(strval($decryptedData['transOrderNo'] ?? 'null'));
         $request->setAmount(Money::valueOfYuan(strval($decryptedData['transAmount'] ?? 0)));
         // $request->setSettleAmount(Money::valueOfYuan(strval($decryptedData['settleAmount'] ?? 0)));
         $request->setRate(Rate::valueOfPercentage(strval($decryptedData['transRate'] ?? 0)));
@@ -31,23 +32,41 @@ final class PosConvertor
         } else {
             $request->setSuccessDateTime(LocalDateTime::valueOfString($decryptedData['transTime']));
         }
-        // 回调即成功，失败订单不会回调
-        $request->setStatus(TransOrderStatus::SUCCESS);
         // 解析订单类型
         if ('1' === $decryptedData['serviceFeeFalg'] ?? 'null') {
             // 是否收取服务费标识
             $request->setOrderType(TransOrderType::DEPOSIT);
-        } elseif ('2' === $decryptedData['flowFeeFlag'] ?? 'null') {
-            // 是否收取流量费标识
+            // 回调即成功，失败订单不会回调
+            $request->setStatus(TransOrderStatus::SUCCESS);
+        } elseif ('0' !== $decryptedData['flowFeeFlag'] ?? 'null') {
+            // 是否收取流量费标识：0 否 1 是，2 待收取
             $request->setOrderType(TransOrderType::SIM);
+            $status = '2' === $decryptedData['flowFeeFlag'] ? TransOrderStatus::PROCESSING : TransOrderStatus::SUCCESS;
+            $request->setStatus($status);
         } else {
             $request->setOrderType(TransOrderType::NORMAL);
+            $request->setStatus(TransOrderStatus::SUCCESS);
         }
         // 解析支付方式
         $groupType = $decryptedData['groupType'] ?? 'null';
         $cardType = $decryptedData['cardType'] ?? 'null';
         $paymentType = YiLianPosPlatform::toPaymentType($groupType, $cardType);
         $request->setPaymentType($paymentType);
+        return $request;
+    }
+
+    /**
+     * 移联流量卡扣费通知
+     * @param array $data
+     * @return void
+     */
+    public static function toPosTransCallbackRequestByLakala(array $data): PosTransCallbackRequest
+    {
+        $request = PosTransCallbackRequest::success();
+        $request->setTransNo(strval($data['transOrderNo'] ?? 'null'));
+        $request->setDeviceSn(strval($data['sn'] ?? 'null'));
+        $request->setSuccessDateTime($data['transTime'] ?? 'null');
+        $request->setAmount(Money::valueOfYuan(strval($data['vasFlowFee'] ?? 0)));
         return $request;
     }
 }
