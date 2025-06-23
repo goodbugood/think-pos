@@ -211,6 +211,7 @@ abstract class PosStrategy
     /**
      * pos 平台回调，用来通知代理平台商户绑定 pos 成功，并激活成功
      * pos 激活成功发生在绑定之后
+     * @deprecated 这个很少用，因为 pos 平台有自己的激活标准，我们也有自己的激活标准，所以这个回调接口基本用不到
      */
     function handleCallbackOfPosActive(string $content): PosActivateCallbackRequest
     {
