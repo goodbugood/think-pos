@@ -123,6 +123,7 @@ class YiLianPosPlatform extends PosStrategy
         return PaymentType::WECHAT_QR;
     }
 
+    //<editor-fold desc="请求方法">
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
         $url = $this->getUrl(self::API_METHOD['modify_merchant_rate']);
@@ -205,7 +206,9 @@ class YiLianPosPlatform extends PosStrategy
         }
         return PosProviderResponse::success();
     }
+    //</editor-fold>
 
+    //<editor-fold desc="通知回调处理">
     /**
      * @param string $content
      * @return MerchantRegisterCallbackRequest
@@ -258,32 +261,7 @@ class YiLianPosPlatform extends PosStrategy
         $data = $this->decryptAndVerifySign('普通交易信息', $content);
         return PosConvertor::toPosTransCallbackRequest($data);
     }
-
-    /**
-     * @throws ProviderGatewayException
-     */
-    private function decryptAndVerifySign(string $businessTitle, string $content): array
-    {
-        parse_str($content, $result);
-        try {
-            $params = $this->decryptData($result['data']);
-        } catch (PhpMateException $e) {
-            throw new ProviderGatewayException(sprintf('pos服务商[%s]解密[%s]回调数据失败：%s', self::providerName(), $businessTitle, $e->getMessage()));
-        }
-        $data = json_decode($params, true);
-        $this->rawRequest = $data;
-        if (empty($data['sign']) || empty($data['jsonData'])) {
-            // 非移联标准回调数据格式
-            throw new ProviderGatewayException(sprintf('pos服务商[%s][%s]回调数据格式错误', $businessTitle, self::providerName()));
-        }
-        if (false === $this->verifySign($data['sign'], $data['jsonData'])) {
-            throw new ProviderGatewayException(sprintf('pos服务商[%s][%s]回调数据验签失败', $businessTitle, self::providerName()));
-        }
-        $decryptedData = json_decode($data['jsonData'], true);
-        $this->rawRequest['jsonData'] = $decryptedData;
-        $this->rawResponse = $this->getCallbackAckContent();
-        return $decryptedData;
-    }
+    //</editor-fold>
 
     /**
      * 判断交易类型是否为银行卡类型
@@ -308,6 +286,7 @@ class YiLianPosPlatform extends PosStrategy
         ]);
     }
 
+    //<editor-fold desc="请求/响应处理">
     private function getUrl(string $apiMethod): string
     {
         $gateway = $this->isTestMode() ? $this->config['testGateway'] : $this->config['gateway'];
@@ -364,6 +343,34 @@ class YiLianPosPlatform extends PosStrategy
     }
 
     /**
+     * @throws ProviderGatewayException
+     */
+    private function decryptAndVerifySign(string $businessTitle, string $content): array
+    {
+        parse_str($content, $result);
+        try {
+            $params = $this->decryptData($result['data']);
+        } catch (PhpMateException $e) {
+            throw new ProviderGatewayException(sprintf('pos服务商[%s]解密[%s]回调数据失败：%s', self::providerName(), $businessTitle, $e->getMessage()));
+        }
+        $data = json_decode($params, true);
+        $this->rawRequest = $data;
+        if (empty($data['sign']) || empty($data['jsonData'])) {
+            // 非移联标准回调数据格式
+            throw new ProviderGatewayException(sprintf('pos服务商[%s][%s]回调数据格式错误', $businessTitle, self::providerName()));
+        }
+        if (false === $this->verifySign($data['sign'], $data['jsonData'])) {
+            throw new ProviderGatewayException(sprintf('pos服务商[%s][%s]回调数据验签失败', $businessTitle, self::providerName()));
+        }
+        $decryptedData = json_decode($data['jsonData'], true);
+        $this->rawRequest['jsonData'] = $decryptedData;
+        $this->rawResponse = $this->getCallbackAckContent();
+        return $decryptedData;
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="加解密验签">
+    /**
      * 使用对称加密密码加密数据
      * @throws PhpMateException
      */
@@ -401,4 +408,5 @@ class YiLianPosPlatform extends PosStrategy
         $sign1 = $this->sign($jsonData);
         return $sign === $sign1;
     }
+    //</editor-fold>
 }
