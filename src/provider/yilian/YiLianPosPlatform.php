@@ -256,7 +256,7 @@ class YiLianPosPlatform extends PosStrategy
     /**
      * @throws ProviderGatewayException
      */
-    public function handleCallbackOfGeneralTrans(string $content): PosTransCallbackRequest
+    public function handleCallbackOfTrans(string $content): PosTransCallbackRequest
     {
         $data = $this->decryptAndVerifySign('普通交易信息', $content);
         return PosConvertor::toPosTransCallbackRequest($data);
