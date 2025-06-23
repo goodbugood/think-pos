@@ -98,6 +98,18 @@ abstract class PosStrategy
         return sprintf('pos 服务商[%s][%s]请求参数：%s，响应数据：%s', static::providerName(), $bizName, json_encode($this->rawRequest, JSON_UNESCAPED_UNICODE), json_encode($this->rawResponse, JSON_UNESCAPED_UNICODE));
     }
 
+    //<editor-fold desc="pos相关接口和通知">
+
+    /**
+     * pos 平台回调，用来通知代理平台商户绑定 pos 成功，并激活成功
+     * pos 激活成功发生在绑定之后
+     * @deprecated 这个很少用，因为 pos 平台有自己的激活标准，我们也有自己的激活标准，所以这个回调接口基本用不到
+     */
+    function handleCallbackOfPosActive(string $content): PosActivateCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos激活回调功能', static::providerName()));
+    }
+
     /**
      * 取消会员
      * @param PosRequestDto $dto
@@ -150,13 +162,15 @@ abstract class PosStrategy
     }
 
     /**
-     * 设置流量卡费用
+     * 设置 pos 流量卡费用
      */
     function setSimFee(SimRequestDto $dto): PosProviderResponse
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入设置流量卡费用功能', static::providerName()));
     }
+    //</editor-fold>
 
+    //<editor-fold desc="商户pos公共业务">
     /**
      * 商户绑定终端
      */
@@ -174,16 +188,13 @@ abstract class PosStrategy
     }
 
     /**
-     * 设置商户费率
+     * pos 平台回调，用来通知代理平台商户绑定 pos 成功
+     * @param string $content 回调内容
+     * @return mixed
      */
-    function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
+    function handleCallbackOfPosBind(string $content): PosBindCallbackRequest
     {
-        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入设置商户费率功能', static::providerName()));
-    }
-
-    function setMerchantSimFee(SimRequestDto $dto): PosProviderResponse
-    {
-        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入设置商户流量卡费用功能', static::providerName()));
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos绑定回调功能', static::providerName()));
     }
 
     /**
@@ -197,40 +208,36 @@ abstract class PosStrategy
     }
 
     /**
-     * pos 平台回调，用来通知代理平台商户注册成功的商户信息
-     */
-    function handleCallbackOfMerchantRegister(string $content): MerchantRegisterCallbackRequest
-    {
-        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户注册回调功能', static::providerName()));
-    }
-
-    /**
-     * pos 平台回调，用来通知代理平台商户绑定 pos 成功
-     * @param string $content 回调内容
-     * @return mixed
-     */
-    function handleCallbackOfPosBind(string $content): PosBindCallbackRequest
-    {
-        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos绑定回调功能', static::providerName()));
-    }
-
-    /**
-     * pos 平台回调，用来通知代理平台商户绑定 pos 成功，并激活成功
-     * pos 激活成功发生在绑定之后
-     * @deprecated 这个很少用，因为 pos 平台有自己的激活标准，我们也有自己的激活标准，所以这个回调接口基本用不到
-     */
-    function handleCallbackOfPosActive(string $content): PosActivateCallbackRequest
-    {
-        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos激活回调功能', static::providerName()));
-    }
-
-    /**
      * pos 平台回调，用来通知代理平台商户解绑 pos 成功
      * @param string $content
      */
     function handleCallbackOfPosUnbind(string $content): PosBindCallbackRequest
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入pos解绑回调功能', static::providerName()));
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="商户相关接口和通知">
+
+    /**
+     * 设置商户费率
+     */
+    function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入设置商户费率功能', static::providerName()));
+    }
+
+    function setMerchantSimFee(SimRequestDto $dto): PosProviderResponse
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入设置商户流量卡费用功能', static::providerName()));
+    }
+
+    /**
+     * pos 平台回调，用来通知代理平台商户注册成功的商户信息
+     */
+    function handleCallbackOfMerchantRegister(string $content): MerchantRegisterCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户注册回调功能', static::providerName()));
     }
 
     /**
@@ -240,16 +247,50 @@ abstract class PosStrategy
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入商户费率设置回调功能', static::providerName()));
     }
+    //</editor-fold>
 
+    //<editor-fold desc="交易通知处理">
+
+    /**
+     * 混合交易通知回调，例如，普通，流量卡，押金多个交易一起推下来
+     * @param string $content
+     * @return PosTransCallbackRequest
+     */
+    function handleCallbackOfTrans(string $content): PosTransCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入交易回调功能', static::providerName()));
+    }
+
+    /**
+     * 普通交易回调
+     * @param string $content
+     * @return PosTransCallbackRequest
+     */
     function handleCallbackOfGeneralTrans(string $content): PosTransCallbackRequest
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入普通交易回调功能', static::providerName()));
     }
 
+    /**
+     * 流量卡交易回调
+     * @param string $content
+     * @return PosTransCallbackRequest
+     */
     function handleCallbackOfSimTrans(string $content): PosTransCallbackRequest
     {
         throw new BadMethodCallException(sprintf('服务商[%s]暂未接入流量卡交易回调功能', static::providerName()));
     }
+
+    /**
+     * 押金交易回调
+     * @param string $content
+     * @return PosTransCallbackRequest
+     */
+    function handleCallbackOfDepositTrans(string $content): PosTransCallbackRequest
+    {
+        throw new BadMethodCallException(sprintf('服务商[%s]暂未接入押金交易回调功能', static::providerName()));
+    }
+    //</editor-fold>
 
     /**
      * pos 平台回调 ack 内容，用来通知平台停止回调
