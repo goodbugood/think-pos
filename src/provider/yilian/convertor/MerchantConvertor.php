@@ -3,6 +3,7 @@
 namespace think\pos\provider\yilian\convertor;
 
 use shali\phpmate\core\date\LocalDateTime;
+use shali\phpmate\core\util\StrUtil;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
@@ -17,15 +18,15 @@ class MerchantConvertor
     public static function toMerchantRegisterCallbackRequest(array $decryptedData): MerchantRegisterCallbackRequest
     {
         $callbackRequest = MerchantRegisterCallbackRequest::success();
-        $callbackRequest->setAgentNo($decryptedData['agentNo'] ?? 'null');
+        $callbackRequest->setAgentNo($decryptedData['agentNo'] ?? StrUtil::NULL);
         // 商户
-        $callbackRequest->setMerchantNo($decryptedData['merchantNo'] ?? 'null');
-        $callbackRequest->setMerchantName($decryptedData['merchantName'] ?? 'null');
-        $callbackRequest->setRegDateTime($decryptedData['bindTime'] ?? 'null');
+        $callbackRequest->setMerchantNo($decryptedData['merchantNo'] ?? StrUtil::NULL);
+        $callbackRequest->setMerchantName($decryptedData['merchantName'] ?? StrUtil::NULL);
+        $callbackRequest->setRegDateTime($decryptedData['bindTime'] ?? StrUtil::NULL);
         // 法人
-        $callbackRequest->setIdCardName($decryptedData['realName'] ?? 'null');
-        $callbackRequest->setIdCardNo($decryptedData['idCardNo'] ?? 'null');
-        $callbackRequest->setPhoneNo($decryptedData['merchantPhone'] ?? 'null');
+        $callbackRequest->setIdCardName($decryptedData['realName'] ?? StrUtil::NULL);
+        $callbackRequest->setIdCardNo($decryptedData['idCardNo'] ?? StrUtil::NULL);
+        $callbackRequest->setPhoneNo($decryptedData['merchantPhone'] ?? StrUtil::NULL);
         $callbackRequest->setStatus(MerchantStatus::ENABLED);
         return $callbackRequest;
     }
@@ -33,10 +34,10 @@ class MerchantConvertor
     public static function toPosBindCallbackRequest(array $decryptedData): PosBindCallbackRequest
     {
         $request = PosBindCallbackRequest::success();
-        $request->setAgentNo($decryptedData['agentNo'] ?? 'null');
-        $request->setMerchantNo($decryptedData['merchantNo'] ?? 'null');
+        $request->setAgentNo($decryptedData['agentNo'] ?? StrUtil::NULL);
+        $request->setMerchantNo($decryptedData['merchantNo'] ?? StrUtil::NULL);
         // 机具号
-        $request->setDeviceSn($decryptedData['terminalId'] ?? 'null');
+        $request->setDeviceSn($decryptedData['terminalId'] ?? StrUtil::NULL);
         // 回调即绑定成功
         $request->setStatus(PosStatus::BIND_SUCCESS);
         // 状态变更时间
@@ -56,7 +57,7 @@ class MerchantConvertor
     public static function toMerchantRateSetCallbackRequest(array $decryptedData): MerchantRateSetCallbackRequest
     {
         $request = MerchantRateSetCallbackRequest::success();
-        $request->setMerchantNo($decryptedData['merchantNo'] ?? 'null');
+        $request->setMerchantNo($decryptedData['merchantNo'] ?? StrUtil::NULL);
         foreach ($decryptedData['feeRateList'] as $rateNotify) {
             // 移联不会通知刷卡费率的变更
             if (!YiLianPosPlatform::isBankCardType($rateNotify['payTypeViewCode'])) {

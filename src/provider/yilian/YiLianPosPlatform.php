@@ -4,6 +4,7 @@ namespace think\pos\provider\yilian;
 
 use Exception;
 use shali\phpmate\core\date\LocalDateTime;
+use shali\phpmate\core\util\StrUtil;
 use shali\phpmate\crypto\EncryptUtil;
 use shali\phpmate\http\HttpClient;
 use shali\phpmate\PhpMateException;
@@ -236,9 +237,9 @@ class YiLianPosPlatform extends PosStrategy
     {
         $data = $this->decryptAndVerifySign('机具解绑', $content);
         $callbackRequest = PosBindCallbackRequest::success();
-        $callbackRequest->setAgentNo($data['agentNo'] ?? 'null');
-        $callbackRequest->setMerchantNo($data['merchantNo'] ?? 'null');
-        $callbackRequest->setDeviceSn($data['terminalId'] ?? 'null');
+        $callbackRequest->setAgentNo($data['agentNo'] ?? StrUtil::NULL);
+        $callbackRequest->setMerchantNo($data['merchantNo'] ?? StrUtil::NULL);
+        $callbackRequest->setDeviceSn($data['terminalId'] ?? StrUtil::NULL);
         $callbackRequest->setStatus(PosStatus::UNBIND_SUCCESS);
         $callbackRequest->setModifyTime($data['createTime'] ?? LocalDateTime::now());
         return $callbackRequest;
