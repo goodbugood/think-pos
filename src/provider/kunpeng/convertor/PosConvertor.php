@@ -2,6 +2,7 @@
 
 namespace think\pos\provider\kunpeng\convertor;
 
+use DateTime;
 use shali\phpmate\core\date\LocalDateTime;
 use shali\phpmate\core\util\StrUtil;
 use shali\phpmate\util\Money;
@@ -34,7 +35,8 @@ final class PosConvertor
         $merchantRegisterCallbackRequest->setIdCardNo($decryptedData['idCard'] ?? StrUtil::NULL);
         $merchantRegisterCallbackRequest->setIdCardName($decryptedData['legalName'] ?? StrUtil::NULL);
         $localDateTime = LocalDateTime::now();
-        $merchantRegisterCallbackRequest->setRegDateTime($decryptedData['createTime'] ?? $localDateTime->toString());
+        $dateTime = DateTime::createFromFormat('YmdHis', $decryptedData['createTime'] ?? $localDateTime->format('YmdHis'));
+        $merchantRegisterCallbackRequest->setRegDateTime($dateTime->format('Y-m-d H:i:s'));
         // pos 绑定信息
         $request->setMerchantNo($decryptedData['merchantNo'] ?? StrUtil::NULL);
         $request->setDeviceSn($decryptedData['deviceNo'] ?? StrUtil::NULL);
@@ -89,7 +91,8 @@ final class PosConvertor
         if (empty($decryptedData['successTime'])) {
             $request->setSuccessDateTime(LocalDateTime::now());
         } else {
-            $request->setSuccessDateTime(LocalDateTime::valueOfString($decryptedData['successTime']));
+            $dateTime = DateTime::createFromFormat('YmdHis', $decryptedData['successTime']);
+            $request->setSuccessDateTime(LocalDateTime::valueOfString($dateTime->format('Y-m-d H:i:s')));
         }
         $request->setAmount(Money::valueOfYuan(strval($decryptedData['amount'] ?? 0)));
         $request->setFee(Money::valueOfYuan(strval($decryptedData['fee'] ?? 0)));
@@ -120,7 +123,8 @@ final class PosConvertor
         if (empty($decryptedData['successTime'])) {
             $request->setSuccessDateTime(LocalDateTime::now());
         } else {
-            $request->setSuccessDateTime(LocalDateTime::valueOfString($decryptedData['successTime']));
+            $dateTime = DateTime::createFromFormat('YmdHis', $decryptedData['successTime']);
+            $request->setSuccessDateTime(LocalDateTime::valueOfString($dateTime->format('Y-m-d H:i:s')));
         }
         $request->setStatus(TransOrderStatus::SUCCESS);
         return $request;
@@ -143,7 +147,8 @@ final class PosConvertor
         if (empty($decryptedData['successTime'])) {
             $request->setSuccessDateTime(LocalDateTime::now());
         } else {
-            $request->setSuccessDateTime(LocalDateTime::valueOfString($decryptedData['successTime']));
+            $dateTime = DateTime::createFromFormat('YmdHis', $decryptedData['successTime']);
+            $request->setSuccessDateTime(LocalDateTime::valueOfString($dateTime->format('Y-m-d H:i:s')));
         }
         if ('SUCCESS' === $decryptedData['status']) {
             $request->setStatus(TransOrderStatus::SUCCESS);
