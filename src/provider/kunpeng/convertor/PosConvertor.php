@@ -7,6 +7,7 @@ use shali\phpmate\core\date\LocalDateTime;
 use shali\phpmate\core\util\StrUtil;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
+use think\pos\constant\MerchantStatus;
 use think\pos\constant\PaymentType;
 use think\pos\constant\PosStatus;
 use think\pos\constant\TransOrderStatus;
@@ -34,6 +35,7 @@ final class PosConvertor
         $merchantRegisterCallbackRequest->setPhoneNo($decryptedData['phoneNo'] ?? StrUtil::NULL);
         $merchantRegisterCallbackRequest->setIdCardNo($decryptedData['idCard'] ?? StrUtil::NULL);
         $merchantRegisterCallbackRequest->setIdCardName($decryptedData['legalName'] ?? StrUtil::NULL);
+        $merchantRegisterCallbackRequest->setStatus(MerchantStatus::ENABLED);
         $localDateTime = LocalDateTime::now();
         $dateTime = DateTime::createFromFormat('YmdHis', $decryptedData['createTime'] ?? $localDateTime->format('YmdHis'));
         $merchantRegisterCallbackRequest->setRegDateTime($dateTime->format('Y-m-d H:i:s'));
