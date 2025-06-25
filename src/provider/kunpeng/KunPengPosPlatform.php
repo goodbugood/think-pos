@@ -293,7 +293,7 @@ class KunPengPosPlatform extends PosStrategy
             return PosConvertor::toPosUnBindCallbackRequest($decryptedData);
         }
 
-        $errorMsg = '';
+        $errorMsg = sprintf('pos服务商[%s]通知了未知的业务类型：serviceType=%s', self::providerName(), $data['serviceType']);
         $this->rawResponse = $errorMsg;
         return CallbackRequest::fail($errorMsg);
     }
