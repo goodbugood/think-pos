@@ -89,6 +89,7 @@ pos 机厂商的配置参数，即可完成接入。
 1. [拉卡拉](https://github.com/shali/think-pos/tree/master/src/provider/lakala)
 2. [立刷](https://github.com/shali/think-pos/tree/master/src/provider/jlpay)
 3. [力POS](https://github.com/shali/think-pos/tree/master/src/provider/lipos)
+4. [移联]()
 
 ## 依赖
 
