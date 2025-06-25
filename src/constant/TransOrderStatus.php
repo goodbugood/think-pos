@@ -5,6 +5,11 @@ namespace think\pos\constant;
 interface TransOrderStatus
 {
     /**
+     * 交易处理中
+     */
+    public const PROCESSING = 'processing';
+
+    /**
      * 交易成功
      */
     public const SUCCESS = 'success';

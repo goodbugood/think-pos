@@ -9,6 +9,12 @@ use think\pos\dto\request\CallbackRequest;
 class PosBindCallbackRequest extends CallbackRequest
 {
     /**
+     * 由于有的平台没有商户注册回调，仅有绑定回调，绑定回调的同时携带商户的一些注册信息
+     * @var MerchantRegisterCallbackRequest
+     */
+    private $merchantRegisterCallbackRequest;
+
+    /**
      * 代理编号
      * @var string
      */
@@ -102,5 +108,15 @@ class PosBindCallbackRequest extends CallbackRequest
     public function setModifyTime(?LocalDateTime $modifyTime): void
     {
         $this->modifyTime = $modifyTime;
+    }
+
+    public function getMerchantRegisterCallbackRequest(): ?MerchantRegisterCallbackRequest
+    {
+        return $this->merchantRegisterCallbackRequest;
+    }
+
+    public function setMerchantRegisterCallbackRequest(MerchantRegisterCallbackRequest $merchantRegisterCallbackRequest): void
+    {
+        $this->merchantRegisterCallbackRequest = $merchantRegisterCallbackRequest;
     }
 }

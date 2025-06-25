@@ -42,6 +42,11 @@ interface PaymentType
     const QR_SCAN = 'qr_scan';
 
     /**
+     * 未知，未确定的支付类型
+     */
+    const UNKNOWN = 'unknown';
+
+    /**
      * 扫码支付列表
      */
     const QR_SCAN_LIST = [
