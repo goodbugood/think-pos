@@ -15,6 +15,7 @@ trait MerchantTrait
     private $merchantName = '';
 
     /**
+     * // todo shali [2025/6/24] 看能不能统一使用 LocalDateTime 类型
      * @var string 注册时间
      */
     private $regDateTime = '';

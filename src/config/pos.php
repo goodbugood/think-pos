@@ -42,6 +42,22 @@ return [
                 'md5Key' => '7d11ffd7850bd7626ac21bb8bdd3dabb',
             ],
         ],
+        // 鲲鹏 pos 平台对接参数
+        'kunpeng' => [
+            'class' => '\think\pos\provider\kunpeng\KunPengPosPlatform',
+            'config' => [
+                'test' => false,
+                'gateway' => '鲲鹏正式服务器地址',
+                'testGateway' => '鲲鹏测试网关地址',
+                // 应用 id 每个代理一个应用 id 类似其他平台的代理编号
+                'appId' => '代理商应用id',
+                // 代理商私钥
+                'privateKey' => '',
+                'publicKey' => '',
+                // 鲲鹏平台公钥
+                'platformPublicKey' => '',
+            ],
+        ],
         // 服务商标识
         'lishuaB' => [
             // pos 配置参数
