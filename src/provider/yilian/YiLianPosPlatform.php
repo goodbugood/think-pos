@@ -363,7 +363,7 @@ class YiLianPosPlatform extends PosStrategy
             'sign' => $this->sign($encryptData),
         ];
         try {
-            $res = $this->httpClient->post($url, $params, ['Content-Type' => 'application/json']);
+            $res = $this->httpClient->post($url, $params, ['Content-Type' => 'application/x-www-form-urlencoded']);
         } catch (Exception $e) {
             throw new ProviderGatewayException(sprintf('pos服务商[%s]请求失败：%s', self::providerName(), $e->getMessage()));
         } finally {
@@ -448,7 +448,7 @@ class YiLianPosPlatform extends PosStrategy
      */
     private function sign(string $encryptData): string
     {
-        $password = $this->config['md5Key'];
+        $password = $this->config['aesKey'];
         return md5($encryptData . $password);
     }
 
