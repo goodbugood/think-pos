@@ -3,6 +3,8 @@
 namespace think\pos\tests\provider\yilian;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
+use ReflectionMethod;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
@@ -12,6 +14,7 @@ use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
 use think\pos\PosStrategy;
 use think\pos\PosStrategyFactory;
+use think\pos\provider\yilian\YiLianPosPlatform;
 
 class YiLianPosPlatformTest extends TestCase
 {
@@ -118,4 +121,18 @@ class YiLianPosPlatformTest extends TestCase
         // 绑定时间
         self::assertNotEmpty($callbackRequest->getModifyTime());
     }
+
+    //<editor-fold desc="签名验签方法验证">
+
+    /**
+     * @throws ReflectionException
+     */
+    public function testSign()
+    {
+        $obj = $this->posStrategy;
+        $reflection = new ReflectionMethod(YiLianPosPlatform::class, 'sign');
+        $reflection->setAccessible(true);
+        self::assertEquals('c497357edc60dbafc3853f8461a4a369', $reflection->invoke($obj, 'cc4agltHMJwrm4eTwK9+6FYfd34U0CTcfNwWP6xHn1c=', 'yya9xts8lqdz7m3n'));
+    }
+    //</editor-fold>
 }
