@@ -28,6 +28,7 @@ use think\pos\provider\yilian\convertor\PosConvertor;
  * 注意：
  * 1. 移联的接口文档涉及金额的，单位均为元
  * 2. 涉及费率的，均为百分数
+ * 3. 请求接口签名使用的 key 和回调时验签使用的签名的 key 不是同一个
  */
 class YiLianPosPlatform extends PosStrategy
 {
@@ -360,7 +361,7 @@ class YiLianPosPlatform extends PosStrategy
             'agentNo' => $this->config['agentNo'],
             'jsonData' => $encryptData,
             // 签名
-            'sign' => $this->sign($encryptData),
+            'sign' => $this->sign($encryptData, $this->config['aesKey']),
         ];
         try {
             $res = $this->httpClient->post($url, $params, ['Content-Type' => 'application/x-www-form-urlencoded']);
@@ -379,7 +380,7 @@ class YiLianPosPlatform extends PosStrategy
             throw new ProviderGatewayException($errorMsg);
         }
         // 验签
-        if (!$this->verifySign($res['data']['sign'], $res['data']['jsonData'])) {
+        if (!$this->verifySign($res['data']['sign'], $res['data']['jsonData'], $this->config['aesKey'])) {
             throw new ProviderGatewayException(sprintf('pos服务商[%s]验签失败：%s', self::providerName(), $res['message']));
         }
         // 解密
@@ -411,7 +412,7 @@ class YiLianPosPlatform extends PosStrategy
             // 非移联标准回调数据格式
             throw new ProviderGatewayException(sprintf('pos服务商[%s][%s]回调数据格式错误', $businessTitle, self::providerName()));
         }
-        if (false === $this->verifySign($data['sign'], $data['jsonData'])) {
+        if (false === $this->verifySign($data['sign'], $data['jsonData'], $this->config['md5Key'])) {
             throw new ProviderGatewayException(sprintf('pos服务商[%s][%s]回调数据验签失败', $businessTitle, self::providerName()));
         }
         $decryptedData = json_decode($data['jsonData'], true);
@@ -444,20 +445,20 @@ class YiLianPosPlatform extends PosStrategy
     /**
      * 签名算法：md5(密文 + aesKey)
      * @param string $encryptData
+     * @param string $password
      * @return string
      */
-    private function sign(string $encryptData): string
+    private function sign(string $encryptData, string $password): string
     {
-        $password = $this->config['aesKey'];
         return md5($encryptData . $password);
     }
 
     /**
      * 验签
      */
-    private function verifySign(string $sign, string $jsonData): bool
+    private function verifySign(string $sign, string $jsonData, string $password): bool
     {
-        $sign1 = $this->sign($jsonData);
+        $sign1 = $this->sign($jsonData, $password);
         return $sign === $sign1;
     }
     //</editor-fold>
