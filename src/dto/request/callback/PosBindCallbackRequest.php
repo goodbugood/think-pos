@@ -5,6 +5,8 @@ namespace think\pos\dto\request\callback;
 use shali\phpmate\core\date\LocalDateTime;
 use think\pos\constant\PosStatus;
 use think\pos\dto\request\CallbackRequest;
+use think\pos\exception\ProviderGatewayException;
+use think\pos\extend\Assert;
 
 class PosBindCallbackRequest extends CallbackRequest
 {
@@ -118,5 +120,16 @@ class PosBindCallbackRequest extends CallbackRequest
     public function setMerchantRegisterCallbackRequest(MerchantRegisterCallbackRequest $merchantRegisterCallbackRequest): void
     {
         $this->merchantRegisterCallbackRequest = $merchantRegisterCallbackRequest;
+    }
+
+    /**
+     * @throws ProviderGatewayException
+     */
+    public function check(): void
+    {
+        Assert::notEmpty($this->merchantNo, '商户编号 merchantNo 不能为空');
+        Assert::notEmpty($this->deviceSn, '设备编号 deviceSn 不能为空');
+        Assert::notEmpty($this->status, '状态 status 不能为空');
+        Assert::notEmpty($this->modifyTime, '状态变更时间 modifyTime 不能为空');
     }
 }

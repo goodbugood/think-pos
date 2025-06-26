@@ -9,6 +9,8 @@ use think\pos\constant\PaymentType;
 use think\pos\constant\TransOrderStatus;
 use think\pos\constant\TransOrderType;
 use think\pos\dto\request\CallbackRequest;
+use think\pos\exception\ProviderGatewayException;
+use think\pos\extend\Assert;
 
 class PosTransCallbackRequest extends CallbackRequest
 {
@@ -288,5 +290,23 @@ class PosTransCallbackRequest extends CallbackRequest
     public function setSecondOrderAmount(?Money $secondOrderAmount): void
     {
         $this->secondOrderAmount = $secondOrderAmount;
+    }
+
+    /**
+     * 必须的字段检查
+     * @return void
+     * @throws ProviderGatewayException
+     */
+    public function check(): void
+    {
+        // 设备
+        Assert::notEmpty($this->merchantNo, 'merchantNo 不能为空');
+        Assert::notEmpty($this->deviceSn, 'deviceSn 不能为空');
+        // 交易订单
+        Assert::notEmpty($this->transNo, 'transNo 不能为空');
+        Assert::notEmpty($this->amount, 'amount 不能为空');
+        Assert::notEmpty($this->orderType, 'orderType 不能为空');
+        Assert::notEmpty($this->status, 'status 不能为空');
+        Assert::notEmpty($this->paymentType, 'paymentType 不能为空');
     }
 }
