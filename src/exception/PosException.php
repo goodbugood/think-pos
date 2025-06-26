@@ -2,6 +2,8 @@
 
 namespace think\pos\exception;
 
-class ProviderGatewayException extends PosException
+use Exception;
+
+class PosException extends Exception
 {
 }
