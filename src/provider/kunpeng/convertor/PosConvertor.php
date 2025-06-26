@@ -63,10 +63,10 @@ final class PosConvertor
         $status = $decryptedData['status'] ?? '';
         if (in_array($status, ['BIND_FALSE', 'BIND_SUCCESS'])) {
             // 绑定通知
-            $status = 'BIND_SUCCESS' === $status ?? '' ? PosStatus::BIND_SUCCESS : PosStatus::BIND_FAILURE;
+            $status = 'BIND_SUCCESS' === ($status ?? '') ? PosStatus::BIND_SUCCESS : PosStatus::BIND_FAILURE;
         } elseif (in_array($status, ['UNBIND_FALSE', 'UNBIND_SUCCESS'])) {
             // 解绑通知
-            $status = 'UNBIND_SUCCESS' === $status ?? '' ? PosStatus::UNBIND_SUCCESS : PosStatus::UNBIND_FAILURE;
+            $status = 'UNBIND_SUCCESS' === ($status ?? '') ? PosStatus::UNBIND_SUCCESS : PosStatus::UNBIND_FAILURE;
         } else {
             // 未知状态
             throw new ProviderGatewayException(sprintf('鲲鹏绑定/解绑通知回调了未知的状态status=%s', $status));

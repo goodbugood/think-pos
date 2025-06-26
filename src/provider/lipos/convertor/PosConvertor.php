@@ -92,7 +92,7 @@ final class PosConvertor
         } else {
             $request->setActivateDateTime(LocalDateTime::valueOfString($decryptedData['activationTime']));
         }
-        if ('FINISHED' === $decryptedData['activationStatus'] ?? 'null') {
+        if ('FINISHED' === ($decryptedData['activationStatus'] ?? 'null')) {
             $request->setStatus(PosStatus::ACTIVATE_SUCCESS);
         }
         return $request;

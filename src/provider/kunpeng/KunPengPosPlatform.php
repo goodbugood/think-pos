@@ -104,7 +104,7 @@ class KunPengPosPlatform extends PosStrategy
             return PosProviderResponse::fail($errorMsg);
         }
         // 检查审核结果
-        if ('TRUE' === $data['result'] ?? '') {
+        if ('TRUE' === ($data['result'] ?? '')) {
             $errorMsg = sprintf('pos服务商[%s]修改商户pos_sn=%s费率失败：%s', self::providerName(), $dto->getMerchantNo(), $data['reason'] ?? '');
             return PosProviderResponse::fail($errorMsg);
         }
@@ -125,7 +125,7 @@ class KunPengPosPlatform extends PosStrategy
             return PosProviderResponse::fail($errorMsg);
         }
         // 检查审核结果
-        if ('TRUE' === $withdrawFeeRes['result'] ?? '') {
+        if ('TRUE' === ($withdrawFeeRes['result'] ?? '')) {
             $errorMsg = sprintf('pos服务商[%s]修改商户pos_sn=%s费率失败：%s', self::providerName(), $dto->getMerchantNo(), $withdrawFeeRes['reason'] ?? '');
             return PosProviderResponse::fail($errorMsg);
         }

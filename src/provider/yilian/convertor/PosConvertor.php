@@ -26,7 +26,7 @@ final class PosConvertor
         $request->setRate(Rate::valueOfPercentage(strval($decryptedData['transRate'] ?? 0)));
         $request->setFee(Money::valueOfYuan(strval($decryptedData['transFee'] ?? 0)));
         // 手续费是否封顶，0 否 1 是
-        $request->setIsFeeCapping(1 === $decryptedData['feeTop'] ?? '');
+        $request->setIsFeeCapping(1 === ($decryptedData['feeTop'] ?? ''));
         // $request->setWithdrawFee(Money::valueOfYuan(strval($decryptedData['fixedValue'] ?? 0)));
         if (empty($decryptedData['transTime'])) {
             $request->setSuccessDateTime(LocalDateTime::now());
@@ -34,15 +34,15 @@ final class PosConvertor
             $request->setSuccessDateTime(LocalDateTime::valueOfString($decryptedData['transTime']));
         }
         // 解析订单类型
-        if ('1' === $decryptedData['serviceFeeFalg'] ?? StrUtil::NULL) {
+        if ('1' === ($decryptedData['serviceFeeFalg'] ?? StrUtil::NULL)) {
             // 是否收取服务费标识
             $request->setOrderType(TransOrderType::DEPOSIT);
             // 回调即成功，失败订单不会回调
             $request->setStatus(TransOrderStatus::SUCCESS);
-        } elseif ('0' !== $decryptedData['flowFeeFlag'] ?? StrUtil::NULL) {
+        } elseif ('0' !== ($decryptedData['flowFeeFlag'] ?? StrUtil::NULL)) {
             // 是否收取流量费标识：0 否 1 是，2 待收取
             $request->setOrderType(TransOrderType::SIM);
-            $status = '2' === $decryptedData['flowFeeFlag'] ?? '' ? TransOrderStatus::PROCESSING : TransOrderStatus::SUCCESS;
+            $status = '2' === ($decryptedData['flowFeeFlag'] ?? '') ? TransOrderStatus::PROCESSING : TransOrderStatus::SUCCESS;
             $request->setStatus($status);
         } else {
             $request->setOrderType(TransOrderType::NORMAL);

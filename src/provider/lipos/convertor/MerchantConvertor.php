@@ -52,7 +52,7 @@ final class MerchantConvertor
         // 结算卡
         $request->setBankAccountName($decryptedData['customerSettleCardNotify']['accountName'] ?? 'null');
         $request->setBankAccountNo($decryptedData['customerSettleCardNotify']['accountNo'] ?? 'null');
-        if ('TRUE' === $decryptedData['customerInfoNotify']['status'] ?? 'null') {
+        if ('TRUE' === ($decryptedData['customerInfoNotify']['status'] ?? 'null')) {
             $request->setStatus(MerchantStatus::ENABLED);
         } else {
             $request->setStatus(MerchantStatus::DISABLED);
