@@ -5,6 +5,7 @@ namespace think\pos\dto\request;
 use shali\phpmate\util\Money;
 use think\pos\dto\ProviderRequestTrait;
 use think\pos\dto\RateTrait;
+use think\pos\exception\MissingParameterException;
 
 /**
  * // todo shali [2025/6/26] 这个 dto 本来是给 pos 初始化使用的，涉及通讯费，服务费，交易费率，但是目前也被用于服务费设置，3.0 的升级中，这个类就不应该被用于服务费设置了
@@ -73,5 +74,19 @@ class PosRequestDto
     public function setSimPackageCode(string $simPackageCode): void
     {
         $this->simPackageCode = $simPackageCode;
+    }
+
+    /**
+     * @throws MissingParameterException
+     */
+    public function checkDeposit(): void
+    {
+        if (empty($this->deviceSn)) {
+            throw new MissingParameterException('设备序列号 deviceSn 不能为空');
+        } elseif (empty($this->deposit)) {
+            throw new MissingParameterException('押金 deposit 不能为空');
+        } elseif (empty($this->depositPackageCode)) {
+            throw new MissingParameterException('押金套餐简码 depositPackageCode 不能为空');
+        }
     }
 }

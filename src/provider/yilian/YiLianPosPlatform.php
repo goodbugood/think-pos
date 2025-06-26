@@ -125,7 +125,46 @@ class YiLianPosPlatform extends PosStrategy
         return PaymentType::WECHAT_QR;
     }
 
-    //<editor-fold desc="请求方法">
+    //<editor-fold desc="pos操作方法">
+
+    /**
+     * 设置机具押金
+     * @param PosRequestDto $dto
+     * @return PosProviderResponse
+     * @throws MissingParameterException
+     */
+    public function setPosDeposit(PosRequestDto $dto): PosProviderResponse
+    {
+        $dto->checkDeposit();
+        $url = $this->getUrl('/agent/changeTerminalActivity');
+        $params = [
+            'sns' => $dto->getDeviceSn(),
+            // 活动编号(机具政策为⾮融合版政策时，必传)
+            'activityCashNo' => '',
+            'operNo' => $this->config['agentNo'],
+            'operName' => sprintf('代理编号%s', $this->config['agentNo']),
+            'channelPolicy' => json_decode($dto->getDepositPackageCode(), true),
+        ];
+        try {
+            $res = $this->post($url, $params);
+            // 解析请求结果
+            if ('1' !== $res['successCount']) {
+                $errorMsg = sprintf('pos服务商[%s]设置机具pos_sn=%s押金失败：%s', self::providerName(), $dto->getDeviceSn(), $res['message']);
+                return PosProviderResponse::fail($errorMsg);
+            }
+        } catch (ProviderGatewayException $e) {
+            $errorMsg = sprintf('pos服务商[%s]设置机具pos_sn=%s押金失败：%s', self::providerName(), $dto->getDeviceSn(), $e->getMessage());
+            return PosProviderResponse::fail($errorMsg);
+        }
+        return PosProviderResponse::success();
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="商户操作方法">
+
+    /**
+     * @throws MissingParameterException
+     */
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
         // 必备参数检查
