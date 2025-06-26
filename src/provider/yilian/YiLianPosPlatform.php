@@ -18,6 +18,7 @@ use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
 use think\pos\dto\response\PosProviderResponse;
+use think\pos\exception\MissingParameterException;
 use think\pos\exception\ProviderGatewayException;
 use think\pos\PosStrategy;
 use think\pos\provider\yilian\convertor\MerchantConvertor;
@@ -127,6 +128,8 @@ class YiLianPosPlatform extends PosStrategy
     //<editor-fold desc="请求方法">
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
+        // 必备参数检查
+        $dto->check();
         $url = $this->getUrl(self::API_METHOD['modify_merchant_rate']);
         $params = [];
         foreach (self::PARAMS_TRANS_TYPE_MAP as $transType) {

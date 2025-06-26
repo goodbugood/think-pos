@@ -7,6 +7,7 @@ use think\pos\dto\ProviderRequestTrait;
 use think\pos\dto\RateTrait;
 
 /**
+ * // todo shali [2025/6/26] 这个 dto 本来是给 pos 初始化使用的，涉及通讯费，服务费，交易费率，但是目前也被用于服务费设置，3.0 的升级中，这个类就不应该被用于服务费设置了
  * 请求 pos 服务商的 pos 参数
  */
 class PosRequestDto
