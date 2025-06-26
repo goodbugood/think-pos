@@ -21,7 +21,10 @@ use think\pos\provider\kunpeng\convertor\PosConvertor;
 
 /**
  * 鲲鹏平台
- * 费率是百分数，金额都是元
+ * 注意：鲲鹏的接口乱
+ * 1. 金额都是元
+ * 2. 请求接口费率是百分数
+ * 3. 回调通知，费率都是小数
  */
 class KunPengPosPlatform extends PosStrategy
 {
