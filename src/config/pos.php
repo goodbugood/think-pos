@@ -34,12 +34,18 @@ return [
             'class' => '\think\pos\provider\yilian\YiLianPosPlatform',
             'config' => [
                 'test' => false,
-                'gateway' => 'https://extra-business-api.51ydmw.com/',
-                'testGateway' => 'https://extra-business-api.ylv3.com/',
+                'gateway' => '移联正式网关',
+                'testGateway' => '移联测试网关',
                 // 代理商编号
-                'agentNo' => '119911',
-                'aesKey' => '79b13739ff4e4e07',
-                'md5Key' => '7d11ffd7850bd7626ac21bb8bdd3dabb',
+                'agentNo' => '代理编号',
+                'aesKey' => '签名，加密，解密密码',
+                'md5Key' => '通知验签密钥',
+                // 是否支持银行卡类型，关闭时不区分借记卡，贷记卡，统一使用贷记卡费率
+                'bankCardType' => false,
+                // 扫码提现手续费费率，单位百分数，如 0.03% 填 0.03
+                'scanTypeWithdrawRate' => '0.03',
+                // 银联刷卡最大费率限制，单位百分数，如 0.03% 填 0.03，如果提交的费率超过此费率，则取此费率
+                'maxBankCardRate' => '0.63',
             ],
         ],
         // 鲲鹏 pos 平台对接参数
