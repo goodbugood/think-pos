@@ -115,6 +115,17 @@ class YiLianPosPlatform extends PosStrategy
     //<editor-fold desc="pos操作方法">
 
     /**
+     * pos 入库初始化
+     * @param PosRequestDto $dto
+     * @return PosProviderResponse
+     * @throws MissingParameterException
+     */
+    public function initPosConfig(PosRequestDto $dto): PosProviderResponse
+    {
+        return $this->setPosDeposit($dto);
+    }
+
+    /**
      * 设置机具押金
      * @param PosRequestDto $dto
      * @return PosProviderResponse
