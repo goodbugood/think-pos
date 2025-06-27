@@ -9,8 +9,10 @@ use think\pos\dto\request\callback\PosBindCallbackRequest;
 use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
+use think\pos\dto\request\PosDepositRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
+use think\pos\dto\response\PosDepositResponse;
 use think\pos\dto\response\PosInfoResponse;
 use think\pos\dto\response\PosProviderResponse;
 use think\pos\exception\UnsupportedBusinessException;
@@ -143,6 +145,16 @@ abstract class PosStrategy
     function getPosInfo(PosRequestDto $dto): PosInfoResponse
     {
         throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入获取pos信息功能', static::providerName()));
+    }
+
+    /**
+     * 获取 pos 押金列表
+     * 鉴于大部分代理接入 pos 平台时，获取押金列表仅仅参考，很少入库的
+     * @throws UnsupportedBusinessException
+     */
+    function getPosDeposit(PosDepositRequestDto $dto): PosDepositResponse
+    {
+        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入获取押金列表功能', static::providerName()));
     }
 
     /**
