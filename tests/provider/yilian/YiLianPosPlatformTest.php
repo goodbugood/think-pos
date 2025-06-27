@@ -215,5 +215,34 @@ class YiLianPosPlatformTest extends TestCase
         $reflection->setAccessible(true);
         self::assertEquals('c497357edc60dbafc3853f8461a4a369', $reflection->invoke($obj, 'cc4agltHMJwrm4eTwK9+6FYfd34U0CTcfNwWP6xHn1c=', 'yya9xts8lqdz7m3n'));
     }
+
+    /**
+     * 测试验签
+     * @return void
+     * @throws ReflectionException
+     */
+    function testVerifySign()
+    {
+        $obj = $this->posStrategy;
+        $reflection = new ReflectionMethod(YiLianPosPlatform::class, 'verifySign');
+        $reflection->setAccessible(true);
+        $aesKey = 'yya9xts8lqdz7m3n';
+        $sign = '0fb75443bd6a0b2e5fbafcd692a5149c';
+        self::assertTrue($reflection->invoke($obj, $sign, '7fpv4gvwr7iZnw16Sq212LGon0IG4v7oymlGufm9m+MeNQvsIsRhpsVDbkv6amT2hyBxts05ZuKRtqMu+XAtNFIhd+3LsjB5zDzU9qCeKFJ5tY4sRIUlUeMZZGHag5eS9lFHzInY34DoF/Kh7MIR36+nO62jFoHciQ16sf/cTDDqCS94hLhqZObqF/uVopYaVZfDiZBAwINipPyo/oRT1yScEGi25H+Xzy/4Kv6VBitc6MVSGa+VRi4G23j4EdLPmnKpz09uer5XW1DSUQrYNCwo9NRMkA16AMCLX3IJGwIO+Eeqdijcb+vQCRhP9Hf7UiF37cuyMHnMPNT2oJ4oUnm1jixEhSVR4xlkYdqDl5L2UUfMidjfgOgX8qHswhHftckKE2z/I5M/FHdqQU1cAuiwb1DkGVyw8MtEAr91WKlVl8OJkEDAg2Kk/Kj+hFPXJJwQaLbkf5fPL/gq/pUGK5L/kFTrkFC+F+kC6eptZDA=', $aesKey));
+    }
+
+    /**
+     * 测试解密数据
+     * @return void
+     * @throws ReflectionException
+     */
+    public function testDecrypt()
+    {
+        $obj = $this->posStrategy;
+        $reflection = new ReflectionMethod(YiLianPosPlatform::class, 'decryptData');
+        $reflection->setAccessible(true);
+        $decrypted = '7fpv4gvwr7iZnw16Sq212LGon0IG4v7oymlGufm9m+MeNQvsIsRhpsVDbkv6amT2hyBxts05ZuKRtqMu+XAtNFIhd+3LsjB5zDzU9qCeKFJ5tY4sRIUlUeMZZGHag5eS9lFHzInY34DoF/Kh7MIR36+nO62jFoHciQ16sf/cTDDqCS94hLhqZObqF/uVopYaVZfDiZBAwINipPyo/oRT1yScEGi25H+Xzy/4Kv6VBitc6MVSGa+VRi4G23j4EdLPmnKpz09uer5XW1DSUQrYNCwo9NRMkA16AMCLX3IJGwIO+Eeqdijcb+vQCRhP9Hf7UiF37cuyMHnMPNT2oJ4oUnm1jixEhSVR4xlkYdqDl5L2UUfMidjfgOgX8qHswhHftckKE2z/I5M/FHdqQU1cAuiwb1DkGVyw8MtEAr91WKlVl8OJkEDAg2Kk/Kj+hFPXJJwQaLbkf5fPL/gq/pUGK5L/kFTrkFC+F+kC6eptZDA=';
+        self::assertEquals('[{"activityCashNo":"ACN0000135911","activityAmount":"99","policyName":"海科买断版"},{"activityCashNo":"ACN0000135912","activityAmount":"299","policyName":"海科买断版"},{"activityCashNo":"ACN0000140178","activityAmount":"0","policyName":"海科买断版"},{"activityCashNo":"ACN0000140179","activityAmount":"199","policyName":"海科买断版"}]', $reflection->invoke($obj, $decrypted));
+    }
     //</editor-fold>
 }
