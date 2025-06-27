@@ -64,8 +64,8 @@ class YiLianPosPlatformTest extends TestCase
         $merchantRequestDto->setMerchantNo($merchantNo);
         $merchantRequestDto->setDeviceSn($posSn);
         $merchantRequestDto->setWithdrawFee(Money::valueOfYuan('3'));
-        $merchantRequestDto->setCreditRate(Rate::valueOfPercentage('0.6'));
-        $merchantRequestDto->setDebitCardRate(Rate::valueOfPercentage('0.6'));
+        $merchantRequestDto->setCreditRate(Rate::valueOfPercentage('0.8'));
+        $merchantRequestDto->setDebitCardRate(Rate::valueOfPercentage('0.8'));
         $merchantRequestDto->setDebitCardCappingValue(Money::valueOfYuan('20'));
         // 设置微信费率
         $merchantRequestDto->setWechatRate(Rate::valueOfPercentage('0.37'));

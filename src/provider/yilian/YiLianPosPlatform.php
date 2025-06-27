@@ -9,6 +9,7 @@ use shali\phpmate\crypto\EncryptUtil;
 use shali\phpmate\http\HttpClient;
 use shali\phpmate\PhpMateException;
 use shali\phpmate\util\Money;
+use shali\phpmate\util\Rate;
 use think\pos\constant\PaymentType;
 use think\pos\constant\PosStatus;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
@@ -188,6 +189,7 @@ class YiLianPosPlatform extends PosStrategy
      */
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
+        $useBankCardType = $this->config['bankCardType'] ?? true;
         // 必备参数检查
         $dto->check();
         $url = $this->getUrl('/agent/changeMerchantFeeRate');
@@ -199,24 +201,33 @@ class YiLianPosPlatform extends PosStrategy
                 'groupType' => $transType,
                 // 费率百分数
                 'transRate' => null,
-                // 提现费率
-                'withdrawRate' => '0.00',
+                // 提现费率，移联比较特殊，除了大额刷卡，小额扫码的都固定了提现费率 0.03%
+                'withdrawRate' => $this->getScanWithdrawRate($transType),
                 // 提现费单位类型，FIXED 固定金额，PERCENT 百分比
-                'withdrawRateUnit' => 'FIXED',
+                'withdrawRateUnit' => $this->getScanWithdrawRateUnit($transType),
             ];
             if (self::isBankCardType($transType)) {
                 foreach (self::PARAMS_CARD_TYPE_MAP as $cardType) {
-                    $item['cardType'] = $cardType;
-                    if (self::PARAMS_CARD_TYPE_MAP['debit'] === $cardType) {
+                    // 检查是否区分银行卡类型来设置费率
+                    $item['cardType'] = $useBankCardType ? $cardType : 'UNLIMIT';
+                    if ($useBankCardType && self::PARAMS_CARD_TYPE_MAP['debit'] === $cardType) {
                         // 借记卡交易手续费封顶值
                         $item['topTransFee'] = $dto->getDebitCardCappingValue()->toYuan();
-                        $item['transRate'] = $dto->getDebitCardRate()->toPercentage();
+                        // 借记卡交易无提现手续费
+                        $item['withdrawRateUnit'] = 'FIXED';
+                        $item['withdrawRate'] = '0.00';
+                        // 刷卡限制最大费率
+                        $rate = $this->limitBankCardRate($dto->getCreditRate());
+                        $item['transRate'] = $rate->toPercentage();
                     } else {
                         // 信用卡交易无手续费封顶值，移除
                         unset($item['topTransFee']);
-                        // 仅贷记卡支持提现手续费
-                        $item['withdrawRate'] = $dto->getWithdrawFee()->toYuan();
-                        $item['transRate'] = $dto->getCreditRate()->toPercentage();
+                        // 仅贷记卡支持提现手续费，且固定金额
+                        $item['withdrawRateUnit'] = $this->getBankCardWithdrawRateUnit($transType);
+                        $item['withdrawRate'] = $this->getBankCardWithdrawRate($transType, $dto->getWithdrawFee());
+                        // 刷卡限制最大费率
+                        $rate = $this->limitBankCardRate($dto->getCreditRate());
+                        $item['transRate'] = $rate->toPercentage();
                     }
                     $params[] = $item;
                 }
@@ -226,14 +237,21 @@ class YiLianPosPlatform extends PosStrategy
                 $params[] = $item;
             }
         }
-        try {
-            foreach ($params as $item) {
+        $errorMsgs = [];
+        foreach ($params as $item) {
+            try {
                 // todo shali [2025/6/27] 用户反馈设置商户费率存在多次调用，如果某次调用失败了，如何解决
-                $this->post($url, $item);
+                $res = $this->post($url, $item);
+                if ('0' !== ($res['errorCount'] ?? '')) {
+                    $errorMsgs[] = sprintf('修改 %s 费率失败;', $item['groupType']);
+                }
+            } catch (Exception $e) {
+                $errorMsg = sprintf('pos服务商[%s]修改商户merchant_no=%s - %s 费率失败：%s', self::providerName(), $dto->getMerchantNo(), $item['groupType'], $e->getMessage());
+                return PosProviderResponse::fail($errorMsg);
             }
-        } catch (Exception $e) {
-            $errorMsg = sprintf('pos服务商[%s]修改商户merchant_no=%s费率失败：%s', self::providerName(), $dto->getMerchantNo(), $e->getMessage());
-            return PosProviderResponse::fail($errorMsg);
+        }
+        if (count($errorMsgs) > 0) {
+            return PosProviderResponse::fail(implode(' | ', $errorMsgs));
         }
 
         return PosProviderResponse::success();
@@ -328,6 +346,7 @@ class YiLianPosPlatform extends PosStrategy
     }
 
     /**
+     * 流量卡止付订单通知
      * @throws ProviderGatewayException
      */
     public function handleCallbackOfSimTrans(string $content): PosTransCallbackRequest
@@ -351,8 +370,8 @@ class YiLianPosPlatform extends PosStrategy
             self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
             // POS刷卡-VIP
             self::PARAMS_TRANS_TYPE_MAP['pos_vip'],
-            // POS刷卡-云闪付
-            self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],
+            // POS刷卡-云闪付，这个属于滴卡付款，小额的，不能划到刷卡费率里，25.06.27
+            // self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],
             // 银联二维码大额
             self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
             // 银联云闪付大额
@@ -483,4 +502,60 @@ class YiLianPosPlatform extends PosStrategy
         return $sign === $sign1;
     }
     //</editor-fold>
+
+    /**
+     * 刷卡费率限制
+     * 由于银联刷卡费率限制，所以该方法会检查刷卡费率是否超出移联最大刷卡费率，如果超出，你的刷卡费率会被替换为移联最大刷卡费率
+     * @param Rate $rate
+     * @return Rate
+     */
+    private function limitBankCardRate(Rate $rate): Rate
+    {
+        $maxRate = Rate::valueOfPercentage($this->config['maxBankCardRate'] ?? '0.63');
+        if (bccomp($rate->toPercentage(), $maxRate->toPercentage(), 2) > 0) {
+            return $maxRate;
+        }
+        return $rate;
+    }
+
+    private function getScanWithdrawRate(string $groupType): string
+    {
+        if (self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'] === $groupType) {
+            // 移联目前 pos 刷卡-云闪付无交易提现手续费，这点不同扫码
+            return '0.00';
+        }
+        return $this->config['scanTypeWithdrawRate'] ?? '0.03';
+    }
+
+    private function getScanWithdrawRateUnit(string $transType): string
+    {
+        if (self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'] === $transType) {
+            return 'FIXED';
+        }
+        return 'PERCENT';
+    }
+
+    private function getBankCardWithdrawRateUnit(string $transType): string
+    {
+        if (in_array($transType, [
+            self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+            self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+        ])) {
+            // YL_CODE_MORE 和 YL_JSAPI_MORE 的提现费率单位都是百分比，其他的提现费率单位都是固定金额
+            return 'PERCENT';
+        }
+        return 'FIXED';
+    }
+
+    private function getBankCardWithdrawRate(string $transType, Money $withdrawFee): string
+    {
+        if (in_array($transType, [
+            self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+            self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+        ])) {
+            // YL_CODE_MORE 和 YL_JSAPI_MORE 的提现费率使用扫码的提现费率，其他刷卡使用贷记卡的提现费率
+            return $this->getScanWithdrawRate($transType);
+        }
+        return $withdrawFee->toYuan();
+    }
 }
