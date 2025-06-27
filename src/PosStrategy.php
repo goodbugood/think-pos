@@ -154,7 +154,7 @@ abstract class PosStrategy
      */
     function getPosDeposit(PosDepositRequestDto $dto): PosDepositResponse
     {
-        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入获取押金列表功能', static::providerName()));
+        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入获取可用押金功能', static::providerName()));
     }
 
     /**
