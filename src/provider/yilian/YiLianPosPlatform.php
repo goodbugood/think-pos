@@ -39,23 +39,6 @@ class YiLianPosPlatform extends PosStrategy
 
     private const RESPONSE_CODE_SUCCESS = '200';
 
-    private const API_METHOD = [
-        // 商户绑定 pos
-        'bind_pos' => '',
-        // 商户解绑 pos
-        'unbind_pos' => '/agent/terminalUnBind',
-        // 查询 pos 终端
-        'pos_info' => '',
-        // 设置 pos 费率
-        'modify_pos_rate' => '',
-        // 设置 pos 通信服务费
-        'modify_pos_sim_fee' => '/agent/updateMerchantFlowInfo',
-        // 设置 pos 押金=服务费
-        'modify_pos_deposit' => '',
-        // 设置商户费率
-        'modify_merchant_rate' => '/agent/changeMerchantFeeRate',
-    ];
-
     /**
      * 银行卡类型
      */
@@ -196,7 +179,7 @@ class YiLianPosPlatform extends PosStrategy
     {
         // 必备参数检查
         $dto->check();
-        $url = $this->getUrl(self::API_METHOD['modify_merchant_rate']);
+        $url = $this->getUrl('/agent/changeMerchantFeeRate');
         $params = [];
         foreach (self::PARAMS_TRANS_TYPE_MAP as $transType) {
             $item = [
@@ -247,7 +230,7 @@ class YiLianPosPlatform extends PosStrategy
 
     function setMerchantSimFee(SimRequestDto $dto): PosProviderResponse
     {
-        $url = $this->getUrl(self::API_METHOD['modify_pos_sim_fee']);
+        $url = $this->getUrl('/agent/updateMerchantFlowInfo');
         $params = [
             'merchantNo' => $dto->getMerchantNo(),
             // 免收期，x 天，我们不配置，统一去 pos 平台配置
@@ -265,7 +248,7 @@ class YiLianPosPlatform extends PosStrategy
 
     function unbindPos(MerchantRequestDto $merchantRequestDto, PosRequestDto $posRequestDto): PosProviderResponse
     {
-        $url = $this->getUrl(self::API_METHOD['unbind_pos']);
+        $url = $this->getUrl('/agent/terminalUnBind');
         $params = [
             'sns' => $posRequestDto->getDeviceSn(),
         ];
