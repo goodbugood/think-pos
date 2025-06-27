@@ -3,6 +3,7 @@
 namespace think\pos\tests\provider\lipos;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use shali\phpmate\core\date\LocalDateTime;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
@@ -28,9 +29,24 @@ class LiPosStrategyTest extends TestCase
      */
     private $posStrategy;
 
+    private const MERCHANT_PRIVATE_KEY = 'MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDvHw9AIUObCfdb7uF54FeFvLqblkzcfI28wGMquhV8aLjgIqEAgFMJVgN92N54Anl2ecMby9bP5gTdUVBIjLIC4Ga5XFR5k42tljyMOGOuhIMfhn4kQ1maE5J1+lWb4v9g6cfAmvL3xr6NiQy/11FD6uSZDENwPh+bYEV2VU8cx4fD3v7hRKTy6JeemAP9K5uAQAhDj16sFN9iWutWQMO8tZQKfsbyW2je1yGCF8SsEodKNKuEa9mBbY4lakB3TChuZ/ZAMra7/mR/S61C++xVu+kPBE7swhavXuhOAXKDCZe0wvVVUPn5OoBKwpCYG2d0Lavfr/ehhb8elSGQOWDDAgMBAAECggEBAIzd704ISpt7M42lHI9/6g+PLx+ZW45IkfcwHzt8hEvWJZNk0xRIhKJrWYM5z1VDn+p7sMUfQF0ZVKRM0s7qk7O+HsXz7o/wrPYmG2U/kvmsdtKLmKQkSRTLkuyNnQFIqMme71436gqtunQG2MvrPKSWLDU9VD07W8Nc447iksiQX5d8Bmmnyq1RxcO6tKl60EhdbciLj3r4ctQ0z3CifPIi/AUUKBuBZsnOSFNDxRtpU+8Lzm8PcqRsex1xEYBeYJ8vjoW5RrJ9Hn/PEkzS9tKuPsg7nGPHVdNNYWzYD10H4MC+Uk5t8qMjxrkH0lFa/5OlRC64tg2dpV9FBvrBBwECgYEA9+NurlANsls46FxpzPYT/7/a1tmFG9NCY0D6QfwTSPjNB5vH87fXmFGkBgueC60wveZ/WATXdylP5v49392GY4pNeLhJA8ZNpsLzg0zljNgGS20t3J5sN77cCz/+iToFraKYwq83gMjHe+mpRlpzUf6+fKxsgy9R30dzqtfvcHkCgYEA9vIvZn2ZenZlnKfrbWzWgl/d4oxaGF3qQ5sDs2UXpAEfuodus4Jh2ZnlpV9EaLB9iLlThqsyjljCGT4CKOSRdYzlCQHCyXq0V3vAHr4kWlx4EpvT3qFGUVecgaRH5W6hQ3MIcLvz6OWcpVePZrf/moHQoYp94UEp4cU9AZiDpBsCgYBHsC1NGfesEfeWM0uhq7TC7LAUHFoDXwg+/gah2I2XN+TLg4DC+fLOqSWfXfK5+78x3BwNz3CklHz4F6S7PixkUxXuiJUNE2dXh9+2pCFqpvrDC3MM73/qazblxf8NnosP2QsGmneZtfcC3eNHZlcdameaVJ8ZHTE3Okm4KbSkOQKBgFa6ni0nxYR+GpfXXdbzl674TmxnkKjoKwONaNJTmebuwh73u8ht7UHITCA1gkgmXCBtvkkYzUuzHpBQ9982z2NylWoBZVDvuHDVNJdXflsCCOW4NsQE7jZZR808Tkfk/9w5hWhaioJsSgTD6MhRrQKtvwFNK4K2KShy5kcuMmWrAoGBANHb2lXcHDg6clk8wc2XNcFnaAsYXYeAJ6TxMrJ4sXMflw283SKimX6kNWg/LX8IQYx8VmdEfPA+IAOSQfuMpIqC39kBh8GZLSU7E5BE1ElQyYUtPuAbdN9I8fKSmUzUaDK/kx93L8iOKL7lna3IwPSQpYPd/dWvPY6cq5Kx4fqY';
+    private const MERCHANT_PUBLIC_KEY = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7x8PQCFDmwn3W+7heeBXhby6m5ZM3HyNvMBjKroVfGi44CKhAIBTCVYDfdjeeAJ5dnnDG8vWz+YE3VFQSIyyAuBmuVxUeZONrZY8jDhjroSDH4Z+JENZmhOSdfpVm+L/YOnHwJry98a+jYkMv9dRQ+rkmQxDcD4fm2BFdlVPHMeHw97+4USk8uiXnpgD/SubgEAIQ49erBTfYlrrVkDDvLWUCn7G8lto3tchghfErBKHSjSrhGvZgW2OJWpAd0wobmf2QDK2u/5kf0utQvvsVbvpDwRO7MIWr17oTgFygwmXtML1VVD5+TqASsKQmBtndC2r36/3oYW/HpUhkDlgwwIDAQAB';
+    private const PLATFORM_PUBLIC_KEY = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnDEID0gB1fddX5ySWWju5DDcSUae4SsefhNCBY3pf+RysQChFxDQSD+Z8l7fnura0nAl3QiMQF572ZUqAxskclXa92IprLpM9D/liMgNIap/HJ+Fnww9cDB/mbDVg+bDP/3xC9cqlMMvBGi/9O8+yxJUIvykfHDQqU3vx0RdAgwQzpOUg0r0L2+qRZ8aRQVCx5oWC0AbzNByvWft3xaP2oH0RgzVPwaoOUiqjHBrQiTS4C87r3zRa1EN83figuFF6D75TnRwZ0fq/+qxxnFU/CNuFfTtsVyGRNqZvOZXWf7jRuEDFAZXrTTvjxgk/sO4ir+MMTwg6rO0z4pRETej1wIDAQAB';
+
+    /**
+     */
     protected function setUp(): void
     {
         $this->posStrategy = PosStrategyFactory::create('lipos');
+        // 反射修改公私钥
+        $reflection = new ReflectionClass($this->posStrategy);
+        $reflectionProperty = $reflection->getProperty('config');
+        $reflectionProperty->setAccessible(true);
+        $posProviderConfig = $reflectionProperty->getValue($this->posStrategy);
+        $posProviderConfig['privateKey'] = self::MERCHANT_PRIVATE_KEY;
+        $posProviderConfig['publicKey'] = self::MERCHANT_PUBLIC_KEY;
+        $posProviderConfig['platformPublicKey'] = self::PLATFORM_PUBLIC_KEY;
+        $reflectionProperty->setValue($this->posStrategy, $posProviderConfig);
     }
 
     /**
