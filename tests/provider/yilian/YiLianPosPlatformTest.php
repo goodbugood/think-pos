@@ -92,9 +92,11 @@ class YiLianPosPlatformTest extends TestCase
             'channelCode' => '111',
             'activityCashNo' => '222',
         ]));
-        $data = $this->posStrategy->getPosDeposit($depositRequestDto);
-        self::assertNotEmpty($data);
-        self::assertIsArray($data);
+        $posDepositResponse = $this->posStrategy->getPosDeposit($depositRequestDto);
+        self::assertTrue($posDepositResponse->isSuccess(), $posDepositResponse->getErrorMsg() ?? '');
+        self::assertNotEmpty($posDepositResponse->getDeviceNo());
+        // 押金列表不为空
+        self::assertNotEmpty($posDepositResponse->getDepositPackageCode());
     }
 
     /**
