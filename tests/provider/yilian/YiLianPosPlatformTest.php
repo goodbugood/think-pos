@@ -3,6 +3,7 @@
 namespace think\pos\tests\provider\yilian;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use shali\phpmate\util\Money;
@@ -23,9 +24,31 @@ class YiLianPosPlatformTest extends TestCase
      */
     private $posStrategy;
 
+    private const AGENT_NO = '8133393489';
+
+    /**
+     * 1. 加密，解密
+     * 2. 请求接口签名使用
+     */
+    private const AES_KEY = 'yya9xts8lqdz7m3n';
+
+    /**
+     * 回调通知，验签使用
+     */
+    private const MD5_KEY = 'a5e46fb618c34d66b85ab62b610dd756';
+
     protected function setUp(): void
     {
         $this->posStrategy = PosStrategyFactory::create('yilian');
+        // 反射修改公私钥
+        $reflection = new ReflectionClass($this->posStrategy);
+        $reflectionProperty = $reflection->getProperty('config');
+        $reflectionProperty->setAccessible(true);
+        $posProviderConfig = $reflectionProperty->getValue($this->posStrategy);
+        $posProviderConfig['aesKey'] = self::AES_KEY;
+        $posProviderConfig['md5Key'] = self::MD5_KEY;
+        $posProviderConfig['agentNo'] = self::AGENT_NO;
+        $reflectionProperty->setValue($this->posStrategy, $posProviderConfig);
     }
 
     public function testSetMerchantRate()
