@@ -8,6 +8,7 @@ use shali\phpmate\core\util\StrUtil;
 use shali\phpmate\crypto\EncryptUtil;
 use shali\phpmate\http\HttpClient;
 use shali\phpmate\PhpMateException;
+use shali\phpmate\util\Money;
 use think\pos\constant\PaymentType;
 use think\pos\constant\PosStatus;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
@@ -15,8 +16,10 @@ use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
 use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
+use think\pos\dto\request\PosDepositRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
+use think\pos\dto\response\PosDepositResponse;
 use think\pos\dto\response\PosProviderResponse;
 use think\pos\exception\MissingParameterException;
 use think\pos\exception\ProviderGatewayException;
@@ -159,6 +162,29 @@ class YiLianPosPlatform extends PosStrategy
         }
         return PosProviderResponse::success();
     }
+
+    /**
+     * @throws MissingParameterException
+     */
+    public function getPosDeposit(PosDepositRequestDto $dto): PosDepositResponse
+    {
+        $dto->check();
+        $url = $this->getUrl('/agent/selectActivityAmountList');
+        $params = ['sn' => $dto->getDeviceSn()];
+        try {
+            $res = $this->post($url, $params);
+            // 解析请求结果
+            $depositResponse = PosDepositResponse::success();
+            $depositResponse->setDeviceNo($dto->getDeviceSn());
+            $depositResponse->setDeposit(Money::valueOfYuan(strval($res['activityAmount'] ?? '0')));
+            $policyInfo = $res['channelPolicy']['policyList'] ?? StrUtil::NULL;
+            $depositResponse->setDepositPackageCode($policyInfo);
+        } catch (ProviderGatewayException $e) {
+            $errorMsg = sprintf('pos服务商[%s]设置机具pos_sn=%s押金失败：%s', self::providerName(), $dto->getDeviceSn(), $e->getMessage());
+            return PosDepositResponse::fail($errorMsg);
+        }
+        return $depositResponse;
+    }
     //</editor-fold>
 
     //<editor-fold desc="商户操作方法">
@@ -208,6 +234,7 @@ class YiLianPosPlatform extends PosStrategy
         }
         try {
             foreach ($params as $item) {
+                // todo shali [2025/6/27] 用户反馈设置商户费率存在多次调用，如果某次调用失败了，如何解决
                 $this->post($url, $item);
             }
         } catch (Exception $e) {

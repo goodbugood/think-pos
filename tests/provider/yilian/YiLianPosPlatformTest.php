@@ -11,8 +11,10 @@ use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
 use think\pos\constant\PosStatus;
 use think\pos\dto\request\MerchantRequestDto;
+use think\pos\dto\request\PosDepositRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
+use think\pos\exception\UnsupportedBusinessException;
 use think\pos\PosStrategy;
 use think\pos\PosStrategyFactory;
 use think\pos\provider\yilian\YiLianPosPlatform;
@@ -51,12 +53,16 @@ class YiLianPosPlatformTest extends TestCase
         $reflectionProperty->setValue($this->posStrategy, $posProviderConfig);
     }
 
+    //<editor-fold desc="商户操作接口">
     public function testSetMerchantRate()
     {
         $merchantNo = env('yilian.merchantNo');
         self::assertNotEmpty($merchantNo, 'yilian.merchantNo is empty');
+        $posSn = env('yilian.posSn');
+        self::assertNotEmpty($posSn, 'yilian.posSn is empty');
         $merchantRequestDto = new MerchantRequestDto();
         $merchantRequestDto->setMerchantNo($merchantNo);
+        $merchantRequestDto->setDeviceSn($posSn);
         $merchantRequestDto->setWithdrawFee(Money::valueOfYuan('3'));
         $merchantRequestDto->setCreditRate(Rate::valueOfPercentage('0.6'));
         $merchantRequestDto->setDebitCardRate(Rate::valueOfPercentage('0.6'));
@@ -67,6 +73,49 @@ class YiLianPosPlatformTest extends TestCase
         $posProviderResponse = $this->posStrategy->setMerchantRate($merchantRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
+
+    //</editor-fold>
+
+    //<editor-fold desc="POS操作接口">
+    /**
+     * 测试获取押金列表
+     * @throws UnsupportedBusinessException
+     */
+    public function testGetPosDepositList()
+    {
+        $posSn = env('yilian.posSn');
+        self::assertNotEmpty($posSn, 'yilian.posSn is empty');
+        $depositRequestDto = new PosDepositRequestDto();
+        $depositRequestDto->setDeviceSn($posSn);
+        $depositRequestDto->setDeposit(Money::valueOfYuan('100'));
+        $depositRequestDto->setDepositPackageCode(json_encode([
+            'channelCode' => '111',
+            'activityCashNo' => '222',
+        ]));
+        $data = $this->posStrategy->getPosDeposit($depositRequestDto);
+        self::assertNotEmpty($data);
+        self::assertIsArray($data);
+    }
+
+    /**
+     * @throws UnsupportedBusinessException
+     */
+    function testSetPosDeposit()
+    {
+        $posSn = env('yilian.posSn');
+        self::assertNotEmpty($posSn, 'yilian.posSn is empty');
+        $posRequestDto = new PosRequestDto();
+        $posRequestDto->setDeviceSn($posSn);
+        $posRequestDto->setDeposit(Money::valueOfYuan('100'));
+        $posRequestDto->setDepositPackageCode(json_encode([
+            'channelCode' => '111',
+            'activityCashNo' => '222',
+        ]));
+        $posProviderResponse = $this->posStrategy->setPosDeposit($posRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
+    }
+
+    //</editor-fold>
 
     public function testSetSimFee()
     {
