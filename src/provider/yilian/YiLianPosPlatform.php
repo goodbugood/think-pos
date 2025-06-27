@@ -180,7 +180,7 @@ class YiLianPosPlatform extends PosStrategy
             $policyInfo = $res['channelPolicy']['policyList'] ?? StrUtil::NULL;
             $depositResponse->setDepositPackageCode($policyInfo);
         } catch (ProviderGatewayException $e) {
-            $errorMsg = sprintf('pos服务商[%s]设置机具pos_sn=%s押金失败：%s', self::providerName(), $dto->getDeviceSn(), $e->getMessage());
+            $errorMsg = sprintf('pos服务商[%s]获取机具pos_sn=%s可用押金政策失败：%s', self::providerName(), $dto->getDeviceSn(), $e->getMessage());
             return PosDepositResponse::fail($errorMsg);
         }
         return $depositResponse;
