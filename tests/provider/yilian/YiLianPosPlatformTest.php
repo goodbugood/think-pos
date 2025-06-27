@@ -26,7 +26,7 @@ class YiLianPosPlatformTest extends TestCase
      */
     private $posStrategy;
 
-    private const AGENT_NO = '8133393489';
+    private const AGENT_NO = '8140122446';
 
     /**
      * 1. 加密，解密
@@ -88,10 +88,7 @@ class YiLianPosPlatformTest extends TestCase
         $depositRequestDto = new PosDepositRequestDto();
         $depositRequestDto->setDeviceSn($posSn);
         $depositRequestDto->setDeposit(Money::valueOfYuan('100'));
-        $depositRequestDto->setDepositPackageCode(json_encode([
-            'channelCode' => '111',
-            'activityCashNo' => '222',
-        ]));
+        $depositRequestDto->setDepositPackageCode('不需要');
         $posDepositResponse = $this->posStrategy->getPosDeposit($depositRequestDto);
         self::assertTrue($posDepositResponse->isSuccess(), $posDepositResponse->getErrorMsg() ?? '');
         self::assertNotEmpty($posDepositResponse->getDeviceNo());
@@ -110,8 +107,18 @@ class YiLianPosPlatformTest extends TestCase
         $posRequestDto->setDeviceSn($posSn);
         $posRequestDto->setDeposit(Money::valueOfYuan('100'));
         $posRequestDto->setDepositPackageCode(json_encode([
-            'channelCode' => '111',
-            'activityCashNo' => '222',
+            [
+                // 中付
+                'channelCode' => 'ZF',
+                // 0 押金 ACN0000140183，99 押金 ACN0000135916，199 押金 ACN0000140184，299 押金 ACN0000135917
+                'activityCashNo' => 'ACN0000135916',
+            ],
+            [
+                // 海科支付
+                'channelCode' => 'HK',
+                // 0 押金 ACN0000140178，99 押金 ACN0000135911，199 押金 ACN0000140179，299 押金 ACN0000135912
+                'activityCashNo' => 'ACN0000135912',
+            ],
         ]));
         $posProviderResponse = $this->posStrategy->setPosDeposit($posRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
