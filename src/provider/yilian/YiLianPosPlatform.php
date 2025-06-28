@@ -296,6 +296,7 @@ class YiLianPosPlatform extends PosStrategy
      * @param string $content
      * @return MerchantRegisterCallbackRequest
      * @throws ProviderGatewayException
+     * @deprecated 由于移联的注册信息和绑定一起推送，目前二者合并为绑定回调，以绑定为准
      */
     function handleCallbackOfMerchantRegister(string $content): MerchantRegisterCallbackRequest
     {

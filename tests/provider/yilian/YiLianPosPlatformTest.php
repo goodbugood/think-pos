@@ -10,6 +10,7 @@ use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
 use think\pos\constant\PosStatus;
+use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosDepositRequestDto;
 use think\pos\dto\request\PosRequestDto;
@@ -161,6 +162,10 @@ class YiLianPosPlatformTest extends TestCase
     }
 
     //<editor-fold desc="回调通知">
+
+    /**
+     * @throws UnsupportedBusinessException
+     */
     public function testHandleMerchantRegisterCallback()
     {
         $content = 'data=e9euP4X4CjNWAhYLuhZFrhFQwxJeABYDVclXCU2H%2FpfWXCnFDW7kso1dw60q8wuuQvKqzNRskXkqSq%2BA2uh0s15u91TX88PUktVjkg8CSgLRKxwmqtWHFzQ3AcpVrfX2Ga3RI8wGKuxTO%2Fkgy6RHkS7g3YwjUMAYkGKqI%2BAu1DlRVG5WqsGDgKgMb6AwTT43AkfJWP2ng3W5b9OaWFyoHFZqHiArKOudt%2FQMGdCfimnZ8add7nnMHD58Fsl5P1fvBj6Z%2Ff53vNZjNAQQwzPtDzwr6bxh1QZ1vMH7pNcdYBVRDiFeMkO%2BgQbyMHS0Izmy8Laf9yTW%2FJvz1Wr%2BnSwKsfwKbcjN%2BqhLBlWXbq1cwq7Qg%2BxBPtUBrjOpmK%2Fy15KwF%2FXEld4Jmvp8KwdC7cHrfC3p%2Bi09UOuNjp76eg5qzDumjum9j1rkcSa2PcwDTMtRfNHMB2lwDQSlq6OHJN7SiXSPUtEm4N4TAokddaio30AIHSeBwFpdze7756aNJ0grgMsqV%2Fs5x2gthz6iT2IohnBjmUrn8nh%2BMMCOIOmA%2FLC5xinOy4HG0kHJl1x4uWwvmtajcNadc1Gvj%2Fc2Ryaog%2BoZ6HFHaSX7%2FHyNnBMJGzHvTp7vpEtKROrmMQd7IYr13OXRqy4dvwfd5s66jCxW7eyBMnwXpZ%2F87jiAJ4zDeKldakhY8u0dNygINlAOAcxAh9C2d65cQ60dskmJxc43a9wv1awVZe9GG73BNG8%2FQMgl%2BjNVTgIdLNMA9oOlc2myFsS1Hj8RmXyc4VZlirfJXrJ0v%2BpiV1VomTBISPUQ0qFy4eqvJRTAtIXBR%2BaLpXrD4dBGecV5A4ilINcUCi9HaOZ8X1tZr4tlTafC2UfLl9B%2FdQbZlvV5X8WmkPIeqADvJtdWZcELKj7%2FDRdC2%2BD6GOYg7iSWIHidp5%2FFPhiUJR%2FntL0w0jlHwlVStBPYs8RgxhiRdziCpmxcsHoG0ej%2FwH9SGcMpWYxyXz8txlljciyMDAguH%2FFrAyEKrBbkWLbyPw%2BT2co807jFvRj%2FVqsBNtcVF%2F%2FdK9fWHiS1abo3%2Bk7buqttaAW7lt2cYHPuxg19AWhaobruDfTefppeDyf8ym5IfQtrtVJDcygdiTg4fW13reKEXF8VStjYxM9Hphjew45dFWjzyZer6TVSM0n9HC%2BADZ940zW84LNjItAZ3oloCPIeggqXMmY0pSIjm71Pfom4V66Pn64zeLnX7tSR4R6I1DJJinvc9hndb%2FsN52gujYk48v9fHhuEndFvU70sEKKRHdAOwEXdEM4Ks6x1syNi4kj4ykg96qXsRSUDXKiyqQhfaxqwCRzYpKaqS%2BAZfTQtMnsnACqX7HWN46Y3NcjFxMCPbKdRsbPPSaeDoW1Nn%2FV1RhuLLS9UJKEEQzFRNeFThVrsMRKI%2BJ43XIzhlM5zrg0U1jsG8LPbjrjHuIrXB%2BqFkdCOOuh5Hz0h80kv3C%2FVrBVl70YbvcE0bz9AyCX6M1VOAh0s0wD2g6VzabIWxLUePxGZfJzhVmWKt8lesnS%2F6mJXVWiZMEhI9RDSoZl04bUh0xyzzNp22nfR8aJUvPApdALzEjarsMbAnZDIDtQZZcfFs%2FAy9pK%2BWE2J%2FrmBxoCNGttyWXFllbDf0QAin%2FOuXQwdsGbSAzFMTS6q13CErwG9Cle4NIF03ZlAmnC8ynUU%2F%2Bw%2BMCrQM7ncXFZs4oIy1QqY1xoLTAXtkmfBuX85XFfCuXfkbf9%2BsTN6DlMX64tE%2FV78MgHiwXcWL0b%2BTYsvqhcmkkQTeIiaDnbaFT9DF1%2BYcwKaGOuSb7tUUuLuUcOjZLEHnQoCics%2BbUzl1PCrTdL%2F9eOSh%2FffGYeRYBpILHlTOvvcA5LUVn1Cp5103U9Am6lwIP1ioAXDrJOLxY7z9vKWMIZkvM%2FO8y5MKAOKPVopjmg3O7iuhZOGhl7iDknU3AjSpnlTZagUEBnUlEHAxS5PCEglHMJQWeRlIjbRaQJ8JD%2BEeVflevqcqtizSYsMg59C9U1ISAcduiSsZYTpMJhYI4iNYIVG3IvONsn5KQ6ud7wgMH3St9soxOyo1QfesSdYI5u48fXvi%2FCZfujRWUV%2FD0majQhsbvLj9f01FBsrlFllWrHG8kUI%2ByQpuT9dOBVPLgG%2Bdd5Tm%2Fnxkcim6tL1M6zr6U%2FF%2FnCAnXpKlTd9730qOeGMMCCN4ibbXOM%2Bm%2BLmlYFltUodFUmYjn5gqsyyCbNcustYdaqvsk4h8duaTqJwevNggGPPz3gSUeCng2rh%2BA1huQxbah0%3D';
@@ -174,6 +179,33 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($callbackRequest->getPhoneNo());
         self::assertNotEmpty($callbackRequest->getStatus());
         self::assertEquals(MerchantStatus::ENABLED, $callbackRequest->getStatus());
+    }
+
+    /**
+     * @return void
+     * @throws UnsupportedBusinessException
+     * @test 测试商户绑定回调
+     */
+    function handleCallbackOfPosBind()
+    {
+        $content = 'data=e9euP4X4CjNWAhYLuhZFrhFQwxJeABYDVclXCU2H%2FpfWXCnFDW7kso1dw60q8wuuQvKqzNRskXkqSq%2BA2uh0s15u91TX88PUktVjkg8CSgLRKxwmqtWHFzQ3AcpVrfX2Ga3RI8wGKuxTO%2Fkgy6RHkS7g3YwjUMAYkGKqI%2BAu1DlRVG5WqsGDgKgMb6AwTT43AkfJWP2ng3W5b9OaWFyoHFZqHiArKOudt%2FQMGdCfimnZ8add7nnMHD58Fsl5P1fvBj6Z%2Ff53vNZjNAQQwzPtDzwr6bxh1QZ1vMH7pNcdYBVRDiFeMkO%2BgQbyMHS0Izmy8Laf9yTW%2FJvz1Wr%2BnSwKsfwKbcjN%2BqhLBlWXbq1cwq7Qg%2BxBPtUBrjOpmK%2Fy15KwF%2FXEld4Jmvp8KwdC7cHrfC3p%2Bi09UOuNjp76eg5qzDumjum9j1rkcSa2PcwDTMtRfNHMB2lwDQSlq6OHJN7SiXSPUtEm4N4TAokddaio30AIHSeBwFpdze7756aNJ0grgMsqV%2Fs5x2gthz6iT2IohnBjmUrn8nh%2BMMCOIOmA%2FLC5xinOy4HG0kHJl1x4uWwvmtajcNadc1Gvj%2Fc2Ryaog%2BoZ6HFHaSX7%2FHyNnBMJGzHvTp7vpEtKROrmMQd7IYr13OXRqy4dvwfd5s66jCxW7eyBMnwXpZ%2F87jiAJ4zDeKldakhY8u0dNygINlAOAcxAh9C2d65cQ60dskmJxc43a9wv1awVZe9GG73BNG8%2FQMgl%2BjNVTgIdLNMA9oOlc2myFsS1Hj8RmXyc4VZlirfJXrJ0v%2BpiV1VomTBISPUQ0qFy4eqvJRTAtIXBR%2BaLpXrD4dBGecV5A4ilINcUCi9HaOZ8X1tZr4tlTafC2UfLl9B%2FdQbZlvV5X8WmkPIeqADvJtdWZcELKj7%2FDRdC2%2BD6GOYg7iSWIHidp5%2FFPhiUJR%2FntL0w0jlHwlVStBPYs8RgxhiRdziCpmxcsHoG0ej%2FwH9SGcMpWYxyXz8txlljciyMDAguH%2FFrAyEKrBbkWLbyPw%2BT2co807jFvRj%2FVqsBNtcVF%2F%2FdK9fWHiS1abo3%2Bk7buqttaAW7lt2cYHPuxg19AWhaobruDfTefppeDyf8ym5IfQtrtVJDcygdiTg4fW13reKEXF8VStjYxM9Hphjew45dFWjzyZer6TVSM0n9HC%2BADZ940zW84LNjItAZ3oloCPIeggqXMmY0pSIjm71Pfom4V66Pn64zeLnX7tSR4R6I1DJJinvc9hndb%2FsN52gujYk48v9fHhuEndFvU70sEKKRHdAOwEXdEM4Ks6x1syNi4kj4ykg96qXsRSUDXKiyqQhfaxqwCRzYpKaqS%2BAZfTQtMnsnACqX7HWN46Y3NcjFxMCPbKdRsbPPSaeDoW1Nn%2FV1RhuLLS9UJKEEQzFRNeFThVrsMRKI%2BJ43XIzhlM5zrg0U1jsG8LPbjrjHuIrXB%2BqFkdCOOuh5Hz0h80kv3C%2FVrBVl70YbvcE0bz9AyCX6M1VOAh0s0wD2g6VzabIWxLUePxGZfJzhVmWKt8lesnS%2F6mJXVWiZMEhI9RDSoZl04bUh0xyzzNp22nfR8aJUvPApdALzEjarsMbAnZDIDtQZZcfFs%2FAy9pK%2BWE2J%2FrmBxoCNGttyWXFllbDf0QAin%2FOuXQwdsGbSAzFMTS6q13CErwG9Cle4NIF03ZlAmnC8ynUU%2F%2Bw%2BMCrQM7ncXFZs4oIy1QqY1xoLTAXtkmfBuX85XFfCuXfkbf9%2BsTN6DlMX64tE%2FV78MgHiwXcWL0b%2BTYsvqhcmkkQTeIiaDnbaFT9DF1%2BYcwKaGOuSb7tUUuLuUcOjZLEHnQoCics%2BbUzl1PCrTdL%2F9eOSh%2FffGYeRYBpILHlTOvvcA5LUVn1Cp5103U9Am6lwIP1ioAXDrJOLxY7z9vKWMIZkvM%2FO8y5MKAOKPVopjmg3O7iuhZOGhl7iDknU3AjSpnlTZagUEBnUlEHAxS5PCEglHMJQWeRlIjbRaQJ8JD%2BEeVflevqcqtizSYsMg59C9U1ISAcduiSsZYTpMJhYI4iNYIVG3IvONsn5KQ6ud7wgMH3St9soxOyo1QfesSdYI5u48fXvi%2FCZfujRWUV%2FD0majQhsbvLj9f01FBsrlFllWrHG8kUI%2ByQpuT9dOBVPLgG%2Bdd5Tm%2Fnxkcim6tL1M6zr6U%2FF%2FnCAnXpKlTd9730qOeGMMCCN4ibbXOM%2Bm%2BLmlYFltUodFUmYjn5gqsyyCbNcustYdaqvsk4h8duaTqJwevNggGPPz3gSUeCng2rh%2BA1huQxbah0%3D';
+        $callbackOfPosBind = $this->posStrategy->handleCallbackOfPosBind($content);
+        self::assertInstanceOf(MerchantRegisterCallbackRequest::class, $callbackOfPosBind->getMerchantRegisterCallbackRequest());
+        $registerCallbackRequest = $callbackOfPosBind->getMerchantRegisterCallbackRequest();
+        self::assertNotEmpty($registerCallbackRequest->getAgentNo());
+        self::assertNotEmpty($registerCallbackRequest->getMerchantNo());
+        self::assertNotEmpty($registerCallbackRequest->getMerchantName());
+        self::assertNotEmpty($registerCallbackRequest->getIdCardName());
+        self::assertNotEmpty($registerCallbackRequest->getIdCardNo());
+        self::assertNotEmpty($registerCallbackRequest->getPhoneNo());
+        self::assertNotEmpty($registerCallbackRequest->getStatus());
+        self::assertEquals(MerchantStatus::ENABLED, $registerCallbackRequest->getStatus());
+        // 绑定信息检查
+        self::assertNotEmpty($callbackOfPosBind->getAgentNo());
+        self::assertNotEmpty($callbackOfPosBind->getMerchantNo());
+        self::assertNotEmpty($callbackOfPosBind->getDeviceSn());
+        self::assertEquals(PosStatus::BIND_SUCCESS, $callbackOfPosBind->getStatus());
+        self::assertNotEmpty($callbackOfPosBind->getModifyTime());
     }
 
     //</editor-fold>

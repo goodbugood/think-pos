@@ -34,7 +34,11 @@ class MerchantConvertor
 
     public static function toPosBindCallbackRequest(array $decryptedData): PosBindCallbackRequest
     {
+        // 商户注册信息
+        $registerCallbackRequest = self::toMerchantRegisterCallbackRequest($decryptedData);
+        // 绑定信息
         $request = PosBindCallbackRequest::success();
+        $request->setMerchantRegisterCallbackRequest($registerCallbackRequest);
         $request->setAgentNo($decryptedData['agentNo'] ?? StrUtil::NULL);
         $request->setMerchantNo($decryptedData['merchantNo'] ?? StrUtil::NULL);
         // 机具号
