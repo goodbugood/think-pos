@@ -87,6 +87,22 @@ class YiLianPosPlatformTest extends TestCase
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
 
+    /**
+     * 商户解绑机具
+     * @return void
+     * @throws UnsupportedBusinessException
+     */
+    public function testUnbindPos()
+    {
+        $posSn = env('yilian.posSn');
+        self::assertNotEmpty($posSn, 'yilian.posSn is empty');
+        $merchantRequestDto = new MerchantRequestDto();
+        $posRequestDto = new PosRequestDto();
+        $posRequestDto->setDeviceSn($posSn);
+        $posProviderResponse = $this->posStrategy->unbindPos($merchantRequestDto, $posRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="POS操作接口">
