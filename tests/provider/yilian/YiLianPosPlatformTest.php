@@ -11,7 +11,10 @@ use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
 use think\pos\constant\PosStatus;
+use think\pos\constant\TransOrderStatus;
+use think\pos\constant\TransOrderType;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
+use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosDepositRequestDto;
 use think\pos\dto\request\PosRequestDto;
@@ -221,6 +224,58 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($callbackRequest);
         self::assertNotEmpty($callbackRequest->getMerchantNo());
         self::assertNotEquals(StrUtil::NULL, $callbackRequest->getMerchantNo());
+    }
+
+    /**
+     * @test 测试普通交易通知
+     * @return void
+     * @throws UnsupportedBusinessException
+     */
+    function handleCallbackOfNormalTrans()
+    {
+        // 普通交易通知
+        $content = 'data=e9euP4X4CjNWAhYLuhZFrpOBm%2FkEalJR1vBkq6F8uqS0b4ZvLEAf7akA7BZRoUA3t2HQF7PSr6zMq29%2F8eItUmLDM0xUbCSRDwCwwEE3%2FAjfoeOQldYQsAqSNvPbC7kCrzlGlb0imi%2F5zTEoQAWh%2B7Yaeyvdir6tQ4nTiao7XsGZ5NA2NL11XY%2BNNbM7xi4lMcMYkQxQVMYmEeMwM%2FB3KwNys3LJJ3JLvhnuj256CLkezEEII9KGNf2jvaG5S3sH1PzjBUcRShGNB046u1AAv2O02maH8NKq8kYokuIyHq0slsGsmu30yV1m9B43I0X6tOtbs1hifBH4c81XllrfzfNKs5yitvIw1%2BWhO5YdMH0MaKhvp41SKk0WArEN7qycNQbRN%2BVBnZdgHjEt3pRrxFNvxNjY0t4ROlESz%2BHTRvo9813PUD7GlSlcB7X7jkUacPxPVHkC%2BruWeRArHIjVhqY7%2FCe9UZYEXhR4ixXFxkKSt%2Fwfm2qBmNrlxS%2BjUr2K1EfdEeT4GjygqIb8evIo8SDAuPswk7kFEby4dwVe%2BVoiDUPbWhr%2B%2FMfpu39Gi4xftYnm4yDt2na9lDGVpXFT7MWw4olmeIaRCcVfsL3M8p15B5Y3mUyyCdJmnPMSXkvjzZL%2FzcClE06kRWWmfE0P3ZwmqALywdhuq8EXGrVnisHSmKHEvR4MUasVAguuM0%2Flobkjq6%2F%2FCUx%2FQ1EZvEJI5xV0MRDNUuyRzEugR4pOMAo0NpjzageEqo33B13Ogv%2FVNwQqRfCTWzu3emef%2FKq3%2BgkXRgK52dec3eHaRXzzoZS9aT4mIIXj%2BdtKcFsK8Z5ELsaK9ORKMQHEEpAbQ4%2FDOTX3UqCW31VI%2FXc2rcaflOi88PVROrCuT1z0H0%2F03ItD1Jm56%2B3czD9bEAIvFZXJzHT3BUWNEJxdp%2Bc6AMhITKGjyTbDlDGqrHcGueVJqECbIx5xHOdKPLorc6c3OQCdcX82mGAwLQQnLSqnc%2Fj40e6b44HAQBpvw%2F9WXBmPKMF5syIbjY%2F%2B7Yx4WXXkuJyMzUBKrDQxlt1ElGKYNpkRV2wSXVE8mvpu1ErYad7GECmi';
+        $callbackRequest = $this->posStrategy->handleCallbackOfTrans($content);
+        self::assertNotEmpty($callbackRequest);
+        self::assertInstanceOf(PosTransCallbackRequest::class, $callbackRequest);
+        self::assertEquals(TransOrderType::NORMAL, $callbackRequest->getOrderType());
+        self::assertEquals('100.00', $callbackRequest->getAmount()->toYuan());
+        self::assertEquals('0.60', $callbackRequest->getRate()->toPercentage());
+        self::assertNotEmpty($callbackRequest->getFee());
+        self::assertEquals(TransOrderStatus::SUCCESS, $callbackRequest->getStatus());
+        self::assertNotEmpty($callbackRequest->getPaymentType());
+        self::assertNotEmpty($callbackRequest->getAgentNo());
+        self::assertNotEmpty($callbackRequest->getMerchantNo());
+        self::assertNotEmpty($callbackRequest->getMerchantName());
+        self::assertNotEmpty($callbackRequest->getDeviceSn());
+        self::assertNotEmpty($callbackRequest->getTransNo());
+        self::assertNotEmpty($callbackRequest->getSuccessDateTime());
+    }
+
+    /**
+     * @test 押金订单交易通知
+     * @return void
+     * @throws UnsupportedBusinessException
+     */
+    function handleCallbackOfDepositTrans()
+    {
+        $content = 'data=e9euP4X4CjNWAhYLuhZFrpOBm%2FkEalJR1vBkq6F8uqRcszr4D2MFnx2oJ%2BHaGIr3t2HQF7PSr6zMq29%2F8eItUmLDM0xUbCSRDwCwwEE3%2FAjfoeOQldYQsAqSNvPbC7kCrzlGlb0imi%2F5zTEoQAWh%2B7Yaeyvdir6tQ4nTiao7XsGZ5NA2NL11XY%2BNNbM7xi4lMcMYkQxQVMYmEeMwM%2FB3KwNys3LJJ3JLvhnuj256CLkezEEII9KGNf2jvaG5S3sH1PzjBUcRShGNB046u1AAv2O02maH8NKq8kYokuIyHq0slsGsmu30yV1m9B43I0X6tOtbs1hifBH4c81XllrfzfNKs5yitvIw1%2BWhO5YdMH0MaKhvp41SKk0WArEN7qycNQbRN%2BVBnZdgHjEt3pRrxFNvxNjY0t4ROlESz%2BHTRvo9813PUD7GlSlcB7X7jkUacPxPVHkC%2BruWeRArHIjVhqY7%2FCe9UZYEXhR4ixXFxkKSt%2Fwfm2qBmNrlxS%2BjUr2K1EfdEeT4GjygqIb8evIo8SDAuPswk7kFEby4dwVe%2BVoiDUPbWhr%2B%2FMfpu39Gi4xftYnm4yDt2na9lDGVpXFT7MWw4olmeIaRCcVfsL3M8p15B5Y3mUyyCdJmnPMSXkvjzZL%2FzcClE06kRWWmfE0P3RhFQM2%2FXEXL9hSyNI%2FcHsDSmKHEvR4MUasVAguuM0%2Flobkjq6%2F%2FCUx%2FQ1EZvEJI5xV0MRDNUuyRzEugR4pOMAo0NpjzageEqo33B13Ogv%2FVNwQqRfCTWzu3emef%2FKq3%2BjFdMBdMx71MjIbH1Z0e%2BQ2z0boFPa1wj7LEAPgNiA8YLsaK9ORKMQHEEpAbQ4%2FDOVr1XltL3UDXmpgIbe8sMGS2SQLHlFBAAbPVei8vy01F4lZlFuN8sA52w9KOJ7k%2BHnT3BUWNEJxdp%2Bc6AMhITKGjyTbDlDGqrHcGueVJqECbIx5xHOdKPLorc6c3OQCdcX82mGAwLQQnLSqnc%2Fj40e5YMdbIqOnodZE32V1fWq0WGVEGu85SV5LqYypiF2FRAmO3cYuv6sV3u62TVjepaAnIZzzanyIa%2BA0KBR3W2bvS';
+        $callbackRequest = $this->posStrategy->handleCallbackOfTrans($content);
+        self::assertNotEmpty($callbackRequest);
+        self::assertInstanceOf(PosTransCallbackRequest::class, $callbackRequest);
+        self::assertEquals(TransOrderType::DEPOSIT, $callbackRequest->getOrderType());
+        // 押金特点，费率是 1，手续费金额 == 交易金额，即全是手续费
+        self::assertEquals('299.00', $callbackRequest->getAmount()->toYuan());
+        self::assertEquals('1.00', $callbackRequest->getRate()->toDecimal(2));
+        self::assertEquals($callbackRequest->getFee()->toYuan(), $callbackRequest->getAmount()->toYuan());
+        self::assertEquals(TransOrderStatus::SUCCESS, $callbackRequest->getStatus());
+        self::assertNotEmpty($callbackRequest->getPaymentType());
+        self::assertNotEmpty($callbackRequest->getAgentNo());
+        self::assertNotEmpty($callbackRequest->getMerchantNo());
+        self::assertNotEmpty($callbackRequest->getMerchantName());
+        self::assertNotEmpty($callbackRequest->getDeviceSn());
+        self::assertNotEmpty($callbackRequest->getTransNo());
+        self::assertNotEmpty($callbackRequest->getSuccessDateTime());
     }
 
     //</editor-fold>
