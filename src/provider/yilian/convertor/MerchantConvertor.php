@@ -23,6 +23,7 @@ class MerchantConvertor
         $callbackRequest->setMerchantNo($decryptedData['merchantNo'] ?? StrUtil::NULL);
         $callbackRequest->setMerchantName($decryptedData['merchantName'] ?? StrUtil::NULL);
         $callbackRequest->setRegDateTime($decryptedData['bindTime'] ?? StrUtil::NULL);
+        $callbackRequest->setBusinessName($callbackRequest->getMerchantName());
         // 法人
         $callbackRequest->setIdCardName($decryptedData['realName'] ?? StrUtil::NULL);
         $callbackRequest->setIdCardNo($decryptedData['idCardNo'] ?? StrUtil::NULL);
