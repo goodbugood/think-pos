@@ -267,7 +267,10 @@ class YiLianPosPlatform extends PosStrategy
             'merchantFlowList' => json_decode($dto->getSimPackageCode(), true),
         ];
         try {
-            $this->post($url, $params);
+            $res = $this->post($url, $params);
+            if (self::RESPONSE_CODE_SUCCESS !== $res['code']) {
+                throw new ProviderGatewayException(sprintf('code=%s&message=%s', $res['code'], $res['message']));
+            }
         } catch (Exception $e) {
             $errorMsg = sprintf('pos服务商[%s]设置商户merchant_no=%s sim卡套餐失败：%s', self::providerName(), $dto->getMerchantNo(), $e->getMessage());
             return PosProviderResponse::fail($errorMsg);
