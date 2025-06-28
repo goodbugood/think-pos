@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use shali\phpmate\core\util\StrUtil;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
@@ -206,6 +207,20 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($callbackOfPosBind->getDeviceSn());
         self::assertEquals(PosStatus::BIND_SUCCESS, $callbackOfPosBind->getStatus());
         self::assertNotEmpty($callbackOfPosBind->getModifyTime());
+    }
+
+    /**
+     * @test 商户费率修改成功通知
+     * @throws UnsupportedBusinessException
+     */
+    function handleCallbackOfMerchantRateSet()
+    {
+        // todo shali [2025/6/28] 未拿到移联商户费率修改成功通知
+        $content = '';
+        $callbackRequest = $this->posStrategy->handleCallbackOfMerchantRateSet($content);
+        self::assertNotEmpty($callbackRequest);
+        self::assertNotEmpty($callbackRequest->getMerchantNo());
+        self::assertNotEquals(StrUtil::NULL, $callbackRequest->getMerchantNo());
     }
 
     //</editor-fold>
