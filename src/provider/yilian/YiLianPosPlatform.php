@@ -31,7 +31,7 @@ use think\pos\provider\yilian\convertor\PosConvertor;
 /**
  * 注意：
  * 1. 移联的接口文档涉及金额的，单位均为元
- * 2. 涉及费率的，均为百分数
+ * 2. 涉及费率的，上行接口均为百分数，通知数据是小数，太他妈乱了
  * 3. 请求接口签名使用的 key 和回调时验签使用的签名的 key 不是同一个
  */
 class YiLianPosPlatform extends PosStrategy
@@ -369,8 +369,6 @@ class YiLianPosPlatform extends PosStrategy
         return in_array($transType, [
             // POS刷卡-标准类
             self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-            // POS刷卡-VIP
-            self::PARAMS_TRANS_TYPE_MAP['pos_vip'],
             // POS刷卡-云闪付，这个属于滴卡付款，小额的，不能划到刷卡费率里，25.06.27
             // self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],
             // 银联二维码大额
