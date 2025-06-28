@@ -24,6 +24,14 @@ use think\pos\PosStrategy;
 use think\pos\PosStrategyFactory;
 use think\pos\provider\yilian\YiLianPosPlatform;
 
+/**
+ * // todo shali [2025/6/28] 目前剩余，待验证
+ * 1. 商户费率通知
+ * 2. 设置商户流量费套餐
+ * 3. 流量卡扣费交易通知
+ * 4. 机具解绑
+ * 5. 解绑通知
+ */
 class YiLianPosPlatformTest extends TestCase
 {
     /**
