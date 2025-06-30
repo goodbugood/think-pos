@@ -13,7 +13,7 @@
         "pos-机"
     ],
     "type": "think-extend",
-    "version": "2.22.3",
+    "version": "2.22.4",
     "license": "MIT",
     "autoload": {
         "psr-4": {
