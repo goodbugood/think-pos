@@ -16,6 +16,7 @@ use think\pos\dto\request\SimRequestDto;
 use think\pos\dto\response\PosDepositResponse;
 use think\pos\dto\response\PosInfoResponse;
 use think\pos\dto\response\PosProviderResponse;
+use think\pos\dto\response\SimInfoResponse;
 use think\pos\exception\UnsupportedBusinessException;
 
 /**
@@ -259,6 +260,15 @@ abstract class PosStrategy
     function setMerchantSimFee(SimRequestDto $dto): PosProviderResponse
     {
         throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入设置商户流量卡费用功能', static::providerName()));
+    }
+
+    /**
+     * 获取商户流量卡套餐详情
+     * @throws UnsupportedBusinessException
+     */
+    function getMerchantSimFeeInfo(SimRequestDto $dto): SimInfoResponse
+    {
+        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入获取商户流量卡信息功能', static::providerName()));
     }
 
     /**
