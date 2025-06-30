@@ -80,6 +80,14 @@ class YiLianPosPlatform extends PosStrategy
     ];
 
     /**
+     * 限制最大费率的交易类型 map
+     */
+    private const LIMIT_MAX_RATE_TRANS_TYPE_MAP = [
+        self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+        self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+    ];
+
+    /**
      * @var HttpClient
      */
     private $httpClient;
@@ -217,7 +225,7 @@ class YiLianPosPlatform extends PosStrategy
                         $item['withdrawRateUnit'] = 'FIXED';
                         $item['withdrawRate'] = '0.00';
                         // 刷卡限制最大费率
-                        $rate = $this->limitBankCardRate($dto->getCreditRate());
+                        $rate = $this->limitBankCardRate($transType, $dto->getCreditRate());
                         $item['transRate'] = $rate->toPercentage();
                     } else {
                         // 信用卡交易无手续费封顶值，移除
@@ -226,7 +234,7 @@ class YiLianPosPlatform extends PosStrategy
                         $item['withdrawRateUnit'] = $this->getBankCardWithdrawRateUnit($transType);
                         $item['withdrawRate'] = $this->getBankCardWithdrawRate($transType, $dto->getWithdrawFee());
                         // 刷卡限制最大费率
-                        $rate = $this->limitBankCardRate($dto->getCreditRate());
+                        $rate = $this->limitBankCardRate($transType, $dto->getCreditRate());
                         $item['transRate'] = $rate->toPercentage();
                     }
                     $params[] = $item;
@@ -508,11 +516,16 @@ class YiLianPosPlatform extends PosStrategy
     /**
      * 刷卡费率限制
      * 由于银联刷卡费率限制，所以该方法会检查刷卡费率是否超出移联最大刷卡费率，如果超出，你的刷卡费率会被替换为移联最大刷卡费率
+     * @param string $transType 交易类型
      * @param Rate $rate
      * @return Rate
      */
-    private function limitBankCardRate(Rate $rate): Rate
+    private function limitBankCardRate(string $transType, Rate $rate): Rate
     {
+        // 25.6.30 仅银联二维码大额，银联云闪付大额限制最大交易费率
+        if (!in_array($transType, self::LIMIT_MAX_RATE_TRANS_TYPE_MAP)) {
+            return $rate;
+        }
         $maxRate = Rate::valueOfPercentage($this->config['maxBankCardRate'] ?? '0.63');
         if (bccomp($rate->toPercentage(), $maxRate->toPercentage(), 2) > 0) {
             return $maxRate;
