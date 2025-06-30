@@ -80,7 +80,8 @@ class YiLianPosPlatformTest extends TestCase
         $simRequestDto->setMerchantNo($merchantNo);
         $response = $this->posStrategy->getMerchantSimFeeInfo($simRequestDto);
         self::assertTrue($response->isSuccess(), $response->getErrorMsg() ?? '');
-        self::assertEquals('{"merchantNo":"","minIntervalDays":"","maxIntervalDays":"","minTransAmount":"","maxTransAmount":"","minVasRate":"","maxVasRate":"","minFreeDays":"","maxFreeDays":"","freeDays":"","effectiveTimeStart":"","effectiveTimeEnd":"","transTime":"","activityTime":"","merchantFlowList":[]}', $response->getBody());
+        $decrypted = '{"merchantNo":"","minIntervalDays":"","maxIntervalDays":"","minTransAmount":"","maxTransAmount":"","minVasRate":"","maxVasRate":"","minFreeDays":"","maxFreeDays":"","freeDays":"","effectiveTimeStart":"","effectiveTimeEnd":"","transTime":"","activityTime":"","merchantFlowList":[]}';
+        self::assertEquals($decrypted, $response->getBody());
     }
 
     public function testSetMerchantRate()
