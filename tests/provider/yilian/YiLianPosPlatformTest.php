@@ -20,7 +20,6 @@ use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosDepositRequestDto;
 use think\pos\dto\request\PosRequestDto;
-use think\pos\dto\request\SimRequestDto;
 use think\pos\exception\UnsupportedBusinessException;
 use think\pos\PosStrategy;
 use think\pos\PosStrategyFactory;
@@ -29,10 +28,7 @@ use think\pos\provider\yilian\YiLianPosPlatform;
 /**
  * // todo shali [2025/6/28] 目前剩余，待验证
  * 1. 商户费率通知
- * 2. 设置商户流量费套餐
  * 3. 流量卡扣费交易通知
- * 4. 机具解绑
- * 5. 解绑通知
  */
 class YiLianPosPlatformTest extends TestCase
 {
@@ -157,40 +153,6 @@ class YiLianPosPlatformTest extends TestCase
 
     //</editor-fold>
 
-    public function testSetSimFee()
-    {
-        $merchantNo = env('yilian.merchantNo');
-        self::assertNotEmpty($merchantNo, 'yilian.merchantNo is empty');
-        $simRequestDto = new SimRequestDto();
-        $simRequestDto->setMerchantNo($merchantNo);
-        // 套餐这个固定？
-        $simRequestDto->setSimPackageCode(json_encode([
-            'cycleNo' => 1,
-            // 开始执行的天数
-            'startDays' => null,
-            // 结束执行的天数
-            'endDays' => null,
-            // 周期类型，单次 SINGLE，循环 RENEW
-            'cycleType' => null,
-            // 流量包金额，单位元
-            'vasRate' => null,
-            // 最小交易金额，单位元
-            'minTransAmount' => null,
-        ]));
-        $posProviderResponse = $this->posStrategy->setSimFee($simRequestDto);
-        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
-    }
-
-    public function testUnbindPos()
-    {
-        $posSn = env('yilian.posSn');
-        self::assertNotEmpty($posSn, 'yilian.posSn is empty');
-        $merchantRequestDto = new MerchantRequestDto();
-        $posRequestDto = new PosRequestDto();
-        $posProviderResponse = $this->posStrategy->unbindPos($merchantRequestDto, $posRequestDto);
-        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
-    }
-
     //<editor-fold desc="回调通知">
 
     /**
@@ -236,6 +198,25 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($callbackOfPosBind->getDeviceSn());
         self::assertEquals(PosStatus::BIND_SUCCESS, $callbackOfPosBind->getStatus());
         self::assertNotEmpty($callbackOfPosBind->getModifyTime());
+    }
+
+    /**
+     * 测试机具解绑
+     * @throws UnsupportedBusinessException
+     */
+    public function testHandlePosUnbindCallback()
+    {
+        $content = 'data=e9euP4X4CjNWAhYLuhZFrhFQwxJeABYDVclXCU2H%2FpfWXCnFDW7kso1dw60q8wuuQvKqzNRskXkqSq%2BA2uh0s15u91TX88PUktVjkg8CSgLRKxwmqtWHFzQ3AcpVrfX2Ga3RI8wGKuxTO%2Fkgy6RHkS7g3YwjUMAYkGKqI%2BAu1DmrZUNljC0prTwbKjJlPSv0LmOlfFDqfH0JTDTzhRRJToN%2FpnDLBsGwNyl22LkEVq7ntPywWOWafozUwu%2Ffupsixtbw1gYIEyccysDQdDHU3REpBFvUfilXzBjX5BL7A1I66csOZIkvQECom5j6Er0igmb7Un8wy%2BgzkdxlLz6WFo2p1APx05DhyBnYiZhFARv0%2Fxd9vlNo34nJZOXonPIwEQYOmjz12CK4jKKLCIy7wkd%2BkzZsJ3k0EzLTCSvJbQVzqOxDoBMHBQ%2F0VNwI%2FivgUzPNCFR0rQRgy6gHBDcOD6YBui5FUCsUvjgyAZOl6fpWLCTkkx7nvZqMgI1avtA8grollVLujKIquzzmxz18sUYw2oO0wAMWoC%2FMCtEH%2BxDsyzgNKY5weDlUd72OcT3n%2B2gFILRpr9Ip673G50rnhlTls0T5zpGhGVcIuzzd1zGq9FwUa%2BGxswHCzHFlxK38XS%2FwUHIFAWgmPX5KQhzDLwP93fuePwe51M4RB4itssMAf2rXYOX3GUAa2G70rAeVy3HH7DhWp%2BhMKShz3hekAkL9LHQ0wUbloWEHWHgw2BdGh55rxK1s3vLI99mNzXiE';
+        $callbackRequest = $this->posStrategy->handleCallbackOfPosUnbind($content);
+        self::assertNotEmpty($callbackRequest);
+        self::assertNotEmpty($callbackRequest->getAgentNo());
+        self::assertNotEmpty($callbackRequest->getMerchantNo());
+        self::assertNotEmpty($callbackRequest->getDeviceSn());
+        self::assertNotEmpty($callbackRequest->getStatus());
+        self::assertEquals(PosStatus::UNBIND_SUCCESS, $callbackRequest->getStatus());
+        self::assertEquals('2025-06-30 14:02:32', $callbackRequest->getModifyTime()->toString());
+        // 绑定时间
+        self::assertNotEmpty($callbackRequest->getModifyTime());
     }
 
     /**
@@ -324,20 +305,6 @@ class YiLianPosPlatformTest extends TestCase
     }
 
     //</editor-fold>
-
-    public function testHandleMerchantUnbindCallback()
-    {
-        $content = 'data=dOqXz4uO0UezM8gUIa%2B2MAPwB5Y7gc1LiwUFTZ48ntJBu1Qhmiyvmsft1nmhHRab5uR%2BJV5pxCeNm%2FkR0X1kYLUdSRmZmT98GOmBQUzCcV0K0wpUES6zZot%2ByX1zLlvE3CJTGknCacbDd%2FZrH7YHbEl1jq9AnVzpWAxlfrzMcGRG33q3LFLPYw%2B8xeR4WH5AueMbGbD1oRvyb3z6WxBESObTAUGqoNyTnPSYpTSzvmoDinc1CoCx9tECE%2F2zIvt4isK8p9DIu%2FvHiEeshvIFoijjEluTiuQDS%2FLkVfDoqB5MWxOz2Ju6ds21B%2FQdKhQ%2BnbVNW9QxmQpNaAS3pn0NrvnCEhpXE8kjD9t66WxhATkdH1YJju3kWg%2FKmyxNZZ8LA06W9KXKeszhQ1tG%2FlGAHolgoHcuWmRmZV5Y9lu4aapAsisMQ7oIh36zWEZFi7E5ty5wzclRmTOQCJXt%2FjK2W7ZoSIpKzBPgNA0OhTPJmtz73sTvFa7jK5SP4chmNkSCV9YSzaylpfaiaDZF%2BF29M7JDLRP2lHOWvx17hcnqDVna56zodcyQlAi6quPaYrOr2r5ikhyOBVWDRtdny87SsGnuo7xc%2FgTZzIT%2FjX3l3CLEQa%2FtJegXx5%2BUMAlZesgvK8IpdA5nqcsrur88y6xA57NHCW2YzZ%2FaWUfMIqBT7eQ2tULGGbq%2FLxBno%2B0Qf3EH%2F%2FXSpGQKaTX0Dmyz3QdQ1AjciKE33LuN9F2ojBESIQokRWpVo677mYt7mnjBEFxy%2F1cqi9kp0wJGVZG%2FOYbYK9poiJ0V%2FtMV3PgzA8gmpHZa1UupBQfjLRvGUmKCXhYlI%2B2%2BkV%2FTmwFLDY0XA%2BFX0cLt1gDYHk3jatEoGNtrPl4uGH15UvQaSF0Ct2LNU5agVAXJV0%2BN6zLzX0znC5wAU07hbKzTAzQ%2BF0XMux%2F85dCnThhhDbArrUpfJhSVgR01MHGJHzaRsMBpyhrrilh67v2QuAfYRbphypNgwX8IfFMaOA8AJ%2Bp6Aa0sQk%2Fdvb51%2B9B81yZM%2B72QNSdfMP%2FUikXJLC%2FkhbZHWlOH3RWLqo%2BQocPZ2XYSxXk5xUqfiIdC%2F2STEMLkMFGhNOw3qiPFta9Dr5S89h3lIfso3RkuCB1%2BSHNhtMjpdnCFZlRMjkFz6LIp3IO1nX4ASEKUkG314dtA6RQtczxQ5V0NIV45VHoCLHoYw280UeA2toZL0SC7A2MC5ohGHgnC4t4ABx8fXCxE611latn%2BKW3e1fKbPgbP8FpBx04KnB3cgxQY%2FbO4w7QVu1Ii7yTSwY1Vd0kB23lUwBwcmARqEWwkriiW7EpwPGzpBTP2hhmm%2F3Y%2BSOA%2B9IJ19dkNkRAeFqDdC2s%2BOg%3D%3D';
-        $callbackRequest = $this->posStrategy->handleCallbackOfPosUnbind($content);
-        self::assertNotEmpty($callbackRequest);
-        self::assertNotEmpty($callbackRequest->getAgentNo());
-        self::assertNotEmpty($callbackRequest->getMerchantNo());
-        self::assertNotEmpty($callbackRequest->getDeviceSn());
-        self::assertNotEmpty($callbackRequest->getStatus());
-        self::assertEquals(PosStatus::UNBIND_SUCCESS, $callbackRequest->getStatus());
-        // 绑定时间
-        self::assertNotEmpty($callbackRequest->getModifyTime());
-    }
 
     //<editor-fold desc="签名验签方法验证">
 

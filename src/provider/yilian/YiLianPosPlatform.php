@@ -295,7 +295,10 @@ class YiLianPosPlatform extends PosStrategy
             'sns' => $posRequestDto->getDeviceSn(),
         ];
         try {
-            $this->post($url, $params);
+            $res = $this->post($url, $params);
+            if ('0' !== $res['failNum']) {
+                throw new ProviderGatewayException(sprintf('code=%s&message=%s', $res['code'] ?? StrUtil::NULL, $res['failResaon'] ?? StrUtil::NULL));
+            }
         } catch (Exception $e) {
             $errorMsg = sprintf('pos服务商[%s]解绑机具pos_sn=%s失败：%s', self::providerName(), $posRequestDto->getDeviceSn(), $e->getMessage());
             return PosProviderResponse::fail($errorMsg);
@@ -337,7 +340,8 @@ class YiLianPosPlatform extends PosStrategy
         $callbackRequest->setMerchantNo($data['merchantNo'] ?? StrUtil::NULL);
         $callbackRequest->setDeviceSn($data['terminalId'] ?? StrUtil::NULL);
         $callbackRequest->setStatus(PosStatus::UNBIND_SUCCESS);
-        $callbackRequest->setModifyTime($data['createTime'] ?? LocalDateTime::now());
+        $unbindDateTime = $data['createTime'] ? LocalDateTime::valueOfString($data['createTime']) : LocalDateTime::now();
+        $callbackRequest->setModifyTime($unbindDateTime);
         return $callbackRequest;
     }
 
