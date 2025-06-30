@@ -20,6 +20,7 @@ use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosDepositRequestDto;
 use think\pos\dto\request\PosRequestDto;
+use think\pos\dto\request\SimRequestDto;
 use think\pos\exception\UnsupportedBusinessException;
 use think\pos\PosStrategy;
 use think\pos\PosStrategyFactory;
@@ -65,6 +66,23 @@ class YiLianPosPlatformTest extends TestCase
     }
 
     //<editor-fold desc="商户操作接口">
+
+    /**
+     * @test 测试获取商户流量卡套餐信息
+     * @return void
+     * @throws UnsupportedBusinessException
+     */
+    function getMerchantSimFeeInfo()
+    {
+        $merchantNo = env('yilian.merchantNo');
+        $this->assertNotEmpty($merchantNo);
+        $simRequestDto = new SimRequestDto();
+        $simRequestDto->setMerchantNo($merchantNo);
+        $response = $this->posStrategy->getMerchantSimFeeInfo($simRequestDto);
+        self::assertTrue($response->isSuccess(), $response->getErrorMsg() ?? '');
+        self::assertEquals('{"merchantNo":"","minIntervalDays":"","maxIntervalDays":"","minTransAmount":"","maxTransAmount":"","minVasRate":"","maxVasRate":"","minFreeDays":"","maxFreeDays":"","freeDays":"","effectiveTimeStart":"","effectiveTimeEnd":"","transTime":"","activityTime":"","merchantFlowList":[]}', $response->getBody());
+    }
+
     public function testSetMerchantRate()
     {
         $merchantNo = env('yilian.merchantNo');

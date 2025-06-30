@@ -23,6 +23,7 @@ use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
 use think\pos\dto\response\PosDepositResponse;
 use think\pos\dto\response\PosProviderResponse;
+use think\pos\dto\response\SimInfoResponse;
 use think\pos\exception\MissingParameterException;
 use think\pos\exception\ProviderGatewayException;
 use think\pos\PosStrategy;
@@ -286,6 +287,28 @@ class YiLianPosPlatform extends PosStrategy
             return PosProviderResponse::fail($errorMsg);
         }
         return PosProviderResponse::success();
+    }
+
+    /**
+     * 获取商户的sim卡套餐信息
+     * @param SimRequestDto $dto
+     * @return SimInfoResponse
+     */
+    public function getMerchantSimFeeInfo(SimRequestDto $dto): SimInfoResponse
+    {
+        $url = $this->getUrl('/agent/queryMerchantFlowInfo');
+        $params = [
+            'merchantNo' => $dto->getMerchantNo(),
+        ];
+        try {
+            $this->post($url, $params);
+        } catch (Exception $e) {
+            $errorMsg = sprintf('pos服务商[%s]获取商户merchant_no=%s sim卡套餐失败：%s', self::providerName(), $dto->getMerchantNo(), $e->getMessage());
+            return SimInfoResponse::fail($errorMsg);
+        }
+        $simInfoResponse = SimInfoResponse::success();
+        $simInfoResponse->setBody($this->rawResponse['decryptedBody']);
+        return $simInfoResponse;
     }
 
     function unbindPos(MerchantRequestDto $merchantRequestDto, PosRequestDto $posRequestDto): PosProviderResponse
