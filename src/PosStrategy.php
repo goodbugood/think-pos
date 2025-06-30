@@ -6,6 +6,7 @@ use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosActivateCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
+use think\pos\dto\request\callback\PosSettleCallbackRequest;
 use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
@@ -323,6 +324,29 @@ abstract class PosStrategy
     function handleCallbackOfDepositTrans(string $content): PosTransCallbackRequest
     {
         throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入押金交易回调功能', static::providerName()));
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="交易结算通知">
+    // 交易结算通知最多存在 2 次通知：交易手续费结算通知，提现手续费结算通知
+    /**
+     * 交易结算通知
+     * @param string $content
+     * @return PosTransCallbackRequest
+     * @throws UnsupportedBusinessException
+     */
+    function handleCallbackOfTransSettle(string $content): PosTransCallbackRequest
+    {
+        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入交易结算通知处理功能', static::providerName()));
+    }
+
+    /**
+     * 提现手续费结算通知
+     * @throws UnsupportedBusinessException
+     */
+    function handleCallbackOfWithdrawSettle(string $content): PosSettleCallbackRequest
+    {
+        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入提现费结算通知处理功能', static::providerName()));
     }
     //</editor-fold>
 
