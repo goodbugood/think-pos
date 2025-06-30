@@ -11,9 +11,11 @@ use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
 use think\pos\constant\PosStatus;
+use think\pos\constant\SettleType;
 use think\pos\constant\TransOrderStatus;
 use think\pos\constant\TransOrderType;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
+use think\pos\dto\request\callback\PosSettleCallbackRequest;
 use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosDepositRequestDto;
@@ -300,6 +302,25 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($callbackRequest->getDeviceSn());
         self::assertNotEmpty($callbackRequest->getTransNo());
         self::assertNotEmpty($callbackRequest->getSuccessDateTime());
+    }
+
+    /**
+     * @test 测试结算回调通知
+     * @throws UnsupportedBusinessException
+     */
+    function handleCallbackOfWithdrawSettle()
+    {
+        $content = 'data=e9euP4X4CjNWAhYLuhZFrjF4Iy31scANI4ia98g%2F1u38XwTFzjpGdP5Ul5PnVDl36VSeTzv3pX3XX5U31utF5UnJmZ21EkYeJ0smu9KpYXjncWqsx2l%2FC8bUgenFEK%2Bk%2BHKpBkb5fPa8sUiTBisF4bVEtVA3e9Nk5%2FP%2F4MsT7UdfBDoJysWU8P5eS4M4gYLCkbwdE4uQWRonSmqeGC5v8aE%2BQz7KPr9bfkpI%2FsYqkQo43rPQVlut%2FHHD1o1wglHMyQbAcgOXxFSvtRDjQhVdpdRacOXZxd%2BT3jM7dWxHBSCa3MhO1Y0m1Hg2bfmC5%2ByhyUAATiPH4HVlpjldR95NrPbRQpF%2F52J1XZfzdljV%2BmZZ4NpBofchoxlx0SsMAChKV8oIMlJmMeiOKkEh02fKrc3Ff4CPgZjFIjDP99MS1s20UaWrZ1IA2zS0Q9bKzq08WtZLNJ8Nl5w9GTRYr%2FFYZBLrn6pooywVXSr8lHQnmhc%3D';
+        $callbackRequest = $this->posStrategy->handleCallbackOfWithdrawSettle($content);
+        self::assertNotEmpty($callbackRequest);
+        self::assertInstanceOf(PosSettleCallbackRequest::class, $callbackRequest);
+        self::assertEquals('3.00', $callbackRequest->getAmount()->toYuan());
+        self::assertNotEmpty($callbackRequest->getMerchantNo());
+        self::assertNotEmpty($callbackRequest->getTransNo());
+        self::assertEquals(TransOrderStatus::SUCCESS, $callbackRequest->getStatus());
+        self::assertNotEmpty($callbackRequest->getSettleType());
+        self::assertEquals(SettleType::WITHDRAW_FEE, $callbackRequest->getSettleType());
+        self::assertNotEmpty($callbackRequest->getSettleDateTime());
     }
 
     //</editor-fold>

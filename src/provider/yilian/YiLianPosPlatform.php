@@ -15,6 +15,7 @@ use think\pos\constant\PosStatus;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
+use think\pos\dto\request\callback\PosSettleCallbackRequest;
 use think\pos\dto\request\callback\PosTransCallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosDepositRequestDto;
@@ -27,6 +28,7 @@ use think\pos\exception\ProviderGatewayException;
 use think\pos\PosStrategy;
 use think\pos\provider\yilian\convertor\MerchantConvertor;
 use think\pos\provider\yilian\convertor\PosConvertor;
+use think\pos\provider\yilian\convertor\PosSettleConvertor;
 
 /**
  * 注意：
@@ -365,6 +367,15 @@ class YiLianPosPlatform extends PosStrategy
     {
         $data = $this->decryptAndVerifySign('流量费扣费推送', $content);
         return PosConvertor::toPosTransCallbackRequestByLakala($data);
+    }
+
+    /**
+     * @throws ProviderGatewayException
+     */
+    public function handleCallbackOfWithdrawSettle(string $content): PosSettleCallbackRequest
+    {
+        $data = $this->decryptAndVerifySign('提现结算推送', $content);
+        return PosSettleConvertor::toPosSettleCallbackRequest($data);
     }
     //</editor-fold>
 
