@@ -60,6 +60,8 @@ final class PosConvertor
     public static function toPosTransCallbackRequestByLakala(array $data): PosTransCallbackRequest
     {
         $request = PosTransCallbackRequest::success();
+        // 通知即成功
+        $request->setStatus(TransOrderStatus::SUCCESS);
         $request->setTransNo(strval($data['transOrderNo'] ?? StrUtil::NULL));
         $request->setDeviceSn(strval($data['sn'] ?? StrUtil::NULL));
         $request->setSuccessDateTime($data['transTime'] ?? StrUtil::NULL);
