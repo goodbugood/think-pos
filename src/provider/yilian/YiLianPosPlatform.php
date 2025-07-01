@@ -242,8 +242,8 @@ class YiLianPosPlatform extends PosStrategy
                     }
                     $params[] = $item;
                 }
-            } else {
-                // 扫码费率
+            } elseif (!is_null($dto->getWechatRate()) || !is_null($dto->getAlipayRate())) {
+                // 不传递扫码费率
                 $item['transRate'] = $dto->getWechatRate() ? $dto->getWechatRate()->toPercentage() : $dto->getAlipayRate()->toPercentage();
                 $params[] = $item;
             }
