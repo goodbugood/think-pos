@@ -36,10 +36,12 @@ final class PosConvertor
             // 是否收取服务费标识
             $request->setOrderType(TransOrderType::DEPOSIT);
             // 回调即成功，失败订单不会回调
-        } elseif (in_array($decryptedData['flowFeeFlag'] ?? StrUtil::NULL, [1, 2])) {
-            // todo shali [2025/6/28] 由于没有拿到流量卡交易订单，无法识别流量卡交易订单
-            $request->setOrderType(TransOrderType::SIM);
+        } elseif ('1' === ($decryptedData['flowFeeFlag'] ?? StrUtil::NULL)) {
+            $request->setOrderType(TransOrderType::NORMAL);
             // 流量卡订单默认就是已经交易成功，顶多再推送 1 次流量卡支付订单通知
+            $request->setSecondOrderType(TransOrderType::SIM);
+            $request->setSecondTransNo($request->getTransNo());
+            $request->setSecondOrderAmount(Money::valueOfYuan(strval($decryptedData['vasFlowFee'] ?? 0)));
         } else {
             $request->setOrderType(TransOrderType::NORMAL);
         }
@@ -62,11 +64,9 @@ final class PosConvertor
         $request = PosTransCallbackRequest::success();
         $request->setOrderType(TransOrderType::SIM);
         // 通知即成功
-        $request->setMerchantNo($data['merchantNo'] ?? StrUtil::NULL);
-        $request->setTransNo(strval($data['transOrderNo'] ?? StrUtil::NULL));
         $request->setStatus(TransOrderStatus::SUCCESS);
-        $request->setDeviceSn(strval($data['terminalId'] ?? StrUtil::NULL));
-        $request->setRate(Rate::valueOfDecimal(strval($data['transRate'] ?? 0)));
+        $request->setTransNo(strval($data['transOrderNo'] ?? StrUtil::NULL));
+        $request->setDeviceSn(strval($data['sn'] ?? StrUtil::NULL));
         if (isset($data['transTime'])) {
             $request->setSuccessDateTime(LocalDateTime::valueOfString($data['transTime']));
         } else {
