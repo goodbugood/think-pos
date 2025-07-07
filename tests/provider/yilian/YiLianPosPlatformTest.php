@@ -27,9 +27,8 @@ use think\pos\PosStrategyFactory;
 use think\pos\provider\yilian\YiLianPosPlatform;
 
 /**
- * // todo shali [2025/6/28] 目前剩余，待验证
+ * // 目前剩余，待验证
  * 1. 商户费率通知
- * 3. 流量卡扣费交易通知
  */
 class YiLianPosPlatformTest extends TestCase
 {
@@ -302,6 +301,24 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($callbackRequest->getDeviceSn());
         self::assertNotEmpty($callbackRequest->getTransNo());
         self::assertNotEmpty($callbackRequest->getSuccessDateTime());
+    }
+
+    /**
+     * @test 流量卡扣费回调通知
+     * @throws UnsupportedBusinessException
+     */
+    function handleCallbackOfSimTrans()
+    {
+        $content = 'data=e9euP4X4CjNWAhYLuhZFrpOBm%2FkEalJR1vBkq6F8uqS0b4ZvLEAf7akA7BZRoUA3t2HQF7PSr6zMq29%2F8eItUmLDM0xUbCSRDwCwwEE3%2FAjfoeOQldYQsAqSNvPbC7kCrzlGlb0imi%2F5zTEoQAWh%2B7Yaeyvdir6tQ4nTiao7XsGZ5NA2NL11XY%2BNNbM7xi4lMcMYkQxQVMYmEeMwM%2FB3KwNys3LJJ3JLvhnuj256CLkezEEII9KGNf2jvaG5S3sH1MYUJS3KxGBykjXNr9ewwMctkEebjLML4TJUhkBYSLhCx17g7ZraCPsTi1FuY4wuWG9YhCJNCI1H72U54aY7nXD8T1R5Avq7lnkQKxyI1YbjiCUtx3g6UIC3UiZwRErMHEMnIXWtM0fvFYjrXrxihbflw2qr6xbsYmNTltDP%2FKHP34GXHsLNcVU6E1lHxmz%2B2aJHrpgUhURS2DPnbYpDeEasOL7z42T0Jjqhfu2PD%2FSnPdjR4Wk%2FYE7SaaI3%2BCTLd99ST69jz%2FcR0eHUzLQoxxxkd1YunaBRfB8aoF0l3SrtYCdo0zjgeLZ%2B%2FCeS9YJV8d%2BroGN6wEkdz7wyhr%2BFWZx0LHqo4bxU18JS5Dlc%2Bb8pIK4M0zTX4Un3JZXWDYRYcppBQ2V9%2BmtL%2FG3ywqOSzu6g3b1f5muQEieIhj22bwXZjeOI70%2B70hfqkJ4SPbFzNnB%2BEN40j%2B84PXdFs%2FGCoexLMNz1bu7ShYPDHNM6uv9tXwmTxxXk7arfPZMNKX7y%2BRFFBTJN1CCP9zGb%2FClQVsP9RrLLCfXv6h4JtZHJ%2F%2BHKnbC%2FwctE2k7RCVX0k8Wa7CBCKwp60B1CBBqMOKyqRMZouCgxIp6xzl5HyNuE%2FQ83QTsgQjbVeXH0yFUJqxfasN%2BdVY%2FnTch%2F3f07MbhsB6hl70tr54wBRXKqH1Oz0DHlzOKZTf89MmXcr6x9ClA%2BImso014SBdzZmBNvt6bg1AbRpE2iPXaWfnX2Jki9eutZwGJ31HT%2BfQaBy9EjYSmMPf2dpGa0zIKz15GmrmDci0oWgAU8EcA%2BkgfnkWQBRn0oteLJdASO%2FSDR3bpishyv%2F%2F881mq5MgnSH2hptBGLThtgHbOQLN3SLScKDGOlOJWmF8%2B9mBc2004Jb53165yE';
+        $callbackRequest = $this->posStrategy->handleCallbackOfSimTrans($content);
+        self::assertNotEmpty($callbackRequest);
+        self::assertInstanceOf(PosTransCallbackRequest::class, $callbackRequest);
+        self::assertEquals(TransOrderType::SIM, $callbackRequest->getOrderType());
+        self::assertNotEmpty($callbackRequest->getMerchantNo());
+        self::assertNotEmpty($callbackRequest->getTransNo());
+        self::assertNotEmpty($callbackRequest->getAmount());
+        self::assertNotEmpty($callbackRequest->getSuccessDateTime());
+        self::assertEquals(TransOrderStatus::SUCCESS, $callbackRequest->getStatus());
     }
 
     /**

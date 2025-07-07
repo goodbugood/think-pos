@@ -60,11 +60,18 @@ final class PosConvertor
     public static function toPosTransCallbackRequestByLakala(array $data): PosTransCallbackRequest
     {
         $request = PosTransCallbackRequest::success();
+        $request->setOrderType(TransOrderType::SIM);
         // 通知即成功
-        $request->setStatus(TransOrderStatus::SUCCESS);
+        $request->setMerchantNo($data['merchantNo'] ?? StrUtil::NULL);
         $request->setTransNo(strval($data['transOrderNo'] ?? StrUtil::NULL));
-        $request->setDeviceSn(strval($data['sn'] ?? StrUtil::NULL));
-        $request->setSuccessDateTime($data['transTime'] ?? StrUtil::NULL);
+        $request->setStatus(TransOrderStatus::SUCCESS);
+        $request->setDeviceSn(strval($data['terminalId'] ?? StrUtil::NULL));
+        $request->setRate(Rate::valueOfDecimal(strval($data['transRate'] ?? 0)));
+        if (isset($data['transTime'])) {
+            $request->setSuccessDateTime(LocalDateTime::valueOfString($data['transTime']));
+        } else {
+            $request->setSuccessDateTime(LocalDateTime::now());
+        }
         $request->setAmount(Money::valueOfYuan(strval($data['vasFlowFee'] ?? 0)));
         return $request;
     }
