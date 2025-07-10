@@ -241,6 +241,9 @@ class YiLianPosPlatform extends PosStrategy
                         $item['transRate'] = $rate->toPercentage();
                     }
                     $params[] = $item;
+                    if (!$useBankCardType) {
+                        break;
+                    }
                 }
             } elseif (!is_null($dto->getWechatRate()) || !is_null($dto->getAlipayRate())) {
                 // 不传递扫码费率
