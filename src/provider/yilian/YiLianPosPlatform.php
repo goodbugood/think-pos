@@ -226,7 +226,7 @@ class YiLianPosPlatform extends PosStrategy
                         $item['topTransFee'] = $dto->getDebitCardCappingValue()->toYuan();
                         // 借记卡交易无提现手续费
                         $item['withdrawRateUnit'] = 'FIXED';
-                        $item['withdrawRate'] = '0.00';
+                        $item['withdrawRate'] = '0';
                         // 刷卡限制最大费率
                         $rate = $this->limitBankCardRate($transType, $dto->getCreditRate());
                         $item['transRate'] = $rate->toPercentage();
@@ -571,13 +571,21 @@ class YiLianPosPlatform extends PosStrategy
         return $rate;
     }
 
+    /**
+     * 25/7/10移联反馈，提现手续费率取决于单位，固定金额使用正数，百分比使用小数
+     * @param string $groupType
+     * @return string
+     */
     private function getScanWithdrawRate(string $groupType): string
     {
         if (self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'] === $groupType) {
             // 移联目前 pos 刷卡-云闪付无交易提现手续费，这点不同扫码
-            return '0.00';
+            $withdrawRate = '0.00';
+        } else {
+            $withdrawRate = $this->config['scanTypeWithdrawRate'] ?? '0.03';
         }
-        return $this->config['scanTypeWithdrawRate'] ?? '0.03';
+        $scale = 'PERCENT' === $this->getScanWithdrawRateUnit($groupType) ? 2 : 0;
+        return Rate::valueOfPercentage($withdrawRate)->toPercentage($scale);
     }
 
     private function getScanWithdrawRateUnit(string $transType): string
@@ -609,6 +617,8 @@ class YiLianPosPlatform extends PosStrategy
             // YL_CODE_MORE 和 YL_JSAPI_MORE 的提现费率使用扫码的提现费率，其他刷卡使用贷记卡的提现费率
             return $this->getScanWithdrawRate($transType);
         }
-        return $withdrawFee->toYuan();
+        $withdrawRate = $withdrawFee->toYuan();
+        $scale = 'PERCENT' === $this->getBankCardWithdrawRateUnit($transType) ? 2 : 0;
+        return Rate::valueOfPercentage($withdrawRate)->toPercentage($scale);
     }
 }

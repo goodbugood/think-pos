@@ -414,4 +414,40 @@ class YiLianPosPlatformTest extends TestCase
         self::assertEquals('[{"activityCashNo":"ACN0000135911","activityAmount":"99","policyName":"海科买断版"},{"activityCashNo":"ACN0000135912","activityAmount":"299","policyName":"海科买断版"},{"activityCashNo":"ACN0000140178","activityAmount":"0","policyName":"海科买断版"},{"activityCashNo":"ACN0000140179","activityAmount":"199","policyName":"海科买断版"}]', $reflection->invoke($obj, $decrypted));
     }
     //</editor-fold>
+
+    //<editor-fold desc="内部逻辑方法测试">
+    /**
+     * @test 扫码费率计算逻辑
+     * @return void
+     * @throws ReflectionException
+     */
+    function getScanWithdrawRate()
+    {
+        $obj = $this->posStrategy;
+        $reflection = new ReflectionMethod(YiLianPosPlatform::class, 'getScanWithdrawRate');
+        $reflection->setAccessible(true);
+        // 云闪付，提现费率是正数
+        self::assertEquals('0', $reflection->invoke($obj, 'CLOUD_QUICK_PASS'));
+        // 移联扫码费率最大 0.03
+        self::assertEquals('0.03', $reflection->invoke($obj, 'YL_CODE_LESS'));
+        self::assertEquals('0.03', $reflection->invoke($obj, 'WX_SCAN'));
+    }
+
+    /**
+     * @test 测试银行卡提现费率计算逻辑
+     * @return void
+     * @throws ReflectionException
+     */
+    function getBankCardWithdrawRate()
+    {
+        $obj = $this->posStrategy;
+        $reflection = new ReflectionMethod(YiLianPosPlatform::class, 'getBankCardWithdrawRate');
+        $reflection->setAccessible(true);
+        // YL_CODE_MORE 和 YL_JSAPI_MORE 的提现费率使用扫码的提现费率
+        self::assertEquals('0.03', $reflection->invoke($obj, 'YL_CODE_MORE', Money::valueOfYuan('3.6')));
+        self::assertEquals('0.03', $reflection->invoke($obj, 'YL_JSAPI_MORE', Money::valueOfYuan('3.6')));
+        // pos_standard 使用的是固定费率
+        self::assertEquals('3', $reflection->invoke($obj, 'POS_STANDARD', Money::valueOfYuan('3.6')));
+    }
+    //</editor-fold>
 }
