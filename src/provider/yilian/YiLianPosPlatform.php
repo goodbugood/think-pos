@@ -616,6 +616,7 @@ class YiLianPosPlatform extends PosStrategy
         if (in_array($transType, [
             self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
             self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+            self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],
         ])) {
             // YL_CODE_MORE 和 YL_JSAPI_MORE 的提现费率使用扫码的提现费率，其他刷卡使用贷记卡的提现费率
             return $this->getScanWithdrawRate($transType);
