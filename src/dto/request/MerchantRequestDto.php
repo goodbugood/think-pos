@@ -2,6 +2,7 @@
 
 namespace think\pos\dto\request;
 
+use think\pos\dto\ExtInfoTrait;
 use think\pos\dto\ProviderRequestTrait;
 use think\pos\dto\RateTrait;
 use think\pos\exception\MissingParameterException;
@@ -13,6 +14,7 @@ class MerchantRequestDto
 {
     use ProviderRequestTrait;
     use RateTrait;
+    use ExtInfoTrait;
 
     /**
      * @var string 设备序列号，pos sn

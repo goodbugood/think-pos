@@ -62,7 +62,7 @@ class YiLianPosPlatform extends PosStrategy
         'pos_standard' => 'POS_STANDARD',
         // POS刷卡-VIP，移联对接技术反馈 VIP 暂时没有
         // 'pos_vip' => 'POS_VIP',
-        // POS刷卡-云闪付
+        // POS刷卡-云闪付，25/7/11 海科云闪付执行扫码费率，非海科执行贷记卡费率
         'cloud_quick_pass' => 'CLOUD_QUICK_PASS',
         // 微信扫码，主扫和被扫
         'wx_scan' => 'WX_SCAN',
@@ -91,9 +91,26 @@ class YiLianPosPlatform extends PosStrategy
     ];
 
     /**
+     * 政策类型：
+     * 1. 海科买断版，云闪付支付方式，商户费率限制 0.3%-0.48%，交易提现手续费 0 元
+     * 2. 中付买断版，云闪付支付方式，商户费率限制 0.52%-0.66%，交易提现手续费 0 元
+     */
+    private const POLICY_NAME_HAIKE = '海科';
+
+    /**
      * @var HttpClient
      */
     private $httpClient;
+
+    /**
+     * 检查当前商户使用的是否为海科买断版收款渠道
+     * @param string $policyName
+     * @return bool
+     */
+    private static function isHaiKePolicy(string $policyName): bool
+    {
+        return false !== strpos($policyName, self::POLICY_NAME_HAIKE);
+    }
 
     public static function providerName(): string
     {
@@ -200,6 +217,10 @@ class YiLianPosPlatform extends PosStrategy
      */
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
+        $receiveAgent = $dto->getExtInfo()['receiveAgent'] ?? null;
+        if (is_null($receiveAgent)) {
+            throw new MissingParameterException('缺少收单机构信息 receiveAgent');
+        }
         $useBankCardType = $this->config['bankCardType'] ?? true;
         // 必备参数检查
         $dto->check();
@@ -217,7 +238,7 @@ class YiLianPosPlatform extends PosStrategy
                 // 提现费单位类型，FIXED 固定金额，PERCENT 百分比
                 'withdrawRateUnit' => $this->getScanWithdrawRateUnit($transType),
             ];
-            if (self::isBankCardType($transType)) {
+            if (self::isBankCardType($transType, $receiveAgent)) {
                 foreach (self::PARAMS_CARD_TYPE_MAP as $cardType) {
                     // 检查是否区分银行卡类型来设置费率
                     $item['cardType'] = $useBankCardType ? $cardType : 'UNLIMIT';
@@ -414,20 +435,24 @@ class YiLianPosPlatform extends PosStrategy
      * 云闪付小额属于扫码，大额属于刷卡
      * 银联云闪付小额属于扫码，大额属于刷卡
      * @param string $transType
+     * @param string $policyName
      * @return bool
      */
-    public static function isBankCardType(string $transType): bool
+    public static function isBankCardType(string $transType, string $policyName = ''): bool
     {
-        return in_array($transType, [
+        $bankCardList = [
             // POS刷卡-标准类
             self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-            // POS刷卡-云闪付，这个属于滴卡付款，小额的，不能划到刷卡费率里，25.06.27
-            // self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],
             // 银联二维码大额
             self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
             // 银联云闪付大额
             self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
-        ]);
+        ];
+        if (!self::isHaiKePolicy($policyName)) {
+            // 海科云闪付执行扫码费率，非海科执行贷记卡费率
+            $bankCardList[] = self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'];
+        }
+        return in_array($transType, $bankCardList);
     }
 
     //<editor-fold desc="请求/响应处理">

@@ -83,6 +83,9 @@ class YiLianPosPlatformTest extends TestCase
         self::assertEquals($decrypted, $response->getBody());
     }
 
+    /**
+     * @throws UnsupportedBusinessException
+     */
     public function testSetMerchantRate()
     {
         $merchantNo = env('yilian.merchantNo');
@@ -93,12 +96,16 @@ class YiLianPosPlatformTest extends TestCase
         $merchantRequestDto->setMerchantNo($merchantNo);
         $merchantRequestDto->setDeviceSn($posSn);
         $merchantRequestDto->setWithdrawFee(Money::valueOfYuan('3'));
-        $merchantRequestDto->setCreditRate(Rate::valueOfPercentage('0.8'));
+        $merchantRequestDto->setCreditRate(Rate::valueOfPercentage('0.66'));
         $merchantRequestDto->setDebitCardRate(Rate::valueOfPercentage('0.8'));
         $merchantRequestDto->setDebitCardCappingValue(Money::valueOfYuan('20'));
         // 设置微信费率
         $merchantRequestDto->setWechatRate(Rate::valueOfPercentage('0.37'));
         $merchantRequestDto->setAlipayRate(Rate::valueOfPercentage('0.37'));
+        // 设置扩展信息
+        $merchantRequestDto->setExtInfo([
+            'receiveAgent' => '海科',
+        ]);
         $posProviderResponse = $this->posStrategy->setMerchantRate($merchantRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
