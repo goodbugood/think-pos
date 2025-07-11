@@ -2,6 +2,7 @@
 
 namespace think\pos\dto\request\callback;
 
+use think\pos\dto\ExtInfoTrait;
 use think\pos\dto\MerchantTrait;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\exception\ProviderGatewayException;
@@ -13,6 +14,7 @@ use think\pos\extend\Assert;
 class MerchantRegisterCallbackRequest extends CallbackRequest
 {
     use MerchantTrait;
+    use ExtInfoTrait;
 
     // 代理信息
     /**

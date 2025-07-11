@@ -29,6 +29,10 @@ class MerchantConvertor
         $callbackRequest->setIdCardNo($decryptedData['idCardNo'] ?? StrUtil::NULL);
         $callbackRequest->setPhoneNo($decryptedData['merchantPhone'] ?? StrUtil::NULL);
         $callbackRequest->setStatus(MerchantStatus::ENABLED);
+        // 需要对接方回传的扩展信息
+        $callbackRequest->setExtInfo([
+            'receiveAgent' => $decryptedData['policyName'] ?? StrUtil::NULL,
+        ]);
         return $callbackRequest;
     }
 

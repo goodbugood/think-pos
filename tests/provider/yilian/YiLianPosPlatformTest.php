@@ -188,6 +188,8 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($callbackRequest->getIdCardNo());
         self::assertNotEmpty($callbackRequest->getPhoneNo());
         self::assertNotEmpty($callbackRequest->getStatus());
+        self::assertNotEmpty($callbackRequest->getExtInfo());
+        self::assertArrayHasKey('receiveAgent', $callbackRequest->getExtInfo());
         self::assertEquals(MerchantStatus::ENABLED, $callbackRequest->getStatus());
     }
 
@@ -210,6 +212,8 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($registerCallbackRequest->getPhoneNo());
         self::assertNotEmpty($registerCallbackRequest->getStatus());
         self::assertEquals(MerchantStatus::ENABLED, $registerCallbackRequest->getStatus());
+        self::assertNotEmpty($registerCallbackRequest->getExtInfo());
+        self::assertArrayHasKey('receiveAgent', $registerCallbackRequest->getExtInfo());
         // 绑定信息检查
         self::assertNotEmpty($callbackOfPosBind->getAgentNo());
         self::assertNotEmpty($callbackOfPosBind->getMerchantNo());
