@@ -219,9 +219,9 @@ class YiLianPosPlatform extends PosStrategy
      */
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
-        $receiveAgent = $dto->getExtInfo()['receiveAgent'] ?? null;
+        $receiveAgent = $dto->getExtInfo()['ratePolicy'] ?? null;
         if (is_null($receiveAgent)) {
-            throw new MissingParameterException('缺少收单机构信息 receiveAgent');
+            throw new MissingParameterException('缺少商户费率政策 ratePolicy');
         }
         $useBankCardType = $this->config['bankCardType'] ?? true;
         // 必备参数检查

@@ -13,8 +13,8 @@ trait ExtInfoTrait
      * @var array 扩展字段，通常用于上游返回需要存储的信息
      */
     private $extInfo = [
-        // 收单机构：为你审核，帮你收钱的机构，如微信，支付宝，工行，农行
-        // 'receiveAgent' => '',
+        // 收单机构的费率政策：为你审核，帮你收钱的机构，如微信，支付宝，工行，农行
+        // 'ratePolicy' => '',
     ];
 
     public function getExtInfo(): array

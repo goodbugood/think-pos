@@ -104,7 +104,7 @@ class YiLianPosPlatformTest extends TestCase
         $merchantRequestDto->setAlipayRate(Rate::valueOfPercentage('0.37'));
         // 设置扩展信息
         $merchantRequestDto->setExtInfo([
-            'receiveAgent' => '海科买断版',
+            'ratePolicy' => '海科买断版',
         ]);
         $posProviderResponse = $this->posStrategy->setMerchantRate($merchantRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
@@ -196,7 +196,7 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($callbackRequest->getPhoneNo());
         self::assertNotEmpty($callbackRequest->getStatus());
         self::assertNotEmpty($callbackRequest->getExtInfo());
-        self::assertArrayHasKey('receiveAgent', $callbackRequest->getExtInfo());
+        self::assertArrayHasKey('ratePolicy', $callbackRequest->getExtInfo());
         self::assertEquals(MerchantStatus::ENABLED, $callbackRequest->getStatus());
     }
 
@@ -220,7 +220,7 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($registerCallbackRequest->getStatus());
         self::assertEquals(MerchantStatus::ENABLED, $registerCallbackRequest->getStatus());
         self::assertNotEmpty($registerCallbackRequest->getExtInfo());
-        self::assertArrayHasKey('receiveAgent', $registerCallbackRequest->getExtInfo());
+        self::assertArrayHasKey('ratePolicy', $registerCallbackRequest->getExtInfo());
         // 绑定信息检查
         self::assertNotEmpty($callbackOfPosBind->getAgentNo());
         self::assertNotEmpty($callbackOfPosBind->getMerchantNo());
