@@ -94,8 +94,9 @@ class YiLianPosPlatform extends PosStrategy
      * 政策类型：
      * 1. 海科买断版，云闪付支付方式，商户费率限制 0.3%-0.48%，交易提现手续费 0 元
      * 2. 中付买断版，云闪付支付方式，商户费率限制 0.52%-0.66%，交易提现手续费 0 元
+     * 2025/7/11 移联业务反馈，我们目前只有海科买断版，中付买断版，其他政策文件无，也无法适配
      */
-    private const POLICY_NAME_HAIKE = '海科';
+    private const POLICY_NAME_HAIKE = '海科买断版';
 
     /**
      * @var HttpClient
@@ -109,7 +110,7 @@ class YiLianPosPlatform extends PosStrategy
      */
     private static function isHaiKePolicy(string $policyName): bool
     {
-        return false !== strpos($policyName, self::POLICY_NAME_HAIKE);
+        return self::POLICY_NAME_HAIKE === $policyName;
     }
 
     public static function providerName(): string
@@ -127,13 +128,14 @@ class YiLianPosPlatform extends PosStrategy
      * 转换交易类型编码为 think-pos 统一的支付类型
      * @param string $groupType 交易类型
      * @param string $cardType 刷卡类型，扫码交易类型时，此字段为空
+     * @param string $policyName 政策名称，不同政策的云闪付走不同费率
      * @return string
      */
-    public static function toPaymentType(string $groupType, string $cardType): string
+    public static function toPaymentType(string $groupType, string $cardType, string $policyName): string
     {
         if ('ZFB_SCAN' === $groupType) {
             return PaymentType::ALIPAY_QR;
-        } elseif (self::isBankCardType($groupType)) {
+        } elseif (self::isBankCardType($groupType, $policyName)) {
             // 把大额扫码归属到刷卡，待验证
             return 'CREDIT' === $cardType ? PaymentType::CREDIT_CARD : PaymentType::DEBIT_CARD;
         }

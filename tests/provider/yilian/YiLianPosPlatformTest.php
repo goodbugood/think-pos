@@ -104,7 +104,7 @@ class YiLianPosPlatformTest extends TestCase
         $merchantRequestDto->setAlipayRate(Rate::valueOfPercentage('0.37'));
         // 设置扩展信息
         $merchantRequestDto->setExtInfo([
-            'receiveAgent' => '海科',
+            'receiveAgent' => '海科买断版',
         ]);
         $posProviderResponse = $this->posStrategy->setMerchantRate($merchantRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');

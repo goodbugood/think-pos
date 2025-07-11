@@ -49,7 +49,8 @@ final class PosConvertor
         // 解析支付方式
         $groupType = $decryptedData['groupType'] ?? StrUtil::NULL;
         $cardType = $decryptedData['cardType'] ?? StrUtil::NULL;
-        $paymentType = YiLianPosPlatform::toPaymentType($groupType, $cardType);
+        $policyName = $decryptedData['policyName'] ?? StrUtil::NULL;
+        $paymentType = YiLianPosPlatform::toPaymentType($groupType, $cardType, $policyName);
         $request->setPaymentType($paymentType);
         return $request;
     }
