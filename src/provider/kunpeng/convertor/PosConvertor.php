@@ -99,6 +99,7 @@ final class PosConvertor
         $request->setAmount(Money::valueOfYuan(strval($decryptedData['amount'] ?? 0)));
         $request->setFee(Money::valueOfYuan(strval($decryptedData['fee'] ?? 0)));
         $request->setWithdrawFee(Money::valueOfYuan(strval($decryptedData['fixedValue'] ?? 0)));
+        $request->setIsFeeCapping('YES' === ($decryptedData['cappingFlag'] ?? StrUtil::NULL));
         // 鲲鹏回调 3 种费率，沟通确认的是使用 feeRate 即可
         $request->setRate(Rate::valueOfDecimal(strval($decryptedData['feeRate'] ?? 0)));
         // 解析支付方式
