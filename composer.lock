@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9c20e0a4142b221b84fb352a7f34803c",
+    "content-hash": "2efdfda1236018ef67409075f07743a6",
     "packages": [
         {
             "name": "php-curl-class/php-curl-class",
@@ -2214,7 +2214,8 @@
         "ext-openssl": "*",
         "ext-bcmath": "*",
         "ext-json": "*",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-mbstring": "*"
     },
     "platform-dev": {},
     "plugin-api-version": "2.6.0"

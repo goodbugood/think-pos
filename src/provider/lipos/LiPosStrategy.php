@@ -290,6 +290,11 @@ class LiPosStrategy extends PosStrategy
         try {
             $this->post($url, $params);
         } catch (Exception $e) {
+            // {"code":"98","msg":"代理商编号{62261998}对应的设备编号{000087022157250700134644}信息不存在","success":false}
+            if (false !== mb_strpos($e->getMessage(), '信息不存在', 0, 'utf-8')) {
+                // 应对用户在力pos平台解绑后，再调用解绑接口
+                return PosProviderResponse::success();
+            }
             $errorMsg = sprintf('pos服务商[%s]解绑pos_sn=%s失败：%s', self::providerName(), $posRequestDto->getDeviceSn(), $e->getMessage());
             return PosProviderResponse::fail($errorMsg);
         }
