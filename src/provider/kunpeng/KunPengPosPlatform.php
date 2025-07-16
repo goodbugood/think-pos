@@ -247,6 +247,11 @@ class KunPengPosPlatform extends PosStrategy
         try {
             $this->post($url, $params);
         } catch (Exception $e) {
+            // {"code":"98","msg":"商户信息不存在"}
+            if (false !== mb_strpos($e->getMessage(), '信息不存在', 0, 'utf-8')) {
+                // 应对用户在鲲鹏平台解绑后，再调用解绑接口
+                return PosProviderResponse::success();
+            }
             $errorMsg = sprintf('pos服务商[%s]解绑pos_sn=%s失败：%s', self::providerName(), $posRequestDto->getDeviceSn(), $e->getMessage());
             return PosProviderResponse::fail($errorMsg);
         }
