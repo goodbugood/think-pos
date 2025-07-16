@@ -38,6 +38,15 @@ class LiPosStrategy extends PosStrategy
     private const RESPONSE_CODE_SUCCESS = '00';
 
     /**
+     * 响应失败 code
+     */
+    private const RESPONSE_CODE_FAIL_MAP = [
+        // 解绑接口返回的错误码
+        'pos_not_exist' => '1101',// 代理商不存在此 pos
+        'pos_not_bind' => '1102',// 商户未绑定此 pos
+    ];
+
+    /**
      * 接口方法
      */
     private const API_METHOD = [
@@ -290,8 +299,12 @@ class LiPosStrategy extends PosStrategy
         try {
             $this->post($url, $params);
         } catch (Exception $e) {
-            // {"code":"98","msg":"代理商编号{62261998}对应的设备编号{000087022157250700134644}信息不存在","success":false}
-            if (false !== mb_strpos($e->getMessage(), '信息不存在', 0, 'utf-8')) {
+            $errMsg = $e->getMessage();
+            $errCode = substr($errMsg, 5, strpos($errMsg, '&') - 5);
+            if (in_array($errCode, [
+                self::RESPONSE_CODE_FAIL_MAP['pos_not_exist'],
+                self::RESPONSE_CODE_FAIL_MAP['pos_not_bind'],
+            ])) {
                 // 应对用户在力pos平台解绑后，再调用解绑接口
                 return PosProviderResponse::success();
             }
