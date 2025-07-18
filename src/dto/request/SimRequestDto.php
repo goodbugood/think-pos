@@ -30,6 +30,11 @@ class SimRequestDto
      */
     private $simPackageCode = '';
 
+    /**
+     * @var int|null 流量费免收天数
+     */
+    private $freeDays;
+
     public function getDeviceSn(): string
     {
         return $this->deviceSn;
@@ -58,5 +63,15 @@ class SimRequestDto
     public function setSimPackageCode(string $simPackageCode): void
     {
         $this->simPackageCode = $simPackageCode;
+    }
+
+    public function getFreeDays(): ?int
+    {
+        return $this->freeDays;
+    }
+
+    public function setFreeDays(int $freeDays): void
+    {
+        $this->freeDays = $freeDays;
     }
 }

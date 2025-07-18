@@ -303,6 +303,9 @@ class YiLianPosPlatform extends PosStrategy
             // 'freeDays' => null,
             'merchantFlowList' => json_decode($dto->getSimPackageCode(), true),
         ];
+        if (null !== $dto->getFreeDays()) {
+            $params['freeDays'] = strval($dto->getFreeDays());
+        }
         try {
             $res = $this->post($url, $params);
             if (self::RESPONSE_CODE_SUCCESS !== $res['code']) {
