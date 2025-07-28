@@ -99,6 +99,16 @@ class YiLianPosPlatform extends PosStrategy
     private const POLICY_NAME_HAIKE = '海科买断版';
 
     /**
+     * 云闪付使用微信费率的政策 map
+     * 云闪付不使用微信费率，就使用贷记卡费率
+     * 25/7/28 海科，乐刷渠道，云闪付走微信费率，中付渠道走贷记卡费率
+     */
+    private const CLOUD_QUICK_PASS_USE_WECHAT_RATE_POLICY_MAP = [
+        '海科买断版',
+        '乐刷买断版01',
+    ];
+
+    /**
      * @var HttpClient
      */
     private $httpClient;
@@ -110,7 +120,7 @@ class YiLianPosPlatform extends PosStrategy
      */
     private static function isHaiKePolicy(string $policyName): bool
     {
-        return self::POLICY_NAME_HAIKE === $policyName;
+        return in_array($policyName, self::CLOUD_QUICK_PASS_USE_WECHAT_RATE_POLICY_MAP);
     }
 
     public static function providerName(): string

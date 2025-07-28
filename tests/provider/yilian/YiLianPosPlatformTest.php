@@ -104,7 +104,7 @@ class YiLianPosPlatformTest extends TestCase
         $merchantRequestDto->setAlipayRate(Rate::valueOfPercentage('0.37'));
         // 设置扩展信息
         $merchantRequestDto->setExtInfo([
-            'ratePolicy' => '海科买断版',
+            'ratePolicy' => '乐刷买断版01',
         ]);
         $posProviderResponse = $this->posStrategy->setMerchantRate($merchantRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
@@ -170,6 +170,12 @@ class YiLianPosPlatformTest extends TestCase
                 'channelCode' => 'HK',
                 // 0 押金 ACN0000140178，99 押金 ACN0000135911，199 押金 ACN0000140179，299 押金 ACN0000135912
                 'activityCashNo' => 'ACN0000135912',
+            ],
+            [
+                // 乐刷买断版01
+                'channelCode' => 'LS',
+                // 0 押金 ACN0000138295，99 押金 ACN0000142576，199 押金 ACN0000138296
+                'activityCashNo' => 'ACN0000138295',
             ],
         ]));
         $posProviderResponse = $this->posStrategy->setPosDeposit($posRequestDto);
