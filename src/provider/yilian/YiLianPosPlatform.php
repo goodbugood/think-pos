@@ -241,6 +241,23 @@ class YiLianPosPlatform extends PosStrategy
     }
 
     /**
+     * @return array [{"channelName":"海科支付","channelCode":"HK"},{"channelName":"合利宝","channelCode":"HLB"},{"channelName":"银盛","channelCode":"YS"},{"channelName":"中付","channelCode":"ZF"}]
+     * @throws ProviderGatewayException
+     */
+    private function getPosDepositList(string $posSn): array
+    {
+        $url = $this->getUrl('/basic/queryRegisterChannel');
+        $params = ['sn' => $posSn];
+        try {
+            $res = $this->post($url, $params);
+        } catch (ProviderGatewayException $e) {
+            $errorMsg = sprintf('pos服务商[%s]查询机具pos_sn=%s押金列表失败：%s', self::providerName(), $posSn, $e->getMessage());
+            throw new ProviderGatewayException($errorMsg);
+        }
+        return $res;
+    }
+
+    /**
      * 设置机具押金
      * @param PosRequestDto $dto
      * @return PosProviderResponse
@@ -250,15 +267,42 @@ class YiLianPosPlatform extends PosStrategy
     {
         $dto->checkDeposit();
         $url = $this->getUrl('/agent/changeTerminalActivity');
+        // 解析所有渠道押金列表
+        // [{"channelCode":"ZF","activityCashNo":"ACN0000140184"},{"channelCode":"HK","activityCashNo":"ACN0000140179"},{"channelCode":"LS","activityCashNo":"ACN0000138296"}]
+        $allChannelDepositList = json_decode($dto->getDepositPackageCode(), true);
+        $channelActivateNoMap = array_column($allChannelDepositList, 'activityCashNo', 'channelCode');
         $params = [
             'sns' => $dto->getDeviceSn(),
             // 活动编号(机具政策为⾮融合版政策时，必传)
             'activityCashNo' => '',
             'operNo' => $this->config['agentNo'],
             'operName' => sprintf('代理编号%s', $this->config['agentNo']),
-            'channelPolicy' => json_decode($dto->getDepositPackageCode(), true),
         ];
         try {
+            // 先查询押金列表
+            $depositList = $this->getPosDepositList($dto->getDeviceSn());
+            if (empty($depositList)) {
+                throw new ProviderGatewayException(sprintf('pos服务商[%s]查询机具pos_sn=%s支持的押金列表为空，无法设置押金', self::providerName(), $dto->getDeviceSn()));
+            }
+            $channelPolicy = [];
+            foreach ($depositList as $item) {
+                $channelCode = $item['channelCode'];
+                $activityCashNo = $channelActivateNoMap[$channelCode] ?? null;
+                if (null === $activityCashNo) {
+                    throw new ProviderGatewayException(sprintf('pos服务商[%s]机具pos_sn=%s支持[%s]渠道，但未提交对应渠道的押金政策', self::providerName(), $dto->getDeviceSn(), $item['channelName']));
+                }
+                $channelPolicy[] = [
+                    'channelCode' => $item['channelCode'],
+                    'activityCashNo' => $activityCashNo,
+                ];
+            }
+            if (1 == count($channelPolicy)) {
+                // 单渠道数据
+                $params['activityCashNo'] = $channelPolicy[0]['activityCashNo'];
+            } else {
+                // 多渠道数据
+                $params['channelPolicy'] = $channelPolicy;
+            }
             $res = $this->post($url, $params);
             // 解析请求结果
             if ('0' !== $res['errorCount']) {

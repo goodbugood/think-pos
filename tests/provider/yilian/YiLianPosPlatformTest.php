@@ -177,6 +177,18 @@ class YiLianPosPlatformTest extends TestCase
                 // 0 押金 ACN0000138295，99 押金 ACN0000142576，199 押金 ACN0000138296
                 'activityCashNo' => 'ACN0000138295',
             ],
+            [
+                // 银盛
+                'channelCode' => 'YS',
+                // 0 押金 ACN0000140181，99 押金 ACN0000135915，199 押金 ACN0000140182，299 押金 ACN0000139381
+                'activityCashNo' => 'ACN0000140181',
+            ],
+            [
+                // 合利宝
+                'channelCode' => 'HLB',
+                // 0 押金 ACN0000139290，99 押金 ACN0000143581，199 押金 ACN0000139291，299 押金 ACN0000143582
+                'activityCashNo' => 'ACN0000139290',
+            ]
         ]));
         $posProviderResponse = $this->posStrategy->setPosDeposit($posRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
