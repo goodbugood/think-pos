@@ -98,10 +98,14 @@ class YiLianPosPlatform extends PosStrategy
      */
     private const POLICY_NAME_HAIKE = '海科买断版';
 
+    private const CHANNEL_HELIBAO = '合利宝买断版';
+
     /**
      * 云闪付使用微信费率的政策 map
      * 云闪付不使用微信费率，就使用贷记卡费率
-     * 25/7/28 海科，乐刷渠道，云闪付走微信费率，中付渠道走贷记卡费率
+     * 走贷记卡渠道：银盛买断版，中付买断版
+     * 走扫码渠道：海科买断版，乐刷买断版01
+     * 不支持云闪付的渠道：合利宝买断版
      */
     private const CLOUD_QUICK_PASS_USE_WECHAT_RATE_POLICY_MAP = [
         '海科买断版',
@@ -229,8 +233,8 @@ class YiLianPosPlatform extends PosStrategy
      */
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
-        $receiveAgent = $dto->getExtInfo()['ratePolicy'] ?? null;
-        if (is_null($receiveAgent)) {
+        $policyName = $dto->getExtInfo()['ratePolicy'] ?? null;
+        if (is_null($policyName)) {
             throw new MissingParameterException('缺少商户费率政策 ratePolicy');
         }
         $useBankCardType = $this->config['bankCardType'] ?? true;
@@ -250,7 +254,7 @@ class YiLianPosPlatform extends PosStrategy
                 // 提现费单位类型，FIXED 固定金额，PERCENT 百分比
                 'withdrawRateUnit' => $this->getScanWithdrawRateUnit($transType),
             ];
-            if (self::isBankCardType($transType, $receiveAgent)) {
+            if (self::isBankCardType($transType, $policyName)) {
                 foreach (self::PARAMS_CARD_TYPE_MAP as $cardType) {
                     // 检查是否区分银行卡类型来设置费率
                     $item['cardType'] = $useBankCardType ? $cardType : 'UNLIMIT';
@@ -279,6 +283,9 @@ class YiLianPosPlatform extends PosStrategy
                     }
                 }
             } elseif (!is_null($dto->getWechatRate()) || !is_null($dto->getAlipayRate())) {
+                if (self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'] == $transType && self::CHANNEL_HELIBAO == $policyName) {
+                    continue;
+                }
                 // 不传递扫码费率
                 $item['transRate'] = $dto->getWechatRate() ? $dto->getWechatRate()->toPercentage() : $dto->getAlipayRate()->toPercentage();
                 $params[] = $item;
@@ -463,7 +470,7 @@ class YiLianPosPlatform extends PosStrategy
             // 银联云闪付大额
             self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
         ];
-        if (!self::isHaiKePolicy($policyName)) {
+        if (self::CHANNEL_HELIBAO != $policyName && !self::isHaiKePolicy($policyName)) {
             // 海科云闪付执行扫码费率，非海科执行贷记卡费率
             $bankCardList[] = self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'];
         }
