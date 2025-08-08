@@ -193,6 +193,14 @@ class YiLianPosPlatform extends PosStrategy
     ];
 
     /**
+     * 区分银行卡种类的渠道
+     * 贷记卡和借记卡单独设置
+     */
+    private const USE_BANKCARD_TYPE_CHANNEL_LIST = [
+        self::CHANNEL_HELIBAO,
+    ];
+
+    /**
      * @var HttpClient
      */
     private $httpClient;
@@ -351,7 +359,6 @@ class YiLianPosPlatform extends PosStrategy
         if (is_null($policyName)) {
             throw new MissingParameterException('缺少商户费率政策 ratePolicy');
         }
-        $useBankCardType = $this->config['bankCardType'] ?? true;
         // 必备参数检查
         $dto->check();
         $url = $this->getUrl('/agent/changeMerchantFeeRate');
@@ -369,6 +376,7 @@ class YiLianPosPlatform extends PosStrategy
                 'withdrawRateUnit' => $this->getScanWithdrawRateUnit($transType),
             ];
             if (self::isBankCardType($transType, $policyName)) {
+                $useBankCardType = self::useBankCardType($transType, $policyName);
                 foreach (self::PARAMS_CARD_TYPE_MAP as $cardType) {
                     // 检查是否区分银行卡类型来设置费率
                     $item['cardType'] = $useBankCardType ? $cardType : 'UNLIMIT';
@@ -585,6 +593,17 @@ class YiLianPosPlatform extends PosStrategy
     public static function isScanType(string $transType, string $policyName): bool
     {
         return in_array($transType, self::CHANNEL_TRANS_TYPE_MAP[$policyName]['scan']);
+    }
+
+    /**
+     * 判断交易类型在指定政策下是否区分借贷记卡进行费率设置
+     * @param string $transType
+     * @param string $policyName
+     * @return bool
+     */
+    public static function useBankCardType(string $transType, string $policyName): bool
+    {
+        return self::PARAMS_TRANS_TYPE_MAP['pos_standard'] == $transType && in_array($policyName, self::USE_BANKCARD_TYPE_CHANNEL_LIST);
     }
 
     //<editor-fold desc="请求/响应处理">
