@@ -91,41 +91,111 @@ class YiLianPosPlatform extends PosStrategy
     ];
 
     /**
-     * 政策类型：
-     * 1. 海科买断版，云闪付支付方式，商户费率限制 0.3%-0.48%，交易提现手续费 0 元
-     * 2. 中付买断版，云闪付支付方式，商户费率限制 0.52%-0.66%，交易提现手续费 0 元
-     * 2025/7/11 移联业务反馈，我们目前只有海科买断版，中付买断版，其他政策文件无，也无法适配
+     * 合利宝买断版
+     * 不支持云闪付
      */
-    private const POLICY_NAME_HAIKE = '海科买断版';
-
     private const CHANNEL_HELIBAO = '合利宝买断版';
 
     /**
-     * 云闪付使用微信费率的政策 map
-     * 云闪付不使用微信费率，就使用贷记卡费率
-     * 走贷记卡渠道：银盛买断版，中付买断版
-     * 走扫码渠道：海科买断版，乐刷买断版01
-     * 不支持云闪付的渠道：合利宝买断版
+     * 银盛买断版
+     * 云闪付 0.52-0.66 走贷记卡
      */
-    private const CLOUD_QUICK_PASS_USE_WECHAT_RATE_POLICY_MAP = [
-        '海科买断版',
-        '乐刷买断版01',
+    private const CHANNEL_YINSHENG = '银盛买断版';
+
+    /**
+     * 中付买断版
+     * 云闪付 0.52-0.66 走贷记卡
+     */
+    private const CHANNEL_ZHONGFU = '中付买断版';
+
+    /**
+     * 乐刷买断版01
+     * 云闪付 0.3-0.48 走扫码
+     */
+    private const CHANNEL_LESHUA_01 = '乐刷买断版01';
+
+    /**
+     * 海科买断版
+     * 云闪付 0.3-0.48 走扫码
+     */
+    private const CHANNEL_HAIKE = '海科买断版';
+
+    /**
+     * 渠道支持的交易类型 map
+     */
+    private const CHANNEL_TRANS_TYPE_MAP = [
+        self::CHANNEL_HAIKE => [
+            // 刷卡交易
+            'card' => [
+                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+            ],
+            // 扫码交易
+            'scan' => [
+                self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.3-0.48
+            ],
+        ],
+        self::CHANNEL_ZHONGFU => [
+            'card' => [
+                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.52-0.66
+            ],
+            'scan' => [
+                self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+            ],
+        ],
+        self::CHANNEL_LESHUA_01 => [
+            'card' => [
+                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+            ],
+            'scan' => [
+                self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.3-0.48
+            ],
+        ],
+        self::CHANNEL_HELIBAO => [// 不支持云闪付
+            'card' => [
+                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+            ],
+            'scan' => [
+                self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+            ],
+        ],
+        self::CHANNEL_YINSHENG => [
+            'card' => [
+                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.52-0.66
+            ],
+            'scan' => [
+                self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+            ],
+        ],
     ];
 
     /**
      * @var HttpClient
      */
     private $httpClient;
-
-    /**
-     * 检查当前商户使用的是否为海科买断版收款渠道
-     * @param string $policyName
-     * @return bool
-     */
-    private static function isHaiKePolicy(string $policyName): bool
-    {
-        return in_array($policyName, self::CLOUD_QUICK_PASS_USE_WECHAT_RATE_POLICY_MAP);
-    }
 
     public static function providerName(): string
     {
@@ -282,10 +352,7 @@ class YiLianPosPlatform extends PosStrategy
                         break;
                     }
                 }
-            } elseif (!is_null($dto->getWechatRate()) || !is_null($dto->getAlipayRate())) {
-                if (self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'] == $transType && self::CHANNEL_HELIBAO == $policyName) {
-                    continue;
-                }
+            } elseif ((!is_null($dto->getWechatRate()) || !is_null($dto->getAlipayRate())) && self::isScanType($transType, $policyName)) {
                 // 不传递扫码费率
                 $item['transRate'] = $dto->getWechatRate() ? $dto->getWechatRate()->toPercentage() : $dto->getAlipayRate()->toPercentage();
                 $params[] = $item;
@@ -462,19 +529,18 @@ class YiLianPosPlatform extends PosStrategy
      */
     public static function isBankCardType(string $transType, string $policyName = ''): bool
     {
-        $bankCardList = [
-            // POS刷卡-标准类
-            self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-            // 银联二维码大额
-            self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-            // 银联云闪付大额
-            self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
-        ];
-        if (self::CHANNEL_HELIBAO != $policyName && !self::isHaiKePolicy($policyName)) {
-            // 海科云闪付执行扫码费率，非海科执行贷记卡费率
-            $bankCardList[] = self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'];
-        }
-        return in_array($transType, $bankCardList);
+        return in_array($transType, self::CHANNEL_TRANS_TYPE_MAP[$policyName]['card']);
+    }
+
+    /**
+     * 判断交易类型在指定政策下是否为扫码类型
+     * @param string $transType
+     * @param string $policyName
+     * @return bool
+     */
+    public static function isScanType(string $transType, string $policyName): bool
+    {
+        return in_array($transType, self::CHANNEL_TRANS_TYPE_MAP[$policyName]['scan']);
     }
 
     //<editor-fold desc="请求/响应处理">
