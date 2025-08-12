@@ -103,10 +103,6 @@ class YiLianPosPlatformTest extends TestCase
         // 设置微信费率
         $merchantRequestDto->setWechatRate(Rate::valueOfPercentage('0.37'));
         $merchantRequestDto->setAlipayRate(Rate::valueOfPercentage('0.37'));
-        // 设置扩展信息
-        $merchantRequestDto->setExtInfo([
-            'ratePolicy' => '乐刷买断版01',
-        ]);
         $posProviderResponse = $this->posStrategy->setMerchantRate($merchantRequestDto);
         self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }

@@ -95,31 +95,31 @@ class YiLianPosPlatform extends PosStrategy
      * 合利宝买断版
      * 不支持云闪付
      */
-    private const CHANNEL_HELIBAO = '合利宝买断版';
+    private const CHANNEL_HELIBAO = 'HLB';
 
     /**
      * 银盛买断版
      * 云闪付 0.52-0.66 走贷记卡
      */
-    private const CHANNEL_YINSHENG = '银盛买断版';
+    private const CHANNEL_YINSHENG = 'YS';
 
     /**
      * 中付买断版
      * 云闪付 0.52-0.66 走贷记卡
      */
-    private const CHANNEL_ZHONGFU = '中付买断版';
+    private const CHANNEL_ZHONGFU = 'ZF';
 
     /**
      * 乐刷买断版01
      * 云闪付 0.3-0.48 走扫码
      */
-    private const CHANNEL_LESHUA_01 = '乐刷买断版01';
+    private const CHANNEL_LESHUA_01 = 'LS';
 
     /**
      * 海科买断版
      * 云闪付 0.3-0.48 走扫码
      */
-    private const CHANNEL_HAIKE = '海科买断版';
+    private const CHANNEL_HAIKE = 'HK';
 
     /**
      * 渠道支持的交易类型 map
@@ -352,16 +352,21 @@ class YiLianPosPlatform extends PosStrategy
     //<editor-fold desc="商户操作方法">
 
     /**
-     * @throws MissingParameterException
+     * @throws MissingParameterException|ProviderGatewayException
      */
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
-        $policyName = $dto->getExtInfo()['ratePolicy'] ?? null;
-        if (is_null($policyName)) {
-            throw new MissingParameterException('缺少商户费率政策 ratePolicy');
-        }
         // 必备参数检查
         $dto->check();
+        $deviceSn = $dto->getDeviceSn();
+        // 先查询押金列表
+        $depositList = $this->getPosDepositList($deviceSn);
+        if (empty($depositList)) {
+            throw new ProviderGatewayException(sprintf('pos服务商[%s]查询机具pos_sn=%s支持的押金列表为空，无法设置商户费率', self::providerName(), $deviceSn));
+        } elseif (empty($depositList[0]['channelCode'])) {
+            throw new ProviderGatewayException(sprintf('pos服务商[%s]查询机具pos_sn=%s支持的押金列表缺失channelCode，无法设置商户费率', self::providerName(), $deviceSn));
+        }
+        $policyName = $depositList[0]['channelCode'];
         $url = $this->getUrl('/agent/changeMerchantFeeRate');
         $params = [];
         foreach (self::PARAMS_TRANS_TYPE_MAP as $transType) {
