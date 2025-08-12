@@ -90,6 +90,11 @@ class MerchantConvertor
     public static function toMerchantActivateCallbackRequest(array $data): MerchantActivateCallbackRequest
     {
         $request = MerchantActivateCallbackRequest::success();
+        if (empty($data['activeTime'])) {
+            $request->setActivateTime(LocalDateTime::now());
+        } else {
+            $request->setActivateTime(LocalDateTime::valueOfString($data['activeTime']));
+        }
         $request->setMerchantNo($data['merchantNo'] ?? StrUtil::NULL);
         $request->setDeviceSn($data['sn'] ?? StrUtil::NULL);
         // 需要对接方回传的扩展信息

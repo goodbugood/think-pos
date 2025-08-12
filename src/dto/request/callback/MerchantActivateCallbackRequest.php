@@ -2,6 +2,7 @@
 
 namespace think\pos\dto\request\callback;
 
+use shali\phpmate\core\date\LocalDateTime;
 use think\pos\dto\ExtInfoTrait;
 use think\pos\dto\request\CallbackRequest;
 
@@ -22,6 +23,11 @@ class MerchantActivateCallbackRequest extends CallbackRequest
      */
     private $deviceSn = '';
 
+    /**
+     * @var LocalDateTime|null 激活时间
+     */
+    private $activateTime;
+
     public function getMerchantNo(): string
     {
         return $this->merchantNo;
@@ -40,5 +46,15 @@ class MerchantActivateCallbackRequest extends CallbackRequest
     public function setDeviceSn(string $deviceSn): void
     {
         $this->deviceSn = $deviceSn;
+    }
+
+    public function getActivateTime(): ?LocalDateTime
+    {
+        return $this->activateTime;
+    }
+
+    public function setActivateTime(?LocalDateTime $activateTime): void
+    {
+        $this->activateTime = $activateTime;
     }
 }

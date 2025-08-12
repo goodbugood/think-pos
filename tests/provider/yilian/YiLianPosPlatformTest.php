@@ -260,6 +260,7 @@ class YiLianPosPlatformTest extends TestCase
         self::assertEquals('M00000003882469', $callbackRequest->getMerchantNo());
         self::assertEquals('9974554406103103', $callbackRequest->getDeviceSn());
         self::assertEquals('中付买断版', $callbackRequest->getExtInfo()['ratePolicy']);
+        self::assertEquals('2025-08-12 10:41:05', $callbackRequest->getActivateTime()->format('Y-m-d H:i:s'));
     }
 
     /**
