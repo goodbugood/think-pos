@@ -2,6 +2,7 @@
 
 namespace think\pos;
 
+use think\pos\dto\request\callback\MerchantActivateCallbackRequest;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosActivateCallbackRequest;
@@ -286,7 +287,7 @@ abstract class PosStrategy
      * 1. 移联比较特殊，注册信息不通知正确的商户使用渠道，激活时再通知
      * @throws UnsupportedBusinessException
      */
-    function handleCallbackOfMerchantActivate(string $content): MerchantRegisterCallbackRequest
+    function handleCallbackOfMerchantActivate(string $content): MerchantActivateCallbackRequest
     {
         throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入商户激活通知功能', static::providerName()));
     }
