@@ -95,31 +95,42 @@ class YiLianPosPlatform extends PosStrategy
      * 合利宝买断版
      * 不支持云闪付
      */
-    private const CHANNEL_HELIBAO = 'HLB';
+    private const CHANNEL_HELIBAO = '合利宝买断版';
 
     /**
      * 银盛买断版
      * 云闪付 0.52-0.66 走贷记卡
      */
-    private const CHANNEL_YINSHENG = 'YS';
+    private const CHANNEL_YINSHENG = '银盛买断版';
 
     /**
      * 中付买断版
      * 云闪付 0.52-0.66 走贷记卡
      */
-    private const CHANNEL_ZHONGFU = 'ZF';
+    private const CHANNEL_ZHONGFU = '中付买断版';
 
     /**
      * 乐刷买断版01
      * 云闪付 0.3-0.48 走扫码
      */
-    private const CHANNEL_LESHUA_01 = 'LS';
+    private const CHANNEL_LESHUA_01 = '乐刷买断版01';
 
     /**
      * 海科买断版
      * 云闪付 0.3-0.48 走扫码
      */
-    private const CHANNEL_HAIKE = 'HK';
+    private const CHANNEL_HAIKE = '海科买断版';
+
+    /**
+     * 渠道码 => 政策名称 map
+     */
+    private const CHANNEL_CODE_POLICY_NAME_MAP = [
+        'HLB' => self::CHANNEL_HELIBAO,
+        'YS' => self::CHANNEL_YINSHENG,
+        'ZF' => self::CHANNEL_ZHONGFU,
+        'LS' => self::CHANNEL_LESHUA_01,
+        'HK' => self::CHANNEL_HAIKE,
+    ];
 
     /**
      * 渠道支持的交易类型 map
@@ -223,6 +234,7 @@ class YiLianPosPlatform extends PosStrategy
      * @param string $cardType 刷卡类型，扫码交易类型时，此字段为空
      * @param string $policyName 政策名称，不同政策的云闪付走不同费率
      * @return string
+     * @throws ProviderGatewayException
      */
     public static function toPaymentType(string $groupType, string $cardType, string $policyName): string
     {
@@ -366,7 +378,11 @@ class YiLianPosPlatform extends PosStrategy
         } elseif (empty($depositList[0]['channelCode'])) {
             throw new ProviderGatewayException(sprintf('pos服务商[%s]查询机具pos_sn=%s支持的押金列表缺失channelCode，无法设置商户费率', self::providerName(), $deviceSn));
         }
-        $policyName = $depositList[0]['channelCode'];
+        $channelCode = $depositList[0]['channelCode'];
+        $policyName = self::CHANNEL_CODE_POLICY_NAME_MAP[$channelCode] ?? null;
+        if (null === $policyName) {
+            throw new ProviderGatewayException(sprintf('pos服务商[%s]暂不支持对商户 %s 的 %s 渠道设置商户费率', self::providerName(), $dto->getMerchantNo(), $channelCode));
+        }
         $url = $this->getUrl('/agent/changeMerchantFeeRate');
         $params = [];
         foreach (self::PARAMS_TRANS_TYPE_MAP as $transType) {
@@ -595,7 +611,7 @@ class YiLianPosPlatform extends PosStrategy
      * @return bool
      * @throws ProviderGatewayException
      */
-    private static function isBankCardType(string $transType, string $policyName = ''): bool
+    private static function isBankCardType(string $transType, string $policyName): bool
     {
         $transTypeMap = self::CHANNEL_TRANS_TYPE_MAP[$policyName] ?? null;
         if (is_null($transTypeMap)) {
