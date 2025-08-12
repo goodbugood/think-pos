@@ -281,6 +281,17 @@ abstract class PosStrategy
     }
 
     /**
+     * 商户激活通知
+     * 应用场景：
+     * 1. 移联比较特殊，注册信息不通知正确的商户使用渠道，激活时再通知
+     * @throws UnsupportedBusinessException
+     */
+    function handleCallbackOfMerchantActivate(string $content): MerchantRegisterCallbackRequest
+    {
+        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入商户激活通知功能', static::providerName()));
+    }
+
+    /**
      * pos 平台回调代理平台商户费率设置成功
      * @throws UnsupportedBusinessException
      */
