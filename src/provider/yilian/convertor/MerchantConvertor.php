@@ -12,7 +12,6 @@ use think\pos\dto\request\callback\MerchantActivateCallbackRequest;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
-use think\pos\provider\yilian\YiLianPosPlatform;
 
 class MerchantConvertor
 {
@@ -70,13 +69,11 @@ class MerchantConvertor
         $request->setMerchantNo($decryptedData['merchantNo'] ?? StrUtil::NULL);
         foreach ($decryptedData['feeRateList'] as $rateNotify) {
             // 移联不会通知刷卡费率的变更
-            if (!YiLianPosPlatform::isBankCardType($rateNotify['payTypeViewCode'])) {
-                $rate = Rate::valueOfPercentage(strval($rateNotify['rateValue']));
-                $request->setWechatRate($rate);
-                $request->setAlipayRate($rate);
-                $request->setWithdrawFee(Money::valueOfYuan(strval($rateNotify['withdrawRate'] ?? 0)));
-                break;
-            }
+            $rate = Rate::valueOfPercentage(strval($rateNotify['rateValue']));
+            $request->setWechatRate($rate);
+            $request->setAlipayRate($rate);
+            $request->setWithdrawFee(Money::valueOfYuan(strval($rateNotify['withdrawRate'] ?? 0)));
+            break;
         }
 
         return $request;

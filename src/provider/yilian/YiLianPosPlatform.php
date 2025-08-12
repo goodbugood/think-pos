@@ -590,7 +590,7 @@ class YiLianPosPlatform extends PosStrategy
      * @return bool
      * @throws ProviderGatewayException
      */
-    public static function isBankCardType(string $transType, string $policyName = ''): bool
+    private static function isBankCardType(string $transType, string $policyName = ''): bool
     {
         $transTypeMap = self::CHANNEL_TRANS_TYPE_MAP[$policyName] ?? null;
         if (is_null($transTypeMap)) {

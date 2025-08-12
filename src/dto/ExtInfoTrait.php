@@ -22,6 +22,11 @@ trait ExtInfoTrait
         return $this->extInfo;
     }
 
+    /**
+     * @param array $extInfo
+     * @return void
+     * @deprecated 废弃，不建议使用，移联已经通过查询确认渠道，无需本地维护
+     */
     public function setExtInfo(array $extInfo): void
     {
         $this->extInfo = $extInfo;
