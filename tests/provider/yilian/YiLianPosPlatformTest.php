@@ -14,6 +14,7 @@ use think\pos\constant\PosStatus;
 use think\pos\constant\SettleType;
 use think\pos\constant\TransOrderStatus;
 use think\pos\constant\TransOrderType;
+use think\pos\dto\request\callback\MerchantActivateCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosSettleCallbackRequest;
 use think\pos\dto\request\callback\PosTransCallbackRequest;
@@ -245,6 +246,20 @@ class YiLianPosPlatformTest extends TestCase
         self::assertNotEmpty($callbackOfPosBind->getDeviceSn());
         self::assertEquals(PosStatus::BIND_SUCCESS, $callbackOfPosBind->getStatus());
         self::assertNotEmpty($callbackOfPosBind->getModifyTime());
+    }
+
+    /**
+     * @test 测试商户激活回调
+     * @throws UnsupportedBusinessException
+     */
+    function handleCallbackOfMerchantActivate()
+    {
+        $content = 'data=e9euP4X4CjNWAhYLuhZFrjfFbYWbYw%2FDKj8RnhHjsaCeIW0i3LAoZmxogCFzNcgFlDXVHyZNrAiceIX8Yw7IKk9Kc6YW03bGGE6Ikn1KijKvZdXRnvFdYa0fJEgto%2FED42i8A4CN16Hv%2BWlDME%2B0kGuz1sFh4uGxyc5SUmm9gEm2ooxuhDQh2tcKLr%2FpDzEvovuPfcyo42tfbBNEP597N%2BUrD23rsciygiG6QX2SUiIAyYLHomqgjttGLL6znDQ4VlCR0ZkxZOgQRHSZITqqfzUG0TflQZ2XYB4xLd6Ua8TmDNYTT1jeSVrRt5x%2BxJiBuy%2FvmBUhxnG7D84ECVzRZNl93inE2whkqtZ2AxSh7H7gYfAt061Q0yjd%2FKhZTCiQDAaYf2Bk7HsLEiL74hOpGPxa7eFQu8ECLNqz19ACCjq8JgZLHt%2B9aVpVBQYqjoFto1Q7haXkcKy25xxDvwQOOZKkYvVfd5%2BG6KLV6SuD%2FxeehMwdVh8UWILaoLkxXYdOPEhf24eJdtLu7UmyAkoyEgWG8nNVq2njuOldwN3EWD5FwtYf4Jw2mMdV3q3khcMLm1Dq3MCX5JJhweIBR%2Bd%2F6dYs%2B5lMImtiV3g3qqkGodY%3D';
+        $callbackRequest = $this->posStrategy->handleCallbackOfMerchantActivate($content);
+        self::assertInstanceOf(MerchantActivateCallbackRequest::class, $callbackRequest);
+        self::assertEquals('M00000003882469', $callbackRequest->getMerchantNo());
+        self::assertEquals('9974554406103103', $callbackRequest->getDeviceSn());
+        self::assertEquals('中付买断版', $callbackRequest->getExtInfo()['ratePolicy']);
     }
 
     /**

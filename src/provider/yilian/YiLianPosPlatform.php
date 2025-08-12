@@ -12,6 +12,7 @@ use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\PaymentType;
 use think\pos\constant\PosStatus;
+use think\pos\dto\request\callback\MerchantActivateCallbackRequest;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
@@ -515,6 +516,15 @@ class YiLianPosPlatform extends PosStrategy
     {
         $data = $this->decryptAndVerifySign('机具绑定', $content);
         return MerchantConvertor::toPosBindCallbackRequest($data);
+    }
+
+    /**
+     * @throws ProviderGatewayException
+     */
+    function handleCallbackOfMerchantActivate(string $content): MerchantActivateCallbackRequest
+    {
+        $data = $this->decryptAndVerifySign('商户激活', $content);
+        return MerchantConvertor::toMerchantActivateCallbackRequest($data);
     }
 
     /**

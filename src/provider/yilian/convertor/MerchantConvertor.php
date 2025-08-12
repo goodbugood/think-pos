@@ -8,6 +8,7 @@ use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
 use think\pos\constant\MerchantStatus;
 use think\pos\constant\PosStatus;
+use think\pos\dto\request\callback\MerchantActivateCallbackRequest;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
@@ -78,6 +79,23 @@ class MerchantConvertor
             }
         }
 
+        return $request;
+    }
+
+    /**
+     * 解析商户激活推送信息
+     * @param array $data
+     * @return MerchantActivateCallbackRequest
+     */
+    public static function toMerchantActivateCallbackRequest(array $data): MerchantActivateCallbackRequest
+    {
+        $request = MerchantActivateCallbackRequest::success();
+        $request->setMerchantNo($data['merchantNo'] ?? StrUtil::NULL);
+        $request->setDeviceSn($data['sn'] ?? StrUtil::NULL);
+        // 需要对接方回传的扩展信息
+        $request->setExtInfo([
+            'ratePolicy' => $data['policyName'] ?? StrUtil::NULL,
+        ]);
         return $request;
     }
 }
