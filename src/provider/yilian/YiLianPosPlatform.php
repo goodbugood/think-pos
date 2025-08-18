@@ -55,22 +55,21 @@ class YiLianPosPlatform extends PosStrategy
     ];
 
     /**
+     * 不要调整顺序，微信扫码和银二大额必须间隔 5-6s 请求
      * 交易类型=支付方式分组
      * WX_SCAN，ZFB_SCAN，JSAPI 仅需要设置一种
      */
     private const PARAMS_TRANS_TYPE_MAP = [
+        // 微信扫码，主扫和被扫
+        'wx_scan' => 'WX_SCAN',
         // POS刷卡-标准类
         'pos_standard' => 'POS_STANDARD',
         // POS刷卡-VIP，移联对接技术反馈 VIP 暂时没有
         // 'pos_vip' => 'POS_VIP',
         // POS刷卡-云闪付，25/7/11 海科云闪付执行扫码费率，非海科执行贷记卡费率
         'cloud_quick_pass' => 'CLOUD_QUICK_PASS',
-        // 微信扫码，主扫和被扫
-        'wx_scan' => 'WX_SCAN',
         // 支付宝扫码，主扫和被扫
         // 'zfb_scan' => 'ZFB_SCAN',
-        // 银联二维码大额
-        'yl_code_more' => 'YL_CODE_MORE',
         // 银联二维码小额
         'yl_code_less' => 'YL_CODE_LESS',
         // 微信公众号和支付宝服务窗
@@ -81,6 +80,8 @@ class YiLianPosPlatform extends PosStrategy
         'yl_jsapi_more' => 'YL_JSAPI_MORE',
         // 条码收款，移联技术反馈这个用不到
         // 'bar_code' => 'BAR_CODE',
+        // 银联二维码大额
+        'yl_code_more' => 'YL_CODE_MORE',
     ];
 
     /**
