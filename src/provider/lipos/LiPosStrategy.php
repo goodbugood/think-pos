@@ -11,16 +11,23 @@ use shali\phpmate\crypto\SignUtil;
 use shali\phpmate\http\HttpClient;
 use shali\phpmate\PhpMateException;
 use shali\phpmate\util\Money;
+use think\pos\constant\AccountType;
+use think\pos\dto\request\AccountBalanceRequestDto;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
+use think\pos\dto\request\WithdrawQueryRequestDto;
+use think\pos\dto\request\WithdrawRequestDto;
+use think\pos\dto\response\AccountBalanceResponse;
 use think\pos\dto\response\PosInfoResponse;
 use think\pos\dto\response\PosProviderResponse;
+use think\pos\dto\response\WithdrawResponse;
 use think\pos\exception\ProviderGatewayException;
 use think\pos\PosStrategy;
 use think\pos\provider\lipos\convertor\MerchantConvertor;
 use think\pos\provider\lipos\convertor\PosConvertor;
+use think\pos\provider\lipos\convertor\WithdrawConvertor;
 
 /**
  * 力 POS 对接
@@ -64,6 +71,12 @@ class LiPosStrategy extends PosStrategy
         'modify_pos_deposit' => '/machineFeeChange',
         // 设置商户费率
         'modify_merchant_rate' => '/customerRateModify',
+        // 账户余额查询
+        'account_balance_query' => '/accountBalanceQuery',
+        // 代付申请
+        'submit_withdraw' => '/submitWithdraw',
+        // 代付查询
+        'withdraw_result_query' => '/withdrawResultQuery',
     ];
 
     /**
@@ -96,6 +109,103 @@ class LiPosStrategy extends PosStrategy
     {
         parent::__construct($config);
         $this->httpClient = new HttpClient();
+    }
+
+
+    /**
+     * 查询账户余额
+     * @param AccountBalanceRequestDto $dto
+     * @return AccountBalanceResponse
+     */
+    function getAccountBalance(AccountBalanceRequestDto $dto): AccountBalanceResponse
+    {
+        $accountType = $dto->getAccountType();
+        if (!$this->checkAccountType($accountType)) {
+            return AccountBalanceResponse::fail('账户类型错误');
+        }
+        $url = $this->getUrl(self::API_METHOD['account_balance_query'],true);
+        $params = [];
+        $params['accountType'] = $accountType;
+
+        try {
+            $res = $this->post($url, $params);
+        } catch (Exception $e) {
+            $errorMsg = sprintf('pos服务商[%s]查询账户余额失败：%s', self::providerName(), $e->getMessage());
+            return AccountBalanceResponse::fail($errorMsg);
+        }
+
+        return WithdrawConvertor::toAccountBalanceResponse($res);
+    }
+
+    /**
+     * 代付申请
+     * @param WithdrawRequestDto $dto
+     * @return WithdrawResponse
+     */
+    function submitWithdraw(WithdrawRequestDto $dto): WithdrawResponse
+    {
+        $url = $this->getUrl(self::API_METHOD['submit_withdraw'],true);
+        $accountType = $dto->getAccountType();
+        if (!$this->checkAccountType($accountType)) {
+            return WithdrawResponse::fail('账户类型错误');
+        }
+        $params = [
+            'orderNo' => $dto->getOrderNo(),
+            'amount' => $dto->getAmount()->toYuan(),
+            'accountType' => $accountType,
+            'settleType' => $dto->getSettleType(),
+            'accountNo' => $dto->getAccountNo(),
+            'accountName' => $dto->getAccountName(),
+            'bankName' => $dto->getBankName(),
+        ];
+
+        // 可选参数
+        if (!empty($dto->getBranchName())) {
+            $params['branchName'] = $dto->getBranchName();
+        }
+        if (!empty($dto->getUnionCode())) {
+            $params['unionCode'] = $dto->getUnionCode();
+        }
+        if (!empty($dto->getPhoneNo())) {
+            $params['phoneNo'] = $dto->getPhoneNo();
+        }
+        if (!empty($dto->getIdCard())) {
+            $params['idCard'] = $dto->getIdCard();
+        }
+        if ($dto->getEntrustAmount() !== null) {
+            $params['entrustAmount'] = $dto->getEntrustAmount()->toYuan();
+        }
+
+        try {
+            $res = $this->post($url, $params);
+        } catch (Exception $e) {
+            $errorMsg = sprintf('pos服务商[%s]代付申请失败：%s', self::providerName(), $e->getMessage());
+            return WithdrawResponse::fail($errorMsg);
+        }
+
+        return WithdrawConvertor::toWithdrawResponse($res);
+    }
+
+    /**
+     * 代付查询
+     * @param WithdrawQueryRequestDto $dto
+     * @return WithdrawResponse
+     */
+    function queryWithdraw(WithdrawQueryRequestDto $dto): WithdrawResponse
+    {
+        $url = $this->getUrl(self::API_METHOD['withdraw_result_query'],true);
+        $params = [
+            'orderNo' => $dto->getOrderNo(),
+        ];
+
+        try {
+            $res = $this->post($url, $params);
+        } catch (Exception $e) {
+            $errorMsg = sprintf('pos服务商[%s]代付查询失败：%s', self::providerName(), $e->getMessage());
+            return WithdrawResponse::fail($errorMsg);
+        }
+
+        return WithdrawConvertor::toWithdrawQueryResponse($res);
     }
 
     /**
@@ -403,9 +513,14 @@ class LiPosStrategy extends PosStrategy
         return PosProviderResponse::success();
     }
 
-    private function getUrl(string $apiMethod): string
+    private function getUrl(string $apiMethod,bool $isWithdraw=false): string
     {
-        $gateway = $this->isTestMode() ? $this->config['testGateway'] : $this->config['gateway'];
+        if ($isWithdraw) {
+            $gateway = $this->isTestMode() ? $this->config['testWithdrawGateway'] : $this->config['withdrawGateway'];
+        } else {
+            $gateway = $this->isTestMode() ? $this->config['testGateway'] : $this->config['gateway'];
+        }
+
         return $gateway . $apiMethod;
     }
 
@@ -564,5 +679,13 @@ class LiPosStrategy extends PosStrategy
         }
 
         return true;
+    }
+
+    /**
+     * 力 POS 校验账户类型
+     * */
+    private function checkAccountType(string $accountType): bool
+    {
+        return in_array($accountType,[AccountType::SHARE,AccountType::ACTIVITY_CASHBACK,AccountType::ACTIVITY_CASHBACK,AccountType::ACTIVITY_SUBSIDY,AccountType::SIM_CARD,AccountType::COMMISSION]);
     }
 }

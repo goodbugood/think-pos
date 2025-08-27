@@ -19,8 +19,12 @@ return [
                 'agentNo' => '代理id',
                 // 正式网关地址
                 'gateway' => '力pos正式网关',
+                // 正式代付网关地址
+                'withdrawGateway' => '力pos正式网关',
                 // 测试网关地址
                 'testGateway' => '力pos测试网关',
+                // 测试代付网关地址
+                'testWithdrawGateway' => '力pos测试网关',
                 // 代理商私钥：签名使用
                 'privateKey' => '',
                 // 代理商公钥：验签平台响应使用
