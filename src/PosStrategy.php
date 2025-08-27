@@ -2,6 +2,7 @@
 
 namespace think\pos;
 
+use think\pos\dto\request\AccountBalanceRequestDto;
 use think\pos\dto\request\callback\MerchantActivateCallbackRequest;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
@@ -14,10 +15,14 @@ use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosDepositRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
+use think\pos\dto\request\WithdrawQueryRequestDto;
+use think\pos\dto\request\WithdrawRequestDto;
+use think\pos\dto\response\AccountBalanceResponse;
 use think\pos\dto\response\PosDepositResponse;
 use think\pos\dto\response\PosInfoResponse;
 use think\pos\dto\response\PosProviderResponse;
 use think\pos\dto\response\SimInfoResponse;
+use think\pos\dto\response\WithdrawResponse;
 use think\pos\exception\UnsupportedBusinessException;
 
 /**
@@ -380,4 +385,41 @@ abstract class PosStrategy
     {
         return static::CALLBACK_ACK_CONTENT;
     }
+
+
+    //<editor-fold desc="代付相关接口">
+
+    /**
+     * 查询账户余额
+     * @param AccountBalanceRequestDto $dto
+     * @return AccountBalanceResponse
+     * @throws UnsupportedBusinessException
+     */
+    function getAccountBalance(AccountBalanceRequestDto $dto): AccountBalanceResponse
+    {
+        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入查询账户余额功能', static::providerName()));
+    }
+
+    /**
+     * 代付申请
+     * @param WithdrawRequestDto $dto
+     * @return WithdrawResponse
+     * @throws UnsupportedBusinessException
+     */
+    function submitWithdraw(WithdrawRequestDto $dto): WithdrawResponse
+    {
+        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入代付申请功能', static::providerName()));
+    }
+
+    /**
+     * 代付查询
+     * @param WithdrawQueryRequestDto $dto
+     * @return WithdrawResponse
+     * @throws UnsupportedBusinessException
+     */
+    function queryWithdraw(WithdrawQueryRequestDto $dto): WithdrawResponse
+    {
+        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入代付查询功能', static::providerName()));
+    }
+    //</editor-fold>
 }
