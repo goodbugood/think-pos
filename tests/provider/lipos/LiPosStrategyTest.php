@@ -7,8 +7,11 @@ use ReflectionClass;
 use shali\phpmate\core\date\LocalDateTime;
 use shali\phpmate\util\Money;
 use shali\phpmate\util\Rate;
+use think\pos\constant\AccountType;
 use think\pos\constant\MerchantStatus;
 use think\pos\constant\PosStatus;
+use think\pos\constant\SettleType;
+use think\pos\dto\request\AccountBalanceRequestDto;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosActivateCallbackRequest;
@@ -18,6 +21,8 @@ use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosRequestDto;
 use think\pos\dto\request\SimRequestDto;
+use think\pos\dto\request\WithdrawQueryRequestDto;
+use think\pos\dto\request\WithdrawRequestDto;
 use think\pos\dto\response\PosInfoResponse;
 use think\pos\PosStrategy;
 use think\pos\PosStrategyFactory;
@@ -47,6 +52,51 @@ class LiPosStrategyTest extends TestCase
         $posProviderConfig['publicKey'] = self::MERCHANT_PUBLIC_KEY;
         $posProviderConfig['platformPublicKey'] = self::PLATFORM_PUBLIC_KEY;
         $reflectionProperty->setValue($this->posStrategy, $posProviderConfig);
+    }
+
+    /**
+     * @test 测试查询账户余额
+     * @return void
+     */
+    function queryAccountBalance()
+    {
+        $accountBalanceRequestDto = new AccountBalanceRequestDto();
+        $accountBalanceRequestDto->setAccountType(AccountType::SHARE);
+
+        $posProviderResponse = $this->posStrategy->getAccountBalance($accountBalanceRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
+    }
+    /**
+     * @test 测试提交提现
+     * @return void
+     */
+    function submitWithdraw()
+    {
+        $withdrawDto = new WithdrawRequestDto();
+        $withdrawDto->setOrderNo('TEST12345678');
+        $withdrawDto->setAmount(Money::valueOfYuan('10'));
+        $withdrawDto->setEntrustAmount(Money::valueOfYuan('10'));
+        $withdrawDto->setAccountType(AccountType::SHARE);
+        $withdrawDto->setSettleType(SettleType::TO_PUBLIC_UNINCORPORATED);
+        $withdrawDto->setAccountNo('60301234578');
+        $withdrawDto->setIdCard('1234567890');
+        $withdrawDto->setAccountName('张三');
+        $withdrawDto->setBankName('中国工商银行');
+
+        $posProviderResponse = $this->posStrategy->submitWithdraw($withdrawDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
+    }
+
+    /**
+     * @test 测试查询提现
+     * @return void
+     */
+    function queryWithdraw()
+    {
+        $withdrawQueryRequestDto = new WithdrawQueryRequestDto();
+        $withdrawQueryRequestDto->setOrderNo('TEST12345678');
+        $posProviderResponse = $this->posStrategy->queryWithdraw($withdrawQueryRequestDto);
+        self::assertTrue($posProviderResponse->isSuccess(), $posProviderResponse->getErrorMsg() ?? '');
     }
 
     /**
