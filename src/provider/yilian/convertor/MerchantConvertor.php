@@ -69,7 +69,7 @@ class MerchantConvertor
         $request->setMerchantNo($decryptedData['merchantNo'] ?? StrUtil::NULL);
         foreach ($decryptedData['feeRateList'] as $rateNotify) {
             // 移联不会通知刷卡费率的变更
-            $rate = Rate::valueOfPercentage(strval($rateNotify['rateValue']));
+            $rate = Rate::valueOfPercentage(strval($rateNotify['transRate']));
             $request->setWechatRate($rate);
             $request->setAlipayRate($rate);
             $request->setWithdrawFee(Money::valueOfYuan(strval($rateNotify['withdrawRate'] ?? 0)));
