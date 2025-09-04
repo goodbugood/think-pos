@@ -79,6 +79,7 @@ return [
                     'ZF' => [
                         'policy_list' => [
                             '中付买断版',
+                            '中付买断版 01',
                         ],
                         'trans_type_map' => [
                             'card' => [
