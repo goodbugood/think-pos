@@ -63,16 +63,16 @@ return [
                         'trans_type_map' => [
                             // 刷卡交易
                             'card' => [
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                                'POS_STANDARD',
+                                'YL_CODE_MORE',
+                                'YL_JSAPI_MORE',
                             ],
                             // 扫码交易
                             'scan' => [
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.3-0.48
+                                'WX_SCAN',
+                                'YL_CODE_LESS',
+                                'YL_JSAPI_LESS',
+                                'CLOUD_QUICK_PASS',// 费率 0.3-0.48
                             ],
                         ],
                     ],
@@ -82,15 +82,15 @@ return [
                         ],
                         'trans_type_map' => [
                             'card' => [
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.52-0.66
+                                'POS_STANDARD',
+                                'YL_CODE_MORE',
+                                'YL_JSAPI_MORE',
+                                'CLOUD_QUICK_PASS',// 费率 0.52-0.66
                             ],
                             'scan' => [
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                                'WX_SCAN',
+                                'YL_CODE_LESS',
+                                'YL_JSAPI_LESS',
                             ],
                         ],
                     ],
@@ -100,15 +100,15 @@ return [
                         ],
                         'trans_type_map' => [
                             'card' => [
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                                'POS_STANDARD',
+                                'YL_CODE_MORE',
+                                'YL_JSAPI_MORE',
                             ],
                             'scan' => [
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.3-0.48
+                                'WX_SCAN',
+                                'YL_CODE_LESS',
+                                'YL_JSAPI_LESS',
+                                'CLOUD_QUICK_PASS',// 费率 0.3-0.48
                             ],
                         ],
                     ],
@@ -118,14 +118,14 @@ return [
                         ],
                         'trans_type_map' => [
                             'card' => [
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                                'POS_STANDARD',
+                                'YL_CODE_MORE',
+                                'YL_JSAPI_MORE',
                             ],
                             'scan' => [
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                                'WX_SCAN',
+                                'YL_CODE_LESS',
+                                'YL_JSAPI_LESS',
                             ],
                         ],
                     ],
@@ -135,15 +135,15 @@ return [
                         ],
                         'trans_type_map' => [
                             'card' => [
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.52-0.66
+                                'POS_STANDARD',
+                                'YL_CODE_MORE',
+                                'YL_JSAPI_MORE',
+                                'CLOUD_QUICK_PASS',// 费率 0.52-0.66
                             ],
                             'scan' => [
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
-                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                                'WX_SCAN',
+                                'YL_CODE_LESS',
+                                'YL_JSAPI_LESS',
                             ],
                         ],
                     ],
