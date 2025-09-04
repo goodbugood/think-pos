@@ -59,7 +59,7 @@ class YiLianPosPlatform extends PosStrategy
      * 交易类型=支付方式分组
      * WX_SCAN，ZFB_SCAN，JSAPI 仅需要设置一种
      */
-    private const PARAMS_TRANS_TYPE_MAP = [
+    public const PARAMS_TRANS_TYPE_MAP = [
         // 微信扫码，主扫和被扫
         'wx_scan' => 'WX_SCAN',
         // POS刷卡-标准类
@@ -93,127 +93,6 @@ class YiLianPosPlatform extends PosStrategy
     ];
 
     /**
-     * 合利宝买断版
-     * 不支持云闪付
-     */
-    private const CHANNEL_HELIBAO = '合利宝买断版';
-
-    /**
-     * 银盛买断版
-     * 云闪付 0.52-0.66 走贷记卡
-     */
-    private const CHANNEL_YINSHENG = '银盛买断版';
-
-    /**
-     * 中付买断版
-     * 云闪付 0.52-0.66 走贷记卡
-     */
-    private const CHANNEL_ZHONGFU = '中付买断版';
-
-    /**
-     * 乐刷买断版01
-     * 云闪付 0.3-0.48 走扫码
-     */
-    private const CHANNEL_LESHUA_01 = '乐刷买断版01';
-
-    /**
-     * 海科买断版
-     * 云闪付 0.3-0.48 走扫码
-     */
-    private const CHANNEL_HAIKE = '海科买断版';
-
-    /**
-     * 渠道码 => 政策名称 map
-     */
-    private const CHANNEL_CODE_POLICY_NAME_MAP = [
-        'HLB' => self::CHANNEL_HELIBAO,
-        'YS' => self::CHANNEL_YINSHENG,
-        'ZF' => self::CHANNEL_ZHONGFU,
-        'LS' => self::CHANNEL_LESHUA_01,
-        'HK' => self::CHANNEL_HAIKE,
-    ];
-
-    /**
-     * 渠道支持的交易类型 map
-     */
-    private const CHANNEL_TRANS_TYPE_MAP = [
-        self::CHANNEL_HAIKE => [
-            // 刷卡交易
-            'card' => [
-                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
-            ],
-            // 扫码交易
-            'scan' => [
-                self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
-                self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.3-0.48
-            ],
-        ],
-        self::CHANNEL_ZHONGFU => [
-            'card' => [
-                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
-                self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.52-0.66
-            ],
-            'scan' => [
-                self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
-            ],
-        ],
-        self::CHANNEL_LESHUA_01 => [
-            'card' => [
-                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
-            ],
-            'scan' => [
-                self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
-                self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.3-0.48
-            ],
-        ],
-        self::CHANNEL_HELIBAO => [// 不支持云闪付
-            'card' => [
-                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
-            ],
-            'scan' => [
-                self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
-            ],
-        ],
-        self::CHANNEL_YINSHENG => [
-            'card' => [
-                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
-                self::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.52-0.66
-            ],
-            'scan' => [
-                self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
-                self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
-            ],
-        ],
-    ];
-
-    /**
-     * 区分银行卡种类的渠道
-     * 贷记卡和借记卡单独设置
-     */
-    private const USE_BANKCARD_TYPE_CHANNEL_LIST = [
-        self::CHANNEL_HELIBAO,
-    ];
-
-    /**
      * @var HttpClient
      */
     private $httpClient;
@@ -222,6 +101,42 @@ class YiLianPosPlatform extends PosStrategy
     {
         return '移联POS平台';
     }
+
+    /**
+     * @var array[] 配置文件 demo
+     */
+    protected $config = [
+        'testGateway' => null,
+        'gateway' => null,
+        // 区分银行卡种类，贷记卡和借记卡单独设置的渠道列表
+        'use_bankcard_type_channel_list' => [
+            'HLB'
+        ],
+        'channel_list' => [
+            // 海科渠道
+            'HK' => [
+                // 海科渠道在用政策列表
+                'policy_list' => [
+                    '海科买断版',
+                ],
+                'trans_type_map' => [
+                    // 刷卡交易
+                    'card' => [
+                        YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                        YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                        YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                    ],
+                    // 扫码交易
+                    'scan' => [
+                        YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                        YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                        YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                        YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.3-0.48
+                    ],
+                ],
+            ],
+        ]
+    ];
 
     public function __construct(array $config)
     {
@@ -235,13 +150,14 @@ class YiLianPosPlatform extends PosStrategy
      * @param string $cardType 刷卡类型，扫码交易类型时，此字段为空
      * @param string $policyName 政策名称，不同政策的云闪付走不同费率
      * @return string
-     * @throws ProviderGatewayException
      */
-    public static function toPaymentType(string $groupType, string $cardType, string $policyName): string
+    public function toPaymentType(string $groupType, string $cardType, string $policyName): string
     {
         if ('ZFB_SCAN' === $groupType) {
             return PaymentType::ALIPAY_QR;
-        } elseif (self::isBankCardType($groupType, $policyName)) {
+        }
+        $channelCode = $this->getChannelCodeByPolicyName($policyName);
+        if ($this->isBankCardType($groupType, $channelCode)) {
             // 把大额扫码归属到刷卡，待验证
             return 'CREDIT' === $cardType ? PaymentType::CREDIT_CARD : PaymentType::DEBIT_CARD;
         }
@@ -380,9 +296,8 @@ class YiLianPosPlatform extends PosStrategy
             throw new ProviderGatewayException(sprintf('pos服务商[%s]查询机具pos_sn=%s支持的押金列表缺失channelCode，无法设置商户费率', self::providerName(), $deviceSn));
         }
         $channelCode = $depositList[0]['channelCode'];
-        $policyName = self::CHANNEL_CODE_POLICY_NAME_MAP[$channelCode] ?? null;
-        if (null === $policyName) {
-            throw new ProviderGatewayException(sprintf('pos服务商[%s]暂不支持对商户 %s 的 %s 渠道设置商户费率', self::providerName(), $dto->getMerchantNo(), $channelCode));
+        if (empty($this->config['channel_list'][$channelCode])) {
+            throw new ProviderGatewayException(sprintf('pos服务商[%s]暂不支持对商户 %s 的 %s 渠道设置商户费率，请配置', self::providerName(), $dto->getMerchantNo(), $channelCode));
         }
         $url = $this->getUrl('/agent/changeMerchantFeeRate');
         $params = [];
@@ -398,8 +313,8 @@ class YiLianPosPlatform extends PosStrategy
                 // 提现费单位类型，FIXED 固定金额，PERCENT 百分比
                 'withdrawRateUnit' => $this->getScanWithdrawRateUnit($transType),
             ];
-            if (self::isBankCardType($transType, $policyName)) {
-                $useBankCardType = self::useBankCardType($transType, $policyName);
+            if (self::isBankCardType($transType, $channelCode)) {
+                $useBankCardType = $this->useBankCardType($transType, $channelCode);
                 foreach (self::PARAMS_CARD_TYPE_MAP as $cardType) {
                     // 检查是否区分银行卡类型来设置费率
                     $item['cardType'] = $useBankCardType ? $cardType : 'UNLIMIT';
@@ -427,7 +342,7 @@ class YiLianPosPlatform extends PosStrategy
                         break;
                     }
                 }
-            } elseif ((!is_null($dto->getWechatRate()) || !is_null($dto->getAlipayRate())) && self::isScanType($transType, $policyName)) {
+            } elseif ((!is_null($dto->getWechatRate()) || !is_null($dto->getAlipayRate())) && $this->isScanType($transType, $channelCode)) {
                 // 不传递扫码费率
                 $item['transRate'] = $dto->getWechatRate() ? $dto->getWechatRate()->toPercentage() : $dto->getAlipayRate()->toPercentage();
                 $params[] = $item;
@@ -580,7 +495,7 @@ class YiLianPosPlatform extends PosStrategy
     public function handleCallbackOfTrans(string $content): PosTransCallbackRequest
     {
         $data = $this->decryptAndVerifySign('普通交易信息', $content);
-        return PosConvertor::toPosTransCallbackRequest($data);
+        return PosConvertor::toPosTransCallbackRequest($data, $this);
     }
 
     /**
@@ -608,39 +523,34 @@ class YiLianPosPlatform extends PosStrategy
      * 云闪付小额属于扫码，大额属于刷卡
      * 银联云闪付小额属于扫码，大额属于刷卡
      * @param string $transType
-     * @param string $policyName
+     * @param string $channelCode
      * @return bool
-     * @throws ProviderGatewayException
      */
-    private static function isBankCardType(string $transType, string $policyName): bool
+    private function isBankCardType(string $transType, string $channelCode): bool
     {
-        $transTypeMap = self::CHANNEL_TRANS_TYPE_MAP[$policyName] ?? null;
-        if (is_null($transTypeMap)) {
-            throw new ProviderGatewayException(sprintf('pos服务商[%s]暂未对接[%s]渠道的业务设置', self::providerName(), $policyName));
-        }
-        return in_array($transType, $transTypeMap['card']);
+        return in_array($transType, $this->config['channel_list'][$channelCode]['trans_type_map']['card']);
     }
 
     /**
      * 判断交易类型在指定政策下是否为扫码类型
      * @param string $transType
-     * @param string $policyName
+     * @param string $channel 渠道
      * @return bool
      */
-    public static function isScanType(string $transType, string $policyName): bool
+    private function isScanType(string $transType, string $channel): bool
     {
-        return in_array($transType, self::CHANNEL_TRANS_TYPE_MAP[$policyName]['scan']);
+        return in_array($transType, $this->config['channel_list'][$channel]['trans_type_map']['scan']);
     }
 
     /**
      * 判断交易类型在指定政策下是否区分借贷记卡进行费率设置
      * @param string $transType
-     * @param string $policyName
+     * @param string $channelCode
      * @return bool
      */
-    public static function useBankCardType(string $transType, string $policyName): bool
+    private function useBankCardType(string $transType, string $channelCode): bool
     {
-        return self::PARAMS_TRANS_TYPE_MAP['pos_standard'] == $transType && in_array($policyName, self::USE_BANKCARD_TYPE_CHANNEL_LIST);
+        return self::PARAMS_TRANS_TYPE_MAP['pos_standard'] == $transType && in_array($channelCode, $this->config['use_bankcard_type_channel_list']);
     }
 
     //<editor-fold desc="请求/响应处理">
@@ -837,5 +747,15 @@ class YiLianPosPlatform extends PosStrategy
         $withdrawRate = $withdrawFee->toYuan();
         $scale = 'PERCENT' === $this->getBankCardWithdrawRateUnit($transType) ? 2 : 0;
         return Rate::valueOfPercentage($withdrawRate)->toPercentage($scale);
+    }
+
+    private function getChannelCodeByPolicyName(string $policyName): ?string
+    {
+        foreach ($this->config['channel_list'] as $channelCode => $channelConfig) {
+            if (in_array($policyName, $channelConfig['policy_list'])) {
+                return $channelCode;
+            }
+        }
+        return null;
     }
 }

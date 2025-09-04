@@ -48,6 +48,106 @@ return [
                 'scanTypeWithdrawRate' => '0.03',
                 // 银联刷卡最大费率限制，单位百分数，如 0.03% 填 0.03，如果提交的费率超过此费率，则取此费率
                 'maxBankCardRate' => '0.63',
+                // 区分银行卡种类，贷记卡和借记卡单独设置的渠道列表
+                'use_bankcard_type_channel_list' => [
+                    'HLB',
+                ],
+                // 移联渠道政策配置，为了方便识别政策使用的渠道，渠道对于的交易方式费率
+                'channel_list' => [
+                    // 海科渠道
+                    'HK' => [
+                        // 海科渠道在用政策列表
+                        'policy_list' => [
+                            '海科买断版',
+                        ],
+                        'trans_type_map' => [
+                            // 刷卡交易
+                            'card' => [
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                            ],
+                            // 扫码交易
+                            'scan' => [
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.3-0.48
+                            ],
+                        ],
+                    ],
+                    'ZF' => [
+                        'policy_list' => [
+                            '中付买断版',
+                        ],
+                        'trans_type_map' => [
+                            'card' => [
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.52-0.66
+                            ],
+                            'scan' => [
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                            ],
+                        ],
+                    ],
+                    'LS' => [
+                        'policy_list' => [
+                            '乐刷买断版01',
+                        ],
+                        'trans_type_map' => [
+                            'card' => [
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                            ],
+                            'scan' => [
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.3-0.48
+                            ],
+                        ],
+                    ],
+                    'HLB' => [// 不支持云闪付
+                        'policy_list' => [
+                            '合利宝买断版',
+                        ],
+                        'trans_type_map' => [
+                            'card' => [
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                            ],
+                            'scan' => [
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                            ],
+                        ],
+                    ],
+                    'YS' => [
+                        'policy_list' => [
+                            '银盛买断版',
+                        ],
+                        'trans_type_map' => [
+                            'card' => [
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['cloud_quick_pass'],// 费率 0.52-0.66
+                            ],
+                            'scan' => [
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+                                YiLianPosPlatform::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ],
         // 鲲鹏 pos 平台对接参数

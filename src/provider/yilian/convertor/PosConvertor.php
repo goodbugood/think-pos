@@ -13,7 +13,7 @@ use think\pos\provider\yilian\YiLianPosPlatform;
 
 final class PosConvertor
 {
-    public static function toPosTransCallbackRequest(array $decryptedData): PosTransCallbackRequest
+    public static function toPosTransCallbackRequest(array $decryptedData, YiLianPosPlatform $platform): PosTransCallbackRequest
     {
         $request = PosTransCallbackRequest::success();
         $request->setAgentNo(strval($decryptedData['agentNo'] ?? StrUtil::NULL));
@@ -50,7 +50,7 @@ final class PosConvertor
         $groupType = $decryptedData['groupType'] ?? StrUtil::NULL;
         $cardType = $decryptedData['cardType'] ?? StrUtil::NULL;
         $policyName = $decryptedData['policyName'] ?? StrUtil::NULL;
-        $paymentType = YiLianPosPlatform::toPaymentType($groupType, $cardType, $policyName);
+        $paymentType = $platform->toPaymentType($groupType, $cardType, $policyName);
         $request->setPaymentType($paymentType);
         return $request;
     }
