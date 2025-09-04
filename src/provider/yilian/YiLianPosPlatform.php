@@ -59,7 +59,7 @@ class YiLianPosPlatform extends PosStrategy
      * 交易类型=支付方式分组
      * WX_SCAN，ZFB_SCAN，JSAPI 仅需要设置一种
      */
-    public const PARAMS_TRANS_TYPE_MAP = [
+    private const PARAMS_TRANS_TYPE_MAP = [
         // 微信扫码，主扫和被扫
         'wx_scan' => 'WX_SCAN',
         // POS刷卡-标准类
