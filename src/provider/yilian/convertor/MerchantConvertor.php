@@ -29,10 +29,6 @@ class MerchantConvertor
         $callbackRequest->setIdCardNo($decryptedData['idCardNo'] ?? StrUtil::NULL);
         $callbackRequest->setPhoneNo($decryptedData['merchantPhone'] ?? StrUtil::NULL);
         $callbackRequest->setStatus(MerchantStatus::ENABLED);
-        // 需要对接方回传的扩展信息
-        $callbackRequest->setExtInfo([
-            'ratePolicy' => $decryptedData['policyName'] ?? StrUtil::NULL,
-        ]);
         return $callbackRequest;
     }
 
@@ -94,10 +90,6 @@ class MerchantConvertor
         }
         $request->setMerchantNo($data['merchantNo'] ?? StrUtil::NULL);
         $request->setDeviceSn($data['sn'] ?? StrUtil::NULL);
-        // 需要对接方回传的扩展信息
-        $request->setExtInfo([
-            'ratePolicy' => $data['policyName'] ?? StrUtil::NULL,
-        ]);
         return $request;
     }
 }
