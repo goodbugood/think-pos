@@ -71,31 +71,31 @@ class KunPengPosPlatform extends PosStrategy
                     // 费率类型
                     'payTypeViewCode' => 'POS_CC',
                     // 费率
-                    'rateValue' => $dto->getCreditRate()->toPercentage(6),
+                    'rateValue' => $dto->getCreditRate()->toPercentage(2),
                     // 贷记卡封顶值
                     'cappingValue' => '0.00',
                 ],
                 // 借记卡
                 [
                     'payTypeViewCode' => 'POS_DC',
-                    'rateValue' => $dto->getDebitCardRate()->toPercentage(6),
+                    'rateValue' => $dto->getDebitCardRate()->toPercentage(2),
                     'cappingValue' => $dto->getDebitCardCappingValue()->toYuan(),
                 ],
                 // 微信，NFC 统一使用微信费率
                 [
                     'payTypeViewCode' => 'WECHAT',
-                    'rateValue' => $dto->getWechatRate()->toPercentage(6),
+                    'rateValue' => $dto->getWechatRate()->toPercentage(2),
                     'cappingValue' => '0.00',
                 ],
                 [
                     'payTypeViewCode' => 'NFC',
-                    'rateValue' => $dto->getWechatRate()->toPercentage(6),
+                    'rateValue' => $dto->getWechatRate()->toPercentage(2),
                     'cappingValue' => '0.00',
                 ],
                 // 支付宝
                 [
                     'payTypeViewCode' => 'ALIPAY',
-                    'rateValue' => $dto->getAlipayRate()->toPercentage(6),
+                    'rateValue' => $dto->getAlipayRate()->toPercentage(2),
                     'cappingValue' => '0.00',
                 ],
             ],
