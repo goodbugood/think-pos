@@ -293,6 +293,21 @@ class YiLianPosPlatformTest extends TestCase
     }
 
     /**
+     * 测试商户费率同步通知
+     * @return void
+     * @throws UnsupportedBusinessException
+     */
+    function testHandleCallbackOfMerchantRateSync()
+    {
+        $content = '{"merchantNo":"M00000003882469", "reportStatus":"SUCCESS"}';
+        $callbackRequest = $this->posStrategy->handleCallbackOfMerchantRateSync($content);
+        self::assertNotEmpty($callbackRequest);
+        self::assertNotEmpty($callbackRequest->getMerchantNo());
+        self::assertNotEquals(StrUtil::NULL, $callbackRequest->getMerchantNo());
+        self::assertTrue($callbackRequest->canSync());
+    }
+
+    /**
      * @test 测试普通交易通知
      * @return void
      * @throws UnsupportedBusinessException
