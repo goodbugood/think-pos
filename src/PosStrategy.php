@@ -10,6 +10,7 @@ use think\pos\dto\request\callback\PosActivateCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
 use think\pos\dto\request\callback\PosSettleCallbackRequest;
 use think\pos\dto\request\callback\PosTransCallbackRequest;
+use think\pos\dto\request\callback\SyncMerchantRateCallbackRequest;
 use think\pos\dto\request\CallbackRequest;
 use think\pos\dto\request\MerchantRequestDto;
 use think\pos\dto\request\PosDepositRequestDto;
@@ -304,6 +305,17 @@ abstract class PosStrategy
     function handleCallbackOfMerchantRateSet(string $content): MerchantRateSetCallbackRequest
     {
         throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入商户费率设置回调功能', static::providerName()));
+    }
+
+    /**
+     * 同步商户费率通知
+     * 有的时候商户费率不是什么时候都能修改，要平台通知你才能去修改。
+     * 比如移联的扫码交易类型的费率修改，需要平台通知报件成功方可修改
+     * @throws UnsupportedBusinessException
+     */
+    function handleCallbackOfSyncMerchantRate(string $content): SyncMerchantRateCallbackRequest
+    {
+        throw new UnsupportedBusinessException(sprintf('服务商[%s]暂未接入商户费率同步通知功能', static::providerName()));
     }
     //</editor-fold>
 
