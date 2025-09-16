@@ -14,6 +14,7 @@ use think\pos\constant\PaymentType;
 use think\pos\constant\PosStatus;
 use think\pos\dto\request\callback\MerchantActivateCallbackRequest;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
+use think\pos\dto\request\callback\MerchantRateSyncCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
 use think\pos\dto\request\callback\PosSettleCallbackRequest;
@@ -520,6 +521,18 @@ class YiLianPosPlatform extends PosStrategy
     {
         $data = $this->decryptAndVerifySign('商户费率变更', $content);
         return MerchantConvertor::toMerchantRateSetCallbackRequest($data);
+    }
+
+    /**
+     * 处理扫码报件状态推送
+     * @param string $content
+     * @return MerchantRateSyncCallbackRequest
+     * @throws ProviderGatewayException
+     */
+    function handleCallbackOfMerchantRateSync(string $content): MerchantRateSyncCallbackRequest
+    {
+        $data = $this->decryptAndVerifySign('扫码报件状态推送', $content);
+        return MerchantConvertor::toMerchantRateSyncCallbackRequest($data);
     }
 
     /**

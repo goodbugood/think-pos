@@ -10,6 +10,7 @@ use think\pos\constant\MerchantStatus;
 use think\pos\constant\PosStatus;
 use think\pos\dto\request\callback\MerchantActivateCallbackRequest;
 use think\pos\dto\request\callback\MerchantRateSetCallbackRequest;
+use think\pos\dto\request\callback\MerchantRateSyncCallbackRequest;
 use think\pos\dto\request\callback\MerchantRegisterCallbackRequest;
 use think\pos\dto\request\callback\PosBindCallbackRequest;
 
@@ -90,6 +91,24 @@ class MerchantConvertor
         }
         $request->setMerchantNo($data['merchantNo'] ?? StrUtil::NULL);
         $request->setDeviceSn($data['sn'] ?? StrUtil::NULL);
+        return $request;
+    }
+
+    /**
+     * 解析扫码报件状态推送
+     * @param array $data
+     * @return MerchantRateSyncCallbackRequest
+     */
+    public static function toMerchantRateSyncCallbackRequest(array $data): MerchantRateSyncCallbackRequest
+    {
+        $request = MerchantRateSyncCallbackRequest::success();
+        $request->setMerchantNo($data['merchantNo'] ?? StrUtil::NULL);
+        $reportStatus = $data['reportStatus'] ?? null;
+        if ($reportStatus === 'SUCCESS') {
+            $request->setIsSync(true);
+        } else {
+            $request->setIsSync(false);
+        }
         return $request;
     }
 }
