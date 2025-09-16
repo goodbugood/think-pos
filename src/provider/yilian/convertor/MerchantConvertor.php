@@ -105,9 +105,9 @@ class MerchantConvertor
         $request->setMerchantNo($data['merchantNo'] ?? StrUtil::NULL);
         $reportStatus = $data['reportStatus'] ?? null;
         if ($reportStatus === 'SUCCESS') {
-            $request->setIsSync(true);
+            $request->setCanSync(true);
         } else {
-            $request->setIsSync(false);
+            $request->setCanSync(false);
         }
         return $request;
     }

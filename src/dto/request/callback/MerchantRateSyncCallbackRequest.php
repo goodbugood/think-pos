@@ -10,8 +10,9 @@ class MerchantRateSyncCallbackRequest extends CallbackRequest
 
     /**
      * 是否可同步商户费率
+     * 商户费率同步准备工作是否准备完毕，是否可以同步
      */
-    private $isSync = false;
+    private $canSync = false;
 
     public function getMerchantNo(): string
     {
@@ -23,13 +24,13 @@ class MerchantRateSyncCallbackRequest extends CallbackRequest
         $this->merchantNo = $merchantNo;
     }
 
-    public function isSync(): bool
+    public function canSync(): bool
     {
-        return $this->isSync;
+        return $this->canSync;
     }
 
-    public function setIsSync(bool $isSync): void
+    public function setCanSync(bool $canSync): void
     {
-        $this->isSync = $isSync;
+        $this->canSync = $canSync;
     }
 }
