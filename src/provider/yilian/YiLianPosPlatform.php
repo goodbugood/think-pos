@@ -196,6 +196,32 @@ class YiLianPosPlatform extends PosStrategy
     }
 
     /**
+     * 获取商户的渠道扫码报件状态
+     * @param string $merchantNo
+     * @return bool 返回商户扫码报件成功状态，多渠道商户有一个渠道扫码报件成功即返回成功
+     * @throws ProviderGatewayException
+     */
+    private function getMerchantReportStatus(string $merchantNo): bool
+    {
+        $url = $this->getUrl('/merchant/scanReportStatusQuery');
+        $params = ['merchantNo' => $merchantNo];
+        try {
+            // [{"merchantAbbrName":"格青衣物清洗店","acqNo":"10016","reportStatus":"SUCCESS","needSign":"0","channelCode":"ZF_YK"},{"merchantAbbrName":"咏绿休闲饮品店","acqNo":"10017","reportStatus":"SUCCESS","needSign":"1","channelCode":"LKL_SCAN"},{"merchantAbbrName":"银言鞋服综合店","acqNo":"10015","reportStatus":"SUCCESS","needSign":"0","channelCode":"YS_SCAN"}]
+            $res = $this->post($url, $params);
+        } catch (ProviderGatewayException $e) {
+            $errorMsg = sprintf('pos服务商[%s]查询商户%s的渠道扫码报件状态失败：%s', self::providerName(), $merchantNo, $e->getMessage());
+            throw new ProviderGatewayException($errorMsg);
+        }
+        // 25/9/16 移联反馈多渠道商户，如果有一个扫码渠道报件成功，就可以修改扫码支付方式的费率
+        foreach ($res as $item) {
+            if ('SUCCESS' === $item['reportStatus']) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 设置机具押金
      * @param PosRequestDto $dto
      * @return PosProviderResponse
@@ -299,9 +325,16 @@ class YiLianPosPlatform extends PosStrategy
         if (empty($this->config['channel_list'][$channelCode])) {
             throw new ProviderGatewayException(sprintf('pos服务商[%s]暂不支持对商户 %s 的 %s 渠道设置商户费率，请配置', self::providerName(), $dto->getMerchantNo(), $channelCode));
         }
+        // 查询商户的渠道扫码报件状态
+        $scanReportStatus = $this->getMerchantReportStatus($dto->getMerchantNo());
         $url = $this->getUrl('/agent/changeMerchantFeeRate');
         $params = [];
         foreach (self::PARAMS_TRANS_TYPE_MAP as $transType) {
+            // 有些交易类型的费率修改的前提是渠道扫码报件成功
+            if (self::isYiLianScanType($transType) && !$scanReportStatus) {
+                // 跳过的渠道扫码交易类型，只能依靠扫码报件状态推送再来修改
+                continue;
+            }
             $item = [
                 'merchantNo' => $dto->getMerchantNo(),
                 // 交易类型
@@ -540,6 +573,20 @@ class YiLianPosPlatform extends PosStrategy
     private function isScanType(string $transType, string $channel): bool
     {
         return in_array($transType, $this->config['channel_list'][$channel]['trans_type_map']['scan']);
+    }
+
+    /**
+     * 移联扫码交易类型判断
+     * @param string $transType
+     * @return bool
+     */
+    private function isYiLianScanType(string $transType): bool
+    {
+        return in_array($transType, [
+            self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
+            self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
+            self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+        ]);
     }
 
     /**
