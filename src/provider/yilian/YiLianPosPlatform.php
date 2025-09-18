@@ -59,6 +59,7 @@ class YiLianPosPlatform extends PosStrategy
      * 不要调整顺序，微信扫码和银二大额必须间隔 5-6s 请求
      * 交易类型=支付方式分组
      * WX_SCAN，ZFB_SCAN，JSAPI 仅需要设置一种
+     * 25/9/18 移联反馈只有 POS_STANDARD，POS_VIP，CLOUD_QUICK_PASS 3 种交易类型不需要扫码报件
      */
     private const PARAMS_TRANS_TYPE_MAP = [
         // 微信扫码，主扫和被扫
@@ -599,6 +600,8 @@ class YiLianPosPlatform extends PosStrategy
             self::PARAMS_TRANS_TYPE_MAP['wx_scan'],
             self::PARAMS_TRANS_TYPE_MAP['yl_code_more'],
             self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
+            self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
+            self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
         ]);
     }
 

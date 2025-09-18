@@ -299,7 +299,7 @@ class YiLianPosPlatformTest extends TestCase
      */
     function testHandleCallbackOfMerchantRateSync()
     {
-        $content = '{"merchantNo":"M00000003882469", "reportStatus":"SUCCESS"}';
+        $content = 'data=e9euP4X4CjNWAhYLuhZFrrVN26hkG4GIPTEn0hN5VNnYTtNE4CCrPO5fQS6v809fNrCp5JYQF%2FPmelK0dTVpMJYRiQV0FuS1Wl1MXzQrNfNCwX5S1jOnhHZJ%2FSx31hLXetIrTtPZ%2Bf7n4YYTaq6yVEd%2BkzZsJ3k0EzLTCSvJbQV0sK60%2FFmzwSGJR6xsiY%2F5EGk%2BN%2BfowEAbFBK9LMLQT%2FZVTwzcIGIjLCNBquh8PQLqo9ViuXSEQBoONyLtdciOBuco8agiELDKoQ3u0a9S1qOE8MkCoj0Y9gWmLLRbhBHTPCgFSY3Si3HslTo9%2BqvJ7vCniH%2FWN1UlUhR7lVlZ7HmKXMyfF4hxZ2TKpXzArM8%3D';
         $callbackRequest = $this->posStrategy->handleCallbackOfMerchantRateSync($content);
         self::assertNotEmpty($callbackRequest);
         self::assertNotEmpty($callbackRequest->getMerchantNo());
