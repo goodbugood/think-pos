@@ -43,6 +43,11 @@ final class RoundingMode
      */
     public const FLOOR = 'FLOOR';
 
+    /**
+     * 不需要舍入，因为数值已经精确
+     */
+    public const UNNECESSARY = 'UNNECESSARY';
+
     /** 私有构造方法 */
     private function __construct()
     {
