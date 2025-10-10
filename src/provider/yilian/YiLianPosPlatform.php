@@ -226,6 +226,27 @@ class YiLianPosPlatform extends PosStrategy
     }
 
     /**
+     * 获取商户的渠道借记卡封顶值
+     */
+    private function getTopTransFee(string $merchantNo): Money
+    {
+        $url = $this->getUrl('/agent/merchantFeeRateList');
+        $params = ['merchantNo' => $merchantNo];
+        try {
+            $res = $this->post($url, $params);
+        } catch (ProviderGatewayException $e) {
+            $errorMsg = sprintf('pos服务商[%s]查询商户%s的渠道借记卡封顶值失败：%s', self::providerName(), $merchantNo, $e->getMessage());
+            throw new ProviderGatewayException($errorMsg);
+        }
+        foreach ($res as $item) {
+            if ('DEBIT' === $item['cardType']) {
+                return Money::valueOfYuan($item['topTransFee']);
+            }
+        }
+        return $dto->getDebitCardCappingValue();
+    }
+
+    /**
      * 设置机具押金
      * @param PosRequestDto $dto
      * @return PosProviderResponse
@@ -315,6 +336,7 @@ class YiLianPosPlatform extends PosStrategy
      */
     function setMerchantRate(MerchantRequestDto $dto): PosProviderResponse
     {
+        $debitTopTransFee = null;
         // 必备参数检查
         $dto->check();
         $deviceSn = $dto->getDeviceSn();
@@ -331,7 +353,6 @@ class YiLianPosPlatform extends PosStrategy
         }
         // 查询商户的渠道扫码报件状态
         $scanReportStatus = $this->getMerchantReportStatus($dto->getMerchantNo());
-        $url = $this->getUrl('/agent/changeMerchantFeeRate');
         $params = [];
         foreach (self::PARAMS_TRANS_TYPE_MAP as $transType) {
             // 有些交易类型的费率修改的前提是渠道扫码报件成功
@@ -356,6 +377,11 @@ class YiLianPosPlatform extends PosStrategy
                     // 检查是否区分银行卡类型来设置费率
                     $item['cardType'] = $useBankCardType ? $cardType : 'UNLIMIT';
                     if ($useBankCardType && self::PARAMS_CARD_TYPE_MAP['debit'] === $cardType) {
+                        if (is_null($debitTopTransFee)) {
+                            // 通过接口获取商户的借记卡封顶值
+                            $debitTopTransFee = $this->getTopTransFee($dto->getMerchantNo());
+                            $dto->setDebitCardCappingValue($debitTopTransFee);
+                        }
                         // 借记卡交易手续费封顶值
                         $item['topTransFee'] = $dto->getDebitCardCappingValue()->toYuan();
                         // 借记卡交易无提现手续费
@@ -386,9 +412,9 @@ class YiLianPosPlatform extends PosStrategy
             }
         }
         $errorMsgs = [];
+        $url = $this->getUrl('/agent/changeMerchantFeeRate');
         foreach ($params as $item) {
             try {
-                // todo shali [2025/6/27] 用户反馈设置商户费率存在多次调用，如果某次调用失败了，如何解决
                 $res = $this->post($url, $item);
                 if ('0' !== ($res['errorCount'] ?? '')) {
                     $errorMsgs[] = sprintf('修改 %s 费率失败;', $item['groupType']);
@@ -593,6 +619,7 @@ class YiLianPosPlatform extends PosStrategy
 
     /**
      * 移联扫码交易类型判断
+     * 扫码类型需要报件成功方可修改费率
      * @param string $transType
      * @return bool
      */
@@ -604,6 +631,7 @@ class YiLianPosPlatform extends PosStrategy
             self::PARAMS_TRANS_TYPE_MAP['yl_code_less'],
             self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_more'],
             self::PARAMS_TRANS_TYPE_MAP['yl_jsapi_less'],
+            self::PARAMS_TRANS_TYPE_MAP['jd_baitiao'],
         ]);
     }
 
