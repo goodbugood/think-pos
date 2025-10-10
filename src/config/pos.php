@@ -53,13 +53,14 @@ return [
                     'HLB',
                     'LDYS',
                 ],
-                // 移联渠道政策配置，为了方便识别政策使用的渠道，渠道对于的交易方式费率
+                // 移联渠道政策配置，为了方便识别政策使用的渠道，渠道对于的交易方式费率：移联的一个渠道下可能配置多个政策
                 'channel_list' => [
                     // 海科渠道
                     'HK' => [
                         // 海科渠道在用政策列表
                         'policy_list' => [
                             '海科买断版',
+                            '海科买断版01',
                         ],
                         'trans_type_map' => [
                             // 刷卡交易
@@ -67,6 +68,7 @@ return [
                                 'POS_STANDARD',
                                 'YL_CODE_MORE',
                                 'YL_JSAPI_MORE',
+                                'JD_BAR', // 京东白条 0.53 - 0.73 + 3元
                             ],
                             // 扫码交易
                             'scan' => [
@@ -88,6 +90,7 @@ return [
                                 'YL_CODE_MORE',
                                 'YL_JSAPI_MORE',
                                 'CLOUD_QUICK_PASS',// 费率 0.52-0.66
+                                'JD_BAR', // 京东白条 0.53 - 0.73 + 3元
                             ],
                             'scan' => [
                                 'WX_SCAN',
@@ -105,6 +108,7 @@ return [
                                 'POS_STANDARD',
                                 'YL_CODE_MORE',
                                 'YL_JSAPI_MORE',
+                                'JD_BAR', // 京东白条 0.53 - 0.73 + 3元
                             ],
                             'scan' => [
                                 'WX_SCAN',
@@ -123,6 +127,7 @@ return [
                                 'POS_STANDARD',
                                 'YL_CODE_MORE',
                                 'YL_JSAPI_MORE',
+                                'JD_BAR', // 京东白条 0.53 - 0.73 + 3元
                             ],
                             'scan' => [
                                 'WX_SCAN',
@@ -140,7 +145,8 @@ return [
                                 'POS_STANDARD',
                                 'YL_CODE_MORE',
                                 'YL_JSAPI_MORE',
-                                'CLOUD_QUICK_PASS',// 目前没有云闪付
+                                'CLOUD_QUICK_PASS',
+                                'JD_BAR', // 京东白条 0.53 - 0.73 + 3元
                             ],
                             'scan' => [
                                 'WX_SCAN',
@@ -158,7 +164,7 @@ return [
                                 'POS_STANDARD',
                                 'YL_CODE_MORE',
                                 'YL_JSAPI_MORE',
-                                'CLOUD_QUICK_PASS',// 费率 0.52-0.66
+                                'JD_BAR', // 京东白条 0.53 - 0.73 + 3元
                             ],
                             'scan' => [
                                 'WX_SCAN',

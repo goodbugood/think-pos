@@ -84,6 +84,8 @@ class YiLianPosPlatform extends PosStrategy
         // 'bar_code' => 'BAR_CODE',
         // 银联二维码大额
         'yl_code_more' => 'YL_CODE_MORE',
+        // 京东白条
+        'jd_baitiao' => 'JD_BAR',
     ];
 
     /**
