@@ -51,6 +51,7 @@ return [
                 // 区分银行卡种类，贷记卡和借记卡单独设置的渠道列表
                 'use_bankcard_type_channel_list' => [
                     'HLB',
+                    'LDYS',
                 ],
                 // 移联渠道政策配置，为了方便识别政策使用的渠道，渠道对于的交易方式费率
                 'channel_list' => [
@@ -133,6 +134,24 @@ return [
                     'YS' => [
                         'policy_list' => [
                             '银盛买断版',
+                        ],
+                        'trans_type_map' => [
+                            'card' => [
+                                'POS_STANDARD',
+                                'YL_CODE_MORE',
+                                'YL_JSAPI_MORE',
+                                'CLOUD_QUICK_PASS',// 目前没有云闪付
+                            ],
+                            'scan' => [
+                                'WX_SCAN',
+                                'YL_CODE_LESS',
+                                'YL_JSAPI_LESS',
+                            ],
+                        ],
+                    ],
+                    'LDYS' => [
+                        'policy_list' => [
+                            '联动买断版',
                         ],
                         'trans_type_map' => [
                             'card' => [
