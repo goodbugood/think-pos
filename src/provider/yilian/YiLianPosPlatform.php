@@ -228,7 +228,7 @@ class YiLianPosPlatform extends PosStrategy
     /**
      * 获取商户的渠道借记卡封顶值
      */
-    private function getTopTransFee(string $merchantNo): Money
+    private function getTopTransFee(string $merchantNo, Money $debitCardCappingValue): Money
     {
         $url = $this->getUrl('/agent/merchantFeeRateList');
         $params = ['merchantNo' => $merchantNo];
@@ -243,7 +243,7 @@ class YiLianPosPlatform extends PosStrategy
                 return Money::valueOfYuan($item['topTransFee']);
             }
         }
-        return $dto->getDebitCardCappingValue();
+        return $debitCardCappingValue;
     }
 
     /**
@@ -379,7 +379,7 @@ class YiLianPosPlatform extends PosStrategy
                     if ($useBankCardType && self::PARAMS_CARD_TYPE_MAP['debit'] === $cardType) {
                         if (is_null($debitTopTransFee)) {
                             // 通过接口获取商户的借记卡封顶值
-                            $debitTopTransFee = $this->getTopTransFee($dto->getMerchantNo());
+                            $debitTopTransFee = $this->getTopTransFee($dto->getMerchantNo(), $dto->getDebitCardCappingValue());
                             $dto->setDebitCardCappingValue($debitTopTransFee);
                         }
                         // 借记卡交易手续费封顶值
@@ -837,7 +837,8 @@ class YiLianPosPlatform extends PosStrategy
             // YL_CODE_MORE 和 YL_JSAPI_MORE 的提现费率使用扫码的提现费率，其他刷卡使用贷记卡的提现费率
             return $this->getScanWithdrawRate($transType);
         }
-        $withdrawRate = $withdrawFee->toYuan();
+        // todo shali [2025/10/11] 京东白条的提现费率应该提取到配置文件中配置，按交易类型配置
+        $withdrawRate = self::PARAMS_TRANS_TYPE_MAP['jd_baitiao'] === $transType ? '3' : $withdrawFee->toYuan();
         $scale = 'PERCENT' === $this->getBankCardWithdrawRateUnit($transType) ? 2 : 0;
         return Rate::valueOfPercentage($withdrawRate)->toPercentage($scale);
     }
