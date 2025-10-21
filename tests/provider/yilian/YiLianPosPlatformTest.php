@@ -96,13 +96,13 @@ class YiLianPosPlatformTest extends TestCase
      * @uses YiLianPosPlatform::canModifyRateOfMerchant
      * @uses YiLianPosPlatform::getScanChannelReportStatusList
      */
-    function canModifyRateOfMerchant()
+    function canModifyScanRateOfMerchant()
     {
         $merchantNo = env('yilian.merchantNo');
         self::assertNotEmpty($merchantNo);
         $scanChannelReportStatusList = $this->posStrategy->getScanChannelReportStatusList($merchantNo);
         // 反射测试
-        $reflectionMethod = $this->reflectionPosStrategy->getMethod('canModifyRateOfMerchant');
+        $reflectionMethod = $this->reflectionPosStrategy->getMethod('canModifyScanRateOfMerchant');
         $reflectionMethod->setAccessible(true);
         $res = $reflectionMethod->invoke($this->posStrategy, $scanChannelReportStatusList);
         self::assertTrue($res);

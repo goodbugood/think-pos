@@ -235,7 +235,7 @@ class YiLianPosPlatform extends PosStrategy
      * @param array $scanChannelReportStatusList
      * @return bool
      */
-    private static function canModifyRateOfMerchant(array $scanChannelReportStatusList): bool
+    private static function canModifyScanRateOfMerchant(array $scanChannelReportStatusList): bool
     {
         foreach ($scanChannelReportStatusList as $channel) {
             if ('SUCCESS' === $channel['reportStatus']) {
@@ -254,7 +254,7 @@ class YiLianPosPlatform extends PosStrategy
     private function getMerchantReportStatus(string $merchantNo): bool
     {
         $res = $this->getScanChannelReportStatusList($merchantNo);
-        return self::canModifyRateOfMerchant($res);
+        return self::canModifyScanRateOfMerchant($res);
     }
 
     /**
