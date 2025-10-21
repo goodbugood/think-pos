@@ -38,6 +38,11 @@ class YiLianPosPlatformTest extends TestCase
      */
     private $posStrategy;
 
+    /**
+     * @var ReflectionClass
+     */
+    private $reflectionPosStrategy;
+
     private const AGENT_NO = '8140122446';
 
     /**
@@ -56,6 +61,7 @@ class YiLianPosPlatformTest extends TestCase
         $this->posStrategy = PosStrategyFactory::create('yilian');
         // 反射修改公私钥
         $reflection = new ReflectionClass($this->posStrategy);
+        $this->reflectionPosStrategy = $reflection;
         $reflectionProperty = $reflection->getProperty('config');
         $reflectionProperty->setAccessible(true);
         $posProviderConfig = $reflectionProperty->getValue($this->posStrategy);
@@ -82,6 +88,43 @@ class YiLianPosPlatformTest extends TestCase
         self::assertTrue($response->isSuccess(), $response->getErrorMsg() ?? '');
         $decrypted = '{"merchantNo":"","minIntervalDays":"","maxIntervalDays":"","minTransAmount":"","maxTransAmount":"","minVasRate":"","maxVasRate":"","minFreeDays":"","maxFreeDays":"","freeDays":"","effectiveTimeStart":"","effectiveTimeEnd":"","transTime":"","activityTime":"","merchantFlowList":[]}';
         self::assertEquals($decrypted, $response->getBody());
+    }
+
+    /**
+     * @test 测试
+     * @return void
+     * @uses YiLianPosPlatform::canModifyRateOfMerchant
+     * @uses YiLianPosPlatform::getScanChannelReportStatusList
+     */
+    function canModifyRateOfMerchant()
+    {
+        $merchantNo = env('yilian.merchantNo');
+        self::assertNotEmpty($merchantNo);
+        $scanChannelReportStatusList = $this->posStrategy->getScanChannelReportStatusList($merchantNo);
+        // 反射测试
+        $reflectionMethod = $this->reflectionPosStrategy->getMethod('canModifyRateOfMerchant');
+        $reflectionMethod->setAccessible(true);
+        $res = $reflectionMethod->invoke($this->posStrategy, $scanChannelReportStatusList);
+        self::assertTrue($res);
+    }
+
+    /**
+     * @test 测试扫码渠道是否只有盛付通
+     * @return void
+     * @throws ReflectionException
+     * @uses YiLianPosPlatform::onlySFTChannel
+     * @uses YiLianPosPlatform::getScanChannelReportStatusList
+     */
+    function onlySFTChannel()
+    {
+        $merchantNo = env('yilian.merchantNo');
+        self::assertNotEmpty($merchantNo);
+        $scanChannelReportStatusList = $this->posStrategy->getScanChannelReportStatusList($merchantNo);
+        // 反射测试
+        $reflectionMethod = $this->reflectionPosStrategy->getMethod('onlySFTChannel');
+        $reflectionMethod->setAccessible(true);
+        $res = $reflectionMethod->invoke($this->posStrategy, $scanChannelReportStatusList);
+        self::assertTrue($res);
     }
 
     /**

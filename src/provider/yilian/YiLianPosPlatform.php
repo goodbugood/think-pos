@@ -182,6 +182,7 @@ class YiLianPosPlatform extends PosStrategy
         return $this->setPosDeposit($dto);
     }
 
+    //<editor-fold desc="被依赖的子接口">
     /**
      * @return array [{"channelName":"海科支付","channelCode":"HK"},{"channelName":"合利宝","channelCode":"HLB"},{"channelName":"银盛","channelCode":"YS"},{"channelName":"中付","channelCode":"ZF"}]
      * @throws ProviderGatewayException
@@ -200,6 +201,51 @@ class YiLianPosPlatform extends PosStrategy
     }
 
     /**
+     * 扫码报件状态查询
+     * @param string $merchantNo
+     * @return array [{"merchantAbbrName":"格青衣物清洗店","acqNo":"10016","reportStatus":"SUCCESS","needSign":"0","channelCode":"ZF_YK"},{"merchantAbbrName":"咏绿休闲饮品店","acqNo":"10017","reportStatus":"SUCCESS","needSign":"1","channelCode":"LKL_SCAN"},{"merchantAbbrName":"银言鞋服综合店","acqNo":"10015","reportStatus":"SUCCESS","needSign":"0","channelCode":"YS_SCAN"}]
+     */
+    public function getScanChannelReportStatusList(string $merchantNo): array
+    {
+        $url = $this->getUrl('/merchant/scanReportStatusQuery');
+        $params = ['merchantNo' => $merchantNo];
+        try {
+            $res = $this->post($url, $params);
+        } catch (ProviderGatewayException $e) {
+            $errorMsg = sprintf('pos服务商[%s]查询商户%s的渠道扫码报件状态失败：%s', self::providerName(), $merchantNo, $e->getMessage());
+            throw new ProviderGatewayException($errorMsg);
+        }
+        return $res;
+    }
+    //</editor-fold>
+
+    /**
+     * 判断扫码报件状态列表是否只有盛付通一个渠道
+     * @param array $scanChannelReportStatusList
+     * @return bool
+     */
+    private static function onlySFTChannel(array $scanChannelReportStatusList): bool
+    {
+        return count($scanChannelReportStatusList) === 1 && 'SFT_SCAN' === $scanChannelReportStatusList[0]['channelCode'];
+    }
+
+    /**
+     * 判断商户的渠道扫码报件状态是否 ok，有一个扫码渠道 ok 就可以修改商户扫码费率
+     * 25/9/16 移联反馈多渠道商户，如果有一个扫码渠道报件成功，就可以修改扫码支付方式的费率
+     * @param array $scanChannelReportStatusList
+     * @return bool
+     */
+    private static function canModifyRateOfMerchant(array $scanChannelReportStatusList): bool
+    {
+        foreach ($scanChannelReportStatusList as $channel) {
+            if ('SUCCESS' === $channel['reportStatus']) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 获取商户的渠道扫码报件状态
      * @param string $merchantNo
      * @return bool 返回商户扫码报件成功状态，多渠道商户有一个渠道扫码报件成功即返回成功
@@ -207,22 +253,8 @@ class YiLianPosPlatform extends PosStrategy
      */
     private function getMerchantReportStatus(string $merchantNo): bool
     {
-        $url = $this->getUrl('/merchant/scanReportStatusQuery');
-        $params = ['merchantNo' => $merchantNo];
-        try {
-            // [{"merchantAbbrName":"格青衣物清洗店","acqNo":"10016","reportStatus":"SUCCESS","needSign":"0","channelCode":"ZF_YK"},{"merchantAbbrName":"咏绿休闲饮品店","acqNo":"10017","reportStatus":"SUCCESS","needSign":"1","channelCode":"LKL_SCAN"},{"merchantAbbrName":"银言鞋服综合店","acqNo":"10015","reportStatus":"SUCCESS","needSign":"0","channelCode":"YS_SCAN"}]
-            $res = $this->post($url, $params);
-        } catch (ProviderGatewayException $e) {
-            $errorMsg = sprintf('pos服务商[%s]查询商户%s的渠道扫码报件状态失败：%s', self::providerName(), $merchantNo, $e->getMessage());
-            throw new ProviderGatewayException($errorMsg);
-        }
-        // 25/9/16 移联反馈多渠道商户，如果有一个扫码渠道报件成功，就可以修改扫码支付方式的费率
-        foreach ($res as $item) {
-            if ('SUCCESS' === $item['reportStatus']) {
-                return true;
-            }
-        }
-        return false;
+        $res = $this->getScanChannelReportStatusList($merchantNo);
+        return self::canModifyRateOfMerchant($res);
     }
 
     /**
