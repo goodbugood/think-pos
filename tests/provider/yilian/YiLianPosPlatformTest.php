@@ -93,7 +93,7 @@ class YiLianPosPlatformTest extends TestCase
     /**
      * @test 测试
      * @return void
-     * @uses YiLianPosPlatform::canModifyRateOfMerchant
+     * @uses YiLianPosPlatform::canModifyScanRateOfMerchant
      * @uses YiLianPosPlatform::getScanChannelReportStatusList
      */
     function canModifyScanRateOfMerchant()

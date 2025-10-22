@@ -220,6 +220,22 @@ class YiLianPosPlatform extends PosStrategy
     //</editor-fold>
 
     /**
+     * 获取可修改商户费率的交易类型列表
+     * @param array $scanChannelReportStatusList 扫码报件状态
+     * @return string[]
+     */
+    private static function getTransTypeListOfCanModifyMerchantRate(array $scanChannelReportStatusList): array
+    {
+        if (true === self::onlySFTChannel($scanChannelReportStatusList)) {
+            // 盛付通扫码渠道，只能修改刷卡费率
+            return [
+                self::PARAMS_TRANS_TYPE_MAP['pos_standard'],
+            ];
+        }
+        return self::PARAMS_TRANS_TYPE_MAP;
+    }
+
+    /**
      * 判断扫码报件状态列表是否只有盛付通一个渠道
      * @param array $scanChannelReportStatusList
      * @return bool
@@ -243,18 +259,6 @@ class YiLianPosPlatform extends PosStrategy
             }
         }
         return false;
-    }
-
-    /**
-     * 获取商户的渠道扫码报件状态
-     * @param string $merchantNo
-     * @return bool 返回商户扫码报件成功状态，多渠道商户有一个渠道扫码报件成功即返回成功
-     * @throws ProviderGatewayException
-     */
-    private function getMerchantReportStatus(string $merchantNo): bool
-    {
-        $res = $this->getScanChannelReportStatusList($merchantNo);
-        return self::canModifyScanRateOfMerchant($res);
     }
 
     /**
@@ -384,9 +388,11 @@ class YiLianPosPlatform extends PosStrategy
             throw new ProviderGatewayException(sprintf('pos服务商[%s]暂不支持对商户 %s 的 %s 渠道设置商户费率，请配置', self::providerName(), $dto->getMerchantNo(), $channelCode));
         }
         // 查询商户的渠道扫码报件状态
-        $scanReportStatus = $this->getMerchantReportStatus($dto->getMerchantNo());
+        $scanChannelReportStatusList = $this->getScanChannelReportStatusList($dto->getMerchantNo());
+        $scanReportStatus = self::canModifyScanRateOfMerchant($scanChannelReportStatusList);
+        $transTypeListOfCanModifyMerchantRate = self::getTransTypeListOfCanModifyMerchantRate($scanChannelReportStatusList);
         $params = [];
-        foreach (self::PARAMS_TRANS_TYPE_MAP as $transType) {
+        foreach ($transTypeListOfCanModifyMerchantRate as $transType) {
             // 有些交易类型的费率修改的前提是渠道扫码报件成功
             if (self::isYiLianScanType($transType) && !$scanReportStatus) {
                 // 跳过的渠道扫码交易类型，只能依靠扫码报件状态推送再来修改
@@ -651,7 +657,7 @@ class YiLianPosPlatform extends PosStrategy
 
     /**
      * 移联扫码交易类型判断
-     * 扫码类型需要报件成功方可修改费率
+     * 这些交易类型需要扫码报件成功方可修改费率
      * @param string $transType
      * @return bool
      */
